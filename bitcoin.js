@@ -181,7 +181,7 @@ function BitcoinApp() {
 	this.onSendBTC = function() {
 		setFormValue($('form#sendBTC'), "address", "");
 		setFormValue($('form#sendBTC'), "amount", "");
-		notify("Bitcoins sent!");
+		app.notify("Bitcoins sent!");
 		app.refreshAccount();
 	};
 

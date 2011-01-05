@@ -65,6 +65,10 @@ table tr.odd {
 	font-size: 12pt;
 }
 
+.left {
+	text-align: left;
+}
+
 .right {
 	text-align: right;
 }

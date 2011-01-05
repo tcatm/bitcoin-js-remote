@@ -34,7 +34,7 @@ function Bitcoin(app, host, port, user, pass) {
 
 		if(params != null) {
 			for(var key in params) {
-				params[key] = '"' + params[key] + '"';
+				params[key] = params[key];
 			}
 			request = {method: method, params: params};
 		} else {
@@ -47,11 +47,11 @@ function Bitcoin(app, host, port, user, pass) {
 	}
 
 	this.listTransactions = function(account) {
-		this.RPC("listtransactions", [account], this.app.onListTransactions);
+		this.RPC("listtransactions", ['"' + account + '"', 999999], this.app.onListTransactions);
 	}
 
 	this.getBalance = function(account) {
-		this.RPC("getbalance", [account], this.app.onGetBalance);
+		this.RPC("getbalance", ['"' + account + '"'], this.app.onGetBalance);
 	}
 
 	this.getInfo = function() {
@@ -145,22 +145,31 @@ function BitcoinApp() {
 	this.onListTransactions = function(transactions) {
 		transactions.sort(sortTransactions);
 
-		var txlist = $('#txlist');
+		app.clearTransactions();
 
-		txlist.children().remove();
+		var txlistContainer = $('#txlist');
 
-		for (var key in transactions) {
+		if(txlistContainer.children('tbody').length == 0) 
+			txlistContainer.append('<tbody />');
+
+		var txlist = txlistContainer.children('tbody');
+
+
+		for (var key in transactions) 
 			app.addTransaction(txlist, transactions[key]);
-		}
-		$('#serverInfo tr:odd').addClass('odd');
+	}
+
+	this.clearTransactions = function() {
+		$('#txlist tbody').children().remove();
 	}
 
 	this.addTransaction = function(txlist, tx) {
-		var rowClass = "";
-		var confirmations = tx.confirmations;
+
+		var rowClass = tx.confirmations==0?' class="unconfirmed"':'';
+		var confirmations = tx.confirmations<10?tx.confirmations:'&#x2713;';
 		var timestamp = tx.time;
 		var info = tx.category;
-		var html = '<tr' + rowClass + '><td class="center">' + confirmations + '</td><td>' + timestamp + '</td><td>' + info + '<td><td class="' + (tx.amount<0?'debit':'credit') + ' right">' + formatBTC(tx.amount, true) + '</td></tr>';
+		var html = '<tr' + rowClass + '><td class="center">' + confirmations + '</td><td>' + timestamp + '</td><td>' + info + '</td><td class="' + (tx.amount<0?'debit':'credit') + ' right">' + formatBTC(tx.amount, true) + '</td></tr>';
 
 		txlist.append(html);
 	}
@@ -182,7 +191,8 @@ function BitcoinApp() {
 		$('#title').text("Bitcoin (not connected)");
 		$('#accountInfo').slideUp('fast');
 		$('#serverInfo').children().remove();
-		$('#txlist').children().remove();
+		this.clearTransactions();
+
 		this.bitcoin = new Bitcoin(this, host, port, user, pass);
 		this.bitcoin.connect();
 	}

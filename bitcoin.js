@@ -357,8 +357,6 @@ function BitcoinApp() {
 			this.onDisconnect();
 		}
 
-		var hostname = window.location.hostname;
-
 		$('#disconnectButton').click( function() {
 					app.onDisconnect();
 					return false;

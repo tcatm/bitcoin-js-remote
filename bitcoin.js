@@ -79,21 +79,6 @@ function Bitcoin(app, host, port, user, pass) {
 	}
 }
 
-function formatBTC(btc, addSign) {
-	var nf = new NumberFormat(btc);
-	nf.setPlaces(2);
-	nf.setCurrency(true);
-	nf.setCurrencyValue(" BTC");
-	nf.setCurrencyPosition(nf.RIGHT_OUTSIDE);
-
-	var s = nf.toFormatted();
-
-	if(addSign && btc > 0) 
-		s = "+" + s;
-
-	return s;
-}
-
 function setFormValue(form, name, value) {
 	var obj = $(form).children('input[name="' + name + '"]');
 	obj.val(value);
@@ -147,7 +132,7 @@ function BitcoinApp() {
 	this.dateFormat = "dd/mm/yyyy HH:MM";
 
 	this.onGetBalance = function(balance) {
-		$('#balance').text(formatBTC(balance));
+		$('#balance').text(balance.formatBTC());
 		app.balance = balance;
 	}
 
@@ -264,7 +249,7 @@ function BitcoinApp() {
 		timestamp.setTime (tx.time * 1000);
 
 		var info = tx.category.capitalize();
-		var html = '<tr' + rowClass + '><td class="center">' + confirmations + '</td><td>' + timestamp.format(this.dateFormat) + '</td><td>' + info + '</td><td class="' + (tx.amount<0?'debit':'credit') + ' right">' + formatBTC(tx.amount, true) + '</td></tr>';
+		var html = '<tr' + rowClass + '><td class="center">' + confirmations + '</td><td>' + timestamp.format(this.dateFormat) + '</td><td>' + info + '</td><td class="' + (tx.amount<0?'debit':'credit') + ' right">' + tx.amount.formatBTC(true) + '</td></tr>';
 
 		txlist.append(html);
 	}
@@ -326,7 +311,7 @@ function BitcoinApp() {
 		}
 
 		amount = Math.round(amount*100)/100;
-		var confString = "Send " + formatBTC(amount) + " to " + address + "?";
+		var confString = "Send " + amount.formatBTC() + " to " + address + "?";
 
 		if(confirm(confString)) {
 			app.bitcoin.sendBTC(this.account, '"' + address + '"', amount);
@@ -351,6 +336,21 @@ function BitcoinApp() {
 
 		String.prototype.capitalize = function() {
 			    return this.charAt(0).toUpperCase() + this.slice(1);
+		}
+
+		Number.prototype.formatBTC = function(addSign) {
+			var nf = new NumberFormat(this);
+			nf.setPlaces(2);
+			nf.setCurrency(true);
+			nf.setCurrencyValue(" BTC");
+			nf.setCurrencyPosition(nf.RIGHT_OUTSIDE);
+
+			var s = nf.toFormatted();
+
+			if(addSign && this > 0)
+				s = "+" + s;
+
+			return s;
 		}
 
 		var hostname = window.location.hostname;

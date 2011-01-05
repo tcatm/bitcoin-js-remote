@@ -115,6 +115,8 @@ div.humanized-message{
 }
 
 #disconnectButton {
-	float: right;
+	position: absolute;
+	top: 8pt;
+	right: 5pt;
 	color: red;
 }

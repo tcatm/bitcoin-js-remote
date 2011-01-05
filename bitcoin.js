@@ -50,6 +50,10 @@ function Bitcoin(app, host, port, user, pass) {
 		this.RPC("listtransactions", ['"' + account + '"', 999999], this.app.onListTransactions);
 	}
 
+	this.sendBTC = function(account, address, amount) {
+		this.RPC("sendfrom", ['"' + account + '"', address, amount], this.app.onSendBTC);
+	}
+
 	this.getBalance = function(account) {
 		this.RPC("getbalance", ['"' + account + '"'], this.app.onGetBalance);
 	}
@@ -91,6 +95,10 @@ function formatBTC(btc, addSign) {
 	return s;
 }
 
+function setFormValue(form, name, value) {
+	$(form).children('input[name="' + name + '"]').attr('value', value);
+}
+
 function getFormValue(form, name) {
 	return $(form).children('input[name="' + name + '"]').attr('value');
 }
@@ -110,6 +118,7 @@ function sortTransactions(a, b) {
 function BitcoinApp() {
 	this.bitcoin = false;
 	this.account = "";
+	this.connected = false;
 
 	this.onGetBalance = function(balance) {
 		$('#balance').text(formatBTC(balance));
@@ -117,6 +126,8 @@ function BitcoinApp() {
 
 	this.onConnect = function(info) {
 		if(info.version) {
+			app.connected = true;
+
 			$('#section_Settings').next().slideUp('fast');
 			$('#accountInfo').slideDown('fast');
 			app.onGetInfo(info);
@@ -141,6 +152,13 @@ function BitcoinApp() {
 		}
 		$('#serverInfo tr:odd').addClass('odd');
 	}
+
+	this.onSendBTC = function() {
+		setFormValue($('form#sendBTC'), "address", "");
+		setFormValue($('form#sendBTC'), "amount", "");
+		alert("Bitcoins sent!");
+		app.refreshAccount();
+	};
 
 	this.onListTransactions = function(transactions) {
 		transactions.sort(sortTransactions);
@@ -188,6 +206,8 @@ function BitcoinApp() {
 	};
 
 	this.connect = function(host, port, user, pass) {
+		this.connected = false;
+
 		$('#title').text("Bitcoin (not connected)");
 		$('#accountInfo').slideUp('fast');
 		$('#serverInfo').children().remove();
@@ -195,6 +215,20 @@ function BitcoinApp() {
 
 		this.bitcoin = new Bitcoin(this, host, port, user, pass);
 		this.bitcoin.connect();
+	}
+
+	this.sendBTC = function(address, amount) {
+		if(!this.connected) {
+			alert("Not connected!");
+			return false;
+		}
+
+		amount = Math.round(amount*100)/100;
+		var confString = "Send " + formatBTC(amount) + " to " + address + "?";
+
+		if(confirm(confString)) {
+			app.bitcoin.sendBTC(this.account, address, amount);
+		}
 	}
 
 	this.init = function() {
@@ -207,12 +241,25 @@ function BitcoinApp() {
 			$('#title').text("Bitcoin (not connected)");
 		}
 
+		var hostname = window.location.hostname;
+
+		if(hostname)
+			setFormValue($('form#settingsServer'), "host", hostname);
+
 		$('form#settingsServer').submit( function() {
 					var host = getFormValue(this, "host");
 					var port = getFormValue(this, "port");
 					var user = getFormValue(this, "user");
 					var pass = getFormValue(this, "pass");
 					app.connect(host, port, user, pass);
+					return false;
+				});
+
+		$('form#sendBTC').submit( function() {
+					var address = getFormValue(this, "address");
+					var amount = getFormValue(this, "amount");
+
+					app.sendBTC(address, amount);
 					return false;
 				});
 	};

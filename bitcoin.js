@@ -54,6 +54,10 @@ function Bitcoin(app, host, port, user, pass) {
 		this.RPC("sendfrom", ['"' + account + '"', address, amount], this.app.onSendBTC);
 	}
 
+	this.getAddress = function(account) {
+		this.RPC("getaccountaddress", ['"' + account + '"'], this.app.onGetAddress);
+	}
+
 	this.getBalance = function(account) {
 		this.RPC("getbalance", ['"' + account + '"'], this.app.onGetBalance);
 	}
@@ -119,17 +123,24 @@ function BitcoinApp() {
 	this.bitcoin = false;
 	this.account = "";
 	this.connected = false;
+	this.refreshTimeout = false;
 
 	this.onGetBalance = function(balance) {
 		$('#balance').text(formatBTC(balance));
 	}
 
+	this.onGetAddress = function(address) {
+		var addressField = $('#address');
+		if(addressField.text() != address)
+			$('#address').text(address);
+	}
+
 	this.onConnect = function(info) {
 		if(info.version) {
-			app.onGetInfo(info);
+			app.connected = true;
+
 			app.refreshAccount();
 
-			app.connected = true;
 			$('#section_Settings').next().slideUp('fast');
 			$('#accountInfo').slideDown('fast');
 			$('#section_SendBTC').show();
@@ -209,8 +220,22 @@ function BitcoinApp() {
 	}
 
 	this.refreshAccount = function() {
+		clearTimeout(this.refreshTimeout);
+
+		if(!this.connected) {
+			return;
+		}
+
+		this.refreshServerInfo();
 		this.refreshBalance();
 		this.refreshTransactions();
+		this.refreshAddress();
+
+		this.refreshTimeout = setTimeout("app.refreshAccount();", 1000);
+	};
+
+	this.refreshServerInfo = function() {
+		this.bitcoin.getInfo();
 	};
 
 	this.refreshTransactions = function() {
@@ -219,6 +244,10 @@ function BitcoinApp() {
 
 	this.refreshBalance = function() {
 		this.bitcoin.getBalance(this.account);
+	};
+
+	this.refreshAddress = function() {
+		this.bitcoin.getAddress(this.account);
 	};
 
 	this.connect = function(host, port, user, pass) {

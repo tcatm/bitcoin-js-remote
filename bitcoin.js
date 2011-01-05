@@ -318,22 +318,7 @@ function BitcoinApp() {
 		}
 	}
 
-	this.init = function() {
-		if(!this.connected) {
-			$('#accountInfo').hide();
-
-			$.getJSON('settings.json', function(data) {
-						if(data) {
-							var form = $('form#settingsServer');
-							setFormValue(form, "host", data.host);
-							setFormValue(form, "port", data.port);
-							setFormValue(form, "user", data.user);
-							setFormValue(form, "pass", data.pass);
-						}
-					});
-			this.onDisconnect();
-		}
-
+	this.addPrototypes = function() {
 		String.prototype.capitalize = function() {
 			    return this.charAt(0).toUpperCase() + this.slice(1);
 		}
@@ -351,6 +336,25 @@ function BitcoinApp() {
 				s = "+" + s;
 
 			return s;
+		}
+	}
+
+	this.init = function() {
+		this.addPrototypes();
+
+		if(!this.connected) {
+			$('#accountInfo').hide();
+
+			$.getJSON('settings.json', function(data) {
+						if(data) {
+							var form = $('form#settingsServer');
+							setFormValue(form, "host", data.host);
+							setFormValue(form, "port", data.port);
+							setFormValue(form, "user", data.user);
+							setFormValue(form, "pass", data.pass);
+						}
+					});
+			this.onDisconnect();
 		}
 
 		var hostname = window.location.hostname;

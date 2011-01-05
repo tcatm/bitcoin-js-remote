@@ -42,7 +42,7 @@ function Bitcoin(app, host, port, user, pass) {
 		}
 
 		jQuery.getJSON(this.RPCURL, request, function(data) {
-					callback(data.result);
+					callback(data.result, data.error);
 				});
 	}
 
@@ -178,10 +178,14 @@ function BitcoinApp() {
 		$('#serverInfo').show();
 	}
 
-	this.onSendBTC = function() {
+	this.onSendBTC = function(result, error) {
+		if(error != null) {
+			app.error(error.message);
+			return;
+		}
 		setFormValue($('form#sendBTC'), "address", "");
 		setFormValue($('form#sendBTC'), "amount", "");
-		app.notify("Bitcoins sent!");
+		app.notify("Bitcoins sent");
 		app.refreshAccount();
 	};
 

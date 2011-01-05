@@ -279,7 +279,7 @@ function BitcoinApp() {
 		}
 
 		if(address === "") {
-			return this.error("No address given");
+			return this.error("Invalid bitcoin address");
 		}
 
 		amount = Math.round(amount*100)/100;

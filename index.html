@@ -1,0 +1,63 @@
+<html> 
+	<head> 
+		<title>Bitcoin</title>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" href="style.css" type="text/css" /> 
+		<script type="text/javascript" src="jquery-1.4.4.min.js"></script>
+		<script type="text/javascript" src="NumberFormat154.js"></script>
+		<script type="text/javascript" src="bitcoin.js"></script>
+	</head> 
+	<body>
+		<h1 id="title">Javascript required!</h1>
+		<div id="sections">
+			<div class="section">
+				<table>
+					<tr class="big"><td><label>Balance</label></td><td class="right"><span id="balance"></span></td></tr>
+				</table>
+			</div>
+			<h3 id="section_Settings">Settings / Server Information</h3>
+			<div class="section">
+				<form id="settingsServer">
+					Host <input name="host" value="localhost"/><br/>
+					Port <input name="port" value="8332"/><br/>
+					User <input name="user" /><br/>
+					Pass <input name="pass" type="password"/><br/>
+		            <button>Connect</button>  
+				</form>
+			</div>
+			<h3 id="section_SendBTC">Send bitcoins</h3>
+			<div class="section">
+				Todo...
+			</div>
+			<h3 id="section_TX">Transactions</h3>
+			<div class="section">
+				<table id="txlist">
+					<tr class="unconfirmed"><td class="center">0</td><td>09.04.2130 12:07</td><td>13wh50...<td><td class="credit right">+10&thinsp;499&thinsp;900.00 BTC</td></tr>
+					<tr><td class="center">4</td><td>09.04.2130 11:34</td><td>13wh50...<td><td class="credit right">+10&thinsp;499&thinsp;900.00 BTC</td></tr>
+					<tr><td class="center">&#x2713;</td><td>17.12.2129 2:44</td><td>donation<td><td class="debit right">-300.00 BTC</td></tr>
+					<tr><td class="center">&#x2713;</td><td>10.07.2104 23:59</td><td>13wh50...<td><td class="credit right">+500.00 BTC</td></tr>
+				</table>
+			</div>
+		</div>
+
+		<script type="text/javascript">
+			var app;
+
+			$(document).ready(function(){
+					app = new BitcoinApp();
+
+					$('#sections h3').click(function() {
+						$(this).next().slideToggle(200);
+						return false;
+						}).next().hide();
+
+					var openSections = new Array("#section_TX", "#section_Settings");
+
+					for (key in openSections) {
+						$(openSections[key]).next().show();
+					}
+
+					});
+		</script>
+	</body>
+</html>

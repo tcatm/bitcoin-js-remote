@@ -120,3 +120,17 @@ div.humanized-message{
 	right: 5pt;
 	color: red;
 }
+
+form label {
+	display: inline-block;
+	text-align: right;
+	width: 5em;
+	padding: 0.3em 3pt;
+	margin-right: 1em;
+}
+
+form input {
+	border: 1px solid #ddd;
+	margin: 0.3em 0;
+	padding: 0.5em;
+}

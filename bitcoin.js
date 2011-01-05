@@ -108,7 +108,7 @@ function getFormValue(form, name) {
 }
 
 function sortTransactions(a, b) {
-	return (b.time - a.time);
+	return (a.time - b.time);
 }
 
 /* Because of the way JSONP works this codes assumes a global 
@@ -186,6 +186,10 @@ function BitcoinApp() {
 	};
 
 	this.onListTransactions = function(transactions) {
+		for (var key in transactions) 
+			if (transactions[key].time == undefined)
+				transactions[key].time = 0;
+
 		transactions.sort(sortTransactions);
 
 		app.clearTransactions();

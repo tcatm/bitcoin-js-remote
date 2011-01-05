@@ -96,11 +96,11 @@ function formatBTC(btc, addSign) {
 }
 
 function setFormValue(form, name, value) {
-	$(form).children('input[name="' + name + '"]').attr('value', value);
+	$(form).children('input[name="' + name + '"]').val(value);
 }
 
 function getFormValue(form, name) {
-	return $(form).children('input[name="' + name + '"]').attr('value');
+	return $(form).children('input[name="' + name + '"]').val();
 }
 
 function sortTransactions(a, b) {

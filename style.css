@@ -86,7 +86,7 @@ table tr.odd {
 }
 
 tr.unconfirmed {
-	color: #888;
+	opacity: 0.4;
 }
 
 .credit {

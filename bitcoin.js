@@ -33,6 +33,9 @@ function Bitcoin(app, host, port, user, pass) {
 		var request;
 
 		if(params != null) {
+			for(var key in params) {
+				params[key] = '"' + params[key] + '"';
+			}
 			request = {method: method, params: params};
 		} else {
 			request = {method: method};
@@ -43,8 +46,12 @@ function Bitcoin(app, host, port, user, pass) {
 				});
 	}
 
+	this.listTransactions = function(account) {
+		this.RPC("listtransactions", [account], this.app.onGetBalance);
+	}
+
 	this.getBalance = function(account) {
-		this.RPC("getbalance", {account: account}, this.app.onGetBalance);
+		this.RPC("getbalance", [account], this.app.onGetBalance);
 	}
 
 	this.getInfo = function() {

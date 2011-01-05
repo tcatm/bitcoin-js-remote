@@ -109,7 +109,13 @@ function getFormValue(form, name) {
 }
 
 function sortTransactions(a, b) {
-	return (b.time - a.time);
+	if(b.time != a.time) 
+		return (b.time - a.time);
+
+	if(b.category != a.category)
+		return (a.category < b.category) ? -1 : 1;
+
+	return (a.amount - b.amount);
 }
 
 /* Because of the way JSONP works this codes assumes a global 

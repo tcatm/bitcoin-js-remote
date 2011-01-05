@@ -175,6 +175,8 @@ function BitcoinApp() {
 
 		for (var key in transactions) 
 			app.addTransaction(txlist, transactions[key]);
+
+		$('#txlist tbody tr:odd').addClass('odd');
 	}
 
 	this.clearTransactions = function() {

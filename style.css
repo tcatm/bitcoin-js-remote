@@ -57,6 +57,10 @@ table td {
 	padding: 0.3em 3pt;
 }
 
+table th {
+	padding: 0.3em 3pt;
+}
+
 table tr {
 	margin: 0;
 }

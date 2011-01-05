@@ -229,7 +229,7 @@ function BitcoinApp() {
 		var timestamp = new Date();
 		timestamp.setTime (tx.time * 1000);
 
-		var info = tx.category;
+		var info = tx.category.capitalize();
 		var html = '<tr' + rowClass + '><td class="center">' + confirmations + '</td><td>' + timestamp.format(this.dateFormat) + '</td><td>' + info + '</td><td class="' + (tx.amount<0?'debit':'credit') + ' right">' + formatBTC(tx.amount, true) + '</td></tr>';
 
 		txlist.append(html);

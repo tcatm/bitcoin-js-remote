@@ -126,6 +126,7 @@ function BitcoinApp() {
 	this.account = "";
 	this.connected = false;
 	this.refreshTimeout = false;
+	this.dateFormat = "dd/mm/yyyy HH:MM";
 
 	this.onGetBalance = function(balance) {
 		$('#balance').text(formatBTC(balance));
@@ -222,12 +223,14 @@ function BitcoinApp() {
 	}
 
 	this.addTransaction = function(txlist, tx) {
-
 		var rowClass = tx.confirmations==0?' class="unconfirmed"':'';
 		var confirmations = tx.confirmations<10?tx.confirmations:'&#x2713;';
-		var timestamp = tx.time;
+
+		var timestamp = new Date();
+		timestamp.setTime (tx.time * 1000);
+
 		var info = tx.category;
-		var html = '<tr' + rowClass + '><td class="center">' + confirmations + '</td><td>' + timestamp + '</td><td>' + info + '</td><td class="' + (tx.amount<0?'debit':'credit') + ' right">' + formatBTC(tx.amount, true) + '</td></tr>';
+		var html = '<tr' + rowClass + '><td class="center">' + confirmations + '</td><td>' + timestamp.format(this.dateFormat) + '</td><td>' + info + '</td><td class="' + (tx.amount<0?'debit':'credit') + ' right">' + formatBTC(tx.amount, true) + '</td></tr>';
 
 		txlist.append(html);
 	}

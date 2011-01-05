@@ -1,3 +1,4 @@
 SSL
 footer
 accounts
+error handling (especially when sending BTC)

@@ -73,12 +73,13 @@ function Bitcoin(app, host, port, user, pass) {
 	this.init = function() {
 		this.RPCURL = this.prepareURL();
 	}
-
-	this.init();
 }
 
 function formatBTC(btc, addSign) {
-	var nf = new NumberFormat(Math.abs(btc));
+	if(addSign)
+		btc = Math.abs(btc);
+
+	var nf = new NumberFormat(btc);
 	nf.setPlaces(2);
 	nf.setCurrency(true);
 	nf.setCurrencyValue(" BTC");
@@ -116,6 +117,7 @@ function sortTransactions(a, b) {
  *
  * <script type="text/javascript">
  *     var app = new BitcoinApp();
+ *     app.init();
  * </script>
  */
 
@@ -145,11 +147,13 @@ function BitcoinApp() {
 			$('#accountInfo').slideDown('fast');
 			$('#section_SendBTC').show();
 			$('#section_TX').show().next().show();
+			$('#serverInfo').show();
 		}
 	}
 
 	this.onDisconnect = function() {
-		this.connected = false;
+		app.connected = false;
+
 		$('#title').text("Bitcoin (not connected)");
 		$('#accountInfo').slideUp('fast');
 		$('#serverInfo').hide();
@@ -158,7 +162,7 @@ function BitcoinApp() {
 		$('#section_TX').hide().next().hide();
 		$('#section_Settings').next().show();
 
-		this.clearTransactions();
+		app.clearTransactions();
 	}
 
 	this.onGetInfo = function(info) {
@@ -177,7 +181,6 @@ function BitcoinApp() {
 			serverInfo.append('<tr><td>' + key.capitalize() + '</td><td class="right">' + info[key] + '</td></tr>');
 		}
 		$('#serverInfo tr:odd').addClass('odd');
-		$('#serverInfo').show();
 	}
 
 	this.onSendBTC = function(result, error) {
@@ -264,6 +267,7 @@ function BitcoinApp() {
 		this.onDisconnect();
 		this.notify("Connecting");
 		this.bitcoin = new Bitcoin(this, host, port, user, pass);
+		this.bitcoin.init();
 		this.bitcoin.connect();
 	}
 
@@ -336,6 +340,4 @@ function BitcoinApp() {
 					return false;
 				});
 	};
-
-	this.init();
 }

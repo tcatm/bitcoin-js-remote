@@ -76,9 +76,6 @@ function Bitcoin(app, host, port, user, pass) {
 }
 
 function formatBTC(btc, addSign) {
-	if(addSign)
-		btc = Math.abs(btc);
-
 	var nf = new NumberFormat(btc);
 	nf.setPlaces(2);
 	nf.setCurrency(true);
@@ -87,15 +84,8 @@ function formatBTC(btc, addSign) {
 
 	var s = nf.toFormatted();
 
-	if(addSign) {
-		var sign;
-		if(btc > 0) {
-			sign = "+";
-		} else if(btc < 0) {
-			sign = "-";
-		}
-		s = sign + s;
-	}
+	if(addSign && btc > 0) 
+		s = "+" + s;
 
 	return s;
 }

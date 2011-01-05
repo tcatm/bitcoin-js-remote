@@ -90,11 +90,11 @@ tr.unconfirmed {
 	opacity: 0.4;
 }
 
-.credit {
+.credit, .valRight {
 	color: #0E8C3A;
 }
 
-.debit {
+.debit, .valWrong {
 	color: #DB2645;
 }
 
@@ -149,4 +149,9 @@ form input {
 #footer a {
 	color: #fd4;
 	text-decoration: none;
+}
+
+.valRight, .valWrong {
+	margin-left: 0.3em;
+	font-size: 1.5em;
 }

@@ -50,6 +50,10 @@ function Bitcoin(app, host, port, user, pass) {
 		this.RPC("listtransactions", ['"' + account + '"', 999999], this.app.onListTransactions);
 	}
 
+	this.validateAddress = function(callback, address) {
+		this.RPC("validateaddress", ['"' + address + '"'], callback);
+	}
+
 	this.sendBTC = function(account, address, amount) {
 		this.RPC("sendfrom", ['"' + account + '"', address, amount], this.app.onSendBTC);
 	}
@@ -91,7 +95,10 @@ function formatBTC(btc, addSign) {
 }
 
 function setFormValue(form, name, value) {
-	$(form).children('input[name="' + name + '"]').val(value);
+	var obj = $(form).children('input[name="' + name + '"]');
+	obj.val(value);
+
+	return obj;
 }
 
 function getFormValue(form, name) {
@@ -108,6 +115,20 @@ function sortTransactions(a, b) {
 	return (a.amount - b.amount);
 }
 
+function hideValidation(obj) {
+	var o = $(obj).next('span').removeClass().text('');
+}
+
+function showValidation(obj, correct) {
+	var o = $(obj).next('span');
+
+	if(correct) {
+		o.removeClass().addClass('valRight').html("&#x2714;");
+	} else {
+		o.removeClass().addClass('valWrong').html("&#x2718;");
+	}
+}
+
 /* Because of the way JSONP works this codes assumes a global 
  * variable named 'app' pointing to the BitcoinApp() instance!
  *
@@ -120,12 +141,14 @@ function sortTransactions(a, b) {
 function BitcoinApp() {
 	this.bitcoin = false;
 	this.account = "";
+	this.balance;
 	this.connected = false;
 	this.refreshTimeout = false;
 	this.dateFormat = "dd/mm/yyyy HH:MM";
 
 	this.onGetBalance = function(balance) {
 		$('#balance').text(formatBTC(balance));
+		app.balance = balance;
 	}
 
 	this.onGetAddress = function(address) {
@@ -150,6 +173,7 @@ function BitcoinApp() {
 
 	this.onDisconnect = function() {
 		app.connected = false;
+		app.balance = false;
 
 		$('#title').text("Bitcoin (not connected)");
 		$('#accountInfo').slideUp('fast');
@@ -185,10 +209,24 @@ function BitcoinApp() {
 			app.error(error.message);
 			return;
 		}
-		setFormValue($('form#sendBTC'), "address", "");
-		setFormValue($('form#sendBTC'), "amount", "");
+		var obj;
+		obj	= setFormValue($('form#sendBTC'), "address", "");
+		hideValidation(obj);
+
+		obj = setFormValue($('form#sendBTC'), "amount", "");
+		hideValidation(obj);
+
 		app.notify("Bitcoins sent");
 		app.refreshAccount();
+	};
+
+	this.onValidateAddressField = function(result) {
+		var field = $('form#sendBTC input[name="address"]')
+
+		if(result.isvalid && field.val() == result.address) 
+			showValidation(field, true);
+		else
+			showValidation(field, false);
 	};
 
 	this.onListTransactions = function(transactions) {
@@ -329,6 +367,31 @@ function BitcoinApp() {
 					var pass = getFormValue(this, "pass");
 					app.connect(host, port, user, pass);
 					return false;
+				});
+
+		$('form#sendBTC input[name="address"]').change( function() {
+					if($(this).val() === "") {
+						hideValidation(this);
+						return;
+					}
+
+					var address = $(this).val();
+
+					app.bitcoin.validateAddress(app.onValidateAddressField, address); 
+				});
+
+		$('form#sendBTC input[name="amount"]').change( function() {
+					if($(this).val() === "") {
+						hideValidation(this);
+						return;
+					}
+
+					var amount = $(this).val();
+
+					if(amount > 0 && amount <= app.balance) 
+						showValidation(this, true);
+					else
+						showValidation(this, false);
 				});
 
 		$('form#sendBTC').submit( function() {

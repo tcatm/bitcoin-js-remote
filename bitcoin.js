@@ -27,7 +27,7 @@ function Bitcoin(app, host, port, user, pass) {
 		url += "/?callback=?";
 
 		return url;
-	};
+	}
 
 	this.RPC = function(method, params, callback) {
 		var request;
@@ -218,7 +218,7 @@ function BitcoinApp() {
 
 		app.notify("Bitcoins sent");
 		app.refreshAccount();
-	};
+	}
 
 	this.onValidateAddressField = function(result) {
 		var field = $('form#sendBTC input[name="address"]')
@@ -227,7 +227,7 @@ function BitcoinApp() {
 			showValidation(field, true);
 		else
 			showValidation(field, false);
-	};
+	}
 
 	this.onListTransactions = function(transactions) {
 		for (var key in transactions) 
@@ -282,23 +282,23 @@ function BitcoinApp() {
 		this.refreshAddress();
 
 		this.refreshTimeout = setTimeout("app.refreshAccount();", 1000);
-	};
+	}
 
 	this.refreshServerInfo = function() {
 		this.bitcoin.getInfo();
-	};
+	}
 
 	this.refreshTransactions = function() {
 		this.bitcoin.listTransactions(this.account);
-	};
+	}
 
 	this.refreshBalance = function() {
 		this.bitcoin.getBalance(this.account);
-	};
+	}
 
 	this.refreshAddress = function() {
 		this.bitcoin.getAddress(this.account);
-	};
+	}
 
 	this.connect = function(host, port, user, pass) {
 		this.onDisconnect();
@@ -401,5 +401,5 @@ function BitcoinApp() {
 					app.sendBTC(address, amount);
 					return false;
 				});
-	};
+	}
 }

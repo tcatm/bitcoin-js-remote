@@ -286,7 +286,7 @@ function BitcoinApp() {
 		var confString = "Send " + formatBTC(amount) + " to " + address + "?";
 
 		if(confirm(confString)) {
-			app.bitcoin.sendBTC(this.account, address, amount);
+			app.bitcoin.sendBTC(this.account, '"' + address + '"', amount);
 		}
 	}
 

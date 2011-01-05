@@ -24,9 +24,11 @@
 					Pass <input name="pass" type="password"/><br/>
 		            <button>Connect</button>  
 				</form>
-				<h4>Server Information</h4>
-				<table id="serverInfo">
-				</table>
+				<div id="serverInfo">
+					<h4>Server Information</h4>
+					<table>
+					</table>
+				</div>
 			</div>
 			<h3 id="section_SendBTC">Send bitcoins</h3>
 			<div class="section">
@@ -55,17 +57,10 @@
 					$('#sections h3').click(function() {
 						$(this).next().slideToggle(200);
 						return false;
-						}).next().hide();
-
-					$('#accountInfo').hide();
-
-					var openSections = new Array("#section_TX", "#section_Settings");
-
-					for (key in openSections) {
-						$(openSections[key]).next().show();
-					}
+						});
 
 					});
+
 		</script>
 	</body>
 </html>

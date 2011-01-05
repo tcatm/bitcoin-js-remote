@@ -126,13 +126,26 @@ function BitcoinApp() {
 
 	this.onConnect = function(info) {
 		if(info.version) {
-			app.connected = true;
-
-			$('#section_Settings').next().slideUp('fast');
-			$('#accountInfo').slideDown('fast');
 			app.onGetInfo(info);
 			app.refreshAccount();
+
+			app.connected = true;
+			$('#section_Settings').next().slideUp('fast');
+			$('#accountInfo').slideDown('fast');
+			$('#section_SendBTC').show();
+			$('#section_TX').show().next().show();
 		}
+	}
+
+	this.onDisconnect = function() {
+		this.connected = false;
+		$('#title').text("Bitcoin (not connected)");
+		$('#accountInfo').slideUp('fast');
+		$('#serverInfo').hide();
+		$('#serverInfo table').children().remove();
+		$('#section_SendBTC').hide().next().hide();
+		$('#section_TX').hide().next().hide();
+		this.clearTransactions();
 	}
 
 	this.onGetInfo = function(info) {
@@ -143,7 +156,7 @@ function BitcoinApp() {
 
 		$('#title').text(sNetwork + " on " + app.bitcoin.RPCHost);
 
-		var serverInfo = $('#serverInfo');
+		var serverInfo = $('#serverInfo table');
 
 		serverInfo.children().remove();
 
@@ -151,12 +164,13 @@ function BitcoinApp() {
 			serverInfo.append('<tr><td>' + key.capitalize() + '</td><td class="right">' + info[key] + '</td></tr>');
 		}
 		$('#serverInfo tr:odd').addClass('odd');
+		$('#serverInfo').show();
 	}
 
 	this.onSendBTC = function() {
 		setFormValue($('form#sendBTC'), "address", "");
 		setFormValue($('form#sendBTC'), "amount", "");
-		alert("Bitcoins sent!");
+		notify("Bitcoins sent!");
 		app.refreshAccount();
 	};
 
@@ -208,20 +222,22 @@ function BitcoinApp() {
 	};
 
 	this.connect = function(host, port, user, pass) {
-		this.connected = false;
-
-		$('#title').text("Bitcoin (not connected)");
-		$('#accountInfo').slideUp('fast');
-		$('#serverInfo').children().remove();
-		this.clearTransactions();
-
+		this.onDisconnect();
 		this.bitcoin = new Bitcoin(this, host, port, user, pass);
 		this.bitcoin.connect();
 	}
 
+	this.error = function(msg) {
+		alert(msg);
+	}
+
+	this.notify = function(msg) {
+		alert(msg);
+	}
+
 	this.sendBTC = function(address, amount) {
 		if(!this.connected) {
-			alert("Not connected!");
+			error("Not connected!");
 			return false;
 		}
 
@@ -234,19 +250,21 @@ function BitcoinApp() {
 	}
 
 	this.init = function() {
+		if(!this.connected)
+			this.onDisconnect();
+
+		$('#section_Settings').next().show();
+		$('#accountInfo').hide();
 
 		String.prototype.capitalize = function() {
 			    return this.charAt(0).toUpperCase() + this.slice(1);
-		}
-
-		if(!this.bitcoin) {
-			$('#title').text("Bitcoin (not connected)");
 		}
 
 		var hostname = window.location.hostname;
 
 		if(hostname)
 			setFormValue($('form#settingsServer'), "host", hostname);
+
 
 		$('form#settingsServer').submit( function() {
 					var host = getFormValue(this, "host");

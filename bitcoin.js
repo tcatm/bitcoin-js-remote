@@ -1,6 +1,4 @@
-function Bitcoin(app, host, port, user, pass) {
-	this.app = app;
-
+function Bitcoin(host, port, user, pass) {
 	this.RPCHost = host;
 	this.RPCPort = port;
 	this.RPCUser = user;
@@ -46,32 +44,28 @@ function Bitcoin(app, host, port, user, pass) {
 				});
 	}
 
-	this.listTransactions = function(account) {
-		this.RPC("listtransactions", ['"' + account + '"', 999999], this.app.onListTransactions);
+	this.listTransactions = function(callback, account) {
+		this.RPC("listtransactions", ['"' + account + '"', 999999], callback);
 	}
 
 	this.validateAddress = function(callback, address) {
 		this.RPC("validateaddress", ['"' + address + '"'], callback);
 	}
 
-	this.sendBTC = function(account, address, amount) {
-		this.RPC("sendfrom", ['"' + account + '"', address, amount], this.app.onSendBTC);
+	this.sendBTC = function(callback, account, address, amount) {
+		this.RPC("sendfrom", ['"' + account + '"', address, amount], callback);
 	}
 
-	this.getAddress = function(account) {
-		this.RPC("getaccountaddress", ['"' + account + '"'], this.app.onGetAddress);
+	this.getAddress = function(callback, account) {
+		this.RPC("getaccountaddress", ['"' + account + '"'], callback);
 	}
 
-	this.getBalance = function(account) {
-		this.RPC("getbalance", ['"' + account + '"'], this.app.onGetBalance);
+	this.getBalance = function(callback, account) {
+		this.RPC("getbalance", ['"' + account + '"'], callback);
 	}
 
-	this.getInfo = function() {
-		this.RPC("getinfo", null, this.app.onGetInfo);
-	}
-
-	this.connect = function() {
-		this.RPC("getinfo", null, this.app.onConnect);
+	this.getInfo = function(callback) {
+		this.RPC("getinfo", null, callback);
 	}
 
 	this.init = function() {

@@ -10,7 +10,7 @@
 	<body>
 		<h1 id="title">Javascript required!</h1>
 		<div id="sections">
-			<div class="section">
+			<div id="accountInfo" class="section">
 				<table>
 					<tr class="big"><td><label>Balance</label></td><td class="right"><span id="balance"></span></td></tr>
 				</table>
@@ -24,6 +24,9 @@
 					Pass <input name="pass" type="password"/><br/>
 		            <button>Connect</button>  
 				</form>
+				<h4>Server Information</h4>
+				<table id="serverInfo">
+				</table>
 			</div>
 			<h3 id="section_SendBTC">Send bitcoins</h3>
 			<div class="section">
@@ -50,6 +53,8 @@
 						$(this).next().slideToggle(200);
 						return false;
 						}).next().hide();
+
+					$('#accountInfo').hide();
 
 					var openSections = new Array("#section_TX", "#section_Settings");
 

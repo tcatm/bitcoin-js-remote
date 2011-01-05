@@ -106,7 +106,8 @@ function BitcoinApp() {
 
 	this.onConnect = function(info) {
 		if(info.version) {
-			$('#section_Settings').next().slideToggle('fast');
+			$('#section_Settings').next().slideUp('fast');
+			$('#accountInfo').slideDown('fast');
 			app.onGetInfo(info);
 			app.refreshBalance();
 		}
@@ -119,6 +120,15 @@ function BitcoinApp() {
 		}
 
 		$('#title').text(sNetwork + " on " + app.bitcoin.RPCHost);
+
+		var serverInfo = $('#serverInfo');
+
+		serverInfo.children().remove();
+
+		for (var key in info) {
+			serverInfo.append('<tr><td>' + key.capitalize() + '</td><td class="right">' + info[key] + '</td></tr>');
+		}
+		$('#serverInfo tr:odd').addClass('odd');
 	}
 
 	this.refreshBalance = function() {
@@ -126,11 +136,20 @@ function BitcoinApp() {
 	};
 
 	this.connect = function(host, port, user, pass) {
+		$('#title').text("Bitcoin (not connected)");
+		$('#accountInfo').slideUp('fast');
+		$('#serverInfo').children().remove();
+		$('#txlist').children().remove();
 		this.bitcoin = new Bitcoin(this, host, port, user, pass);
 		this.bitcoin.connect();
 	}
 
 	this.init = function() {
+
+		String.prototype.capitalize = function() {
+			    return this.charAt(0).toUpperCase() + this.slice(1);
+		}
+
 		if(!this.bitcoin) {
 			$('#title').text("Bitcoin (not connected)");
 		}

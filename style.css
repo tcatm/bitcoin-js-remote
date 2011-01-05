@@ -13,6 +13,10 @@ h1 {
 	font-size: 1.8em;
 }
 
+h4 {
+	margin: 3pt 0;
+}
+
 #sections h3 {
 	color: #eee;
 	background: #333 url(images/background-section-head.png) top left repeat-x;
@@ -40,6 +44,21 @@ table {
 	font-size: 10pt;
 	color: #222;
 	white-space: nowrap;
+	margin: 0;
+	padding: 0;
+	border-spacing: 0;
+}
+
+table td {
+	padding: 0.3em 3pt;
+}
+
+table tr {
+	margin: 0;
+}
+
+table tr.odd {
+	background: #eee;
 }
 
 .big {

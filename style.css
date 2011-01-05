@@ -109,3 +109,8 @@ div.humanized-message{
 	-webkit-border-radius: 10px;
 	border-radius: 10px;
 }
+
+#disconnectButton {
+	float: right;
+	color: red;
+}

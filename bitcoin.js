@@ -156,6 +156,8 @@ function BitcoinApp() {
 		$('#serverInfo table').children().remove();
 		$('#section_SendBTC').hide().next().hide();
 		$('#section_TX').hide().next().hide();
+		$('#section_Settings').next().show();
+
 		this.clearTransactions();
 	}
 
@@ -294,9 +296,6 @@ function BitcoinApp() {
 		if(!this.connected)
 			this.onDisconnect();
 
-		$('#section_Settings').next().show();
-		$('#accountInfo').hide();
-
 		String.prototype.capitalize = function() {
 			    return this.charAt(0).toUpperCase() + this.slice(1);
 		}
@@ -306,6 +305,10 @@ function BitcoinApp() {
 		if(hostname)
 			setFormValue($('form#settingsServer'), "host", hostname);
 
+		$('#disconnectButton').click( function() {
+					app.onDisconnect();
+					return false;
+				});
 
 		$('form#settingsServer').submit( function() {
 					var host = getFormValue(this, "host");

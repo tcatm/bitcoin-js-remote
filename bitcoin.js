@@ -47,7 +47,7 @@ function Bitcoin(app, host, port, user, pass) {
 	}
 
 	this.listTransactions = function(account) {
-		this.RPC("listtransactions", [account], this.app.onGetBalance);
+		this.RPC("listtransactions", [account], this.app.onListTransactions);
 	}
 
 	this.getBalance = function(account) {
@@ -95,6 +95,10 @@ function getFormValue(form, name) {
 	return $(form).children('input[name="' + name + '"]').attr('value');
 }
 
+function sortTransactions(a, b) {
+	return (b.time - a.time);
+}
+
 /* Because of the way JSONP works this codes assumes a global 
  * variable named 'app' pointing to the BitcoinApp() instance!
  *
@@ -116,7 +120,7 @@ function BitcoinApp() {
 			$('#section_Settings').next().slideUp('fast');
 			$('#accountInfo').slideDown('fast');
 			app.onGetInfo(info);
-			app.refreshBalance();
+			app.refreshAccount();
 		}
 	}
 
@@ -137,6 +141,38 @@ function BitcoinApp() {
 		}
 		$('#serverInfo tr:odd').addClass('odd');
 	}
+
+	this.onListTransactions = function(transactions) {
+		transactions.sort(sortTransactions);
+
+		var txlist = $('#txlist');
+
+		txlist.children().remove();
+
+		for (var key in transactions) {
+			app.addTransaction(txlist, transactions[key]);
+		}
+		$('#serverInfo tr:odd').addClass('odd');
+	}
+
+	this.addTransaction = function(txlist, tx) {
+		var rowClass = "";
+		var confirmations = tx.confirmations;
+		var timestamp = tx.time;
+		var info = tx.category;
+		var html = '<tr' + rowClass + '><td class="center">' + confirmations + '</td><td>' + timestamp + '</td><td>' + info + '<td><td class="' + (tx.amount<0?'debit':'credit') + ' right">' + formatBTC(tx.amount, true) + '</td></tr>';
+
+		txlist.append(html);
+	}
+
+	this.refreshAccount = function() {
+		this.refreshBalance();
+		this.refreshTransactions();
+	};
+
+	this.refreshTransactions = function() {
+		this.bitcoin.listTransactions(this.account);
+	};
 
 	this.refreshBalance = function() {
 		this.bitcoin.getBalance(this.account);

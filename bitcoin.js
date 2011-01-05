@@ -223,22 +223,26 @@ function BitcoinApp() {
 
 	this.connect = function(host, port, user, pass) {
 		this.onDisconnect();
+		this.notify("Connecting");
 		this.bitcoin = new Bitcoin(this, host, port, user, pass);
 		this.bitcoin.connect();
 	}
 
 	this.error = function(msg) {
-		alert(msg);
+		$(window).humanMsg(msg);
 	}
 
 	this.notify = function(msg) {
-		alert(msg);
+		$(window).humanMsg(msg);
 	}
 
 	this.sendBTC = function(address, amount) {
 		if(!this.connected) {
-			error("Not connected!");
-			return false;
+			return this.error("Not connected!");
+		}
+
+		if(address === "") {
+			return this.error("No address given");
 		}
 
 		amount = Math.round(amount*100)/100;

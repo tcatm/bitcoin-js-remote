@@ -5,10 +5,7 @@ function Bitcoin(host, port, user, pass, account) {
 	this.RPCPass = pass;
 	this.RPCURL;
 
-	if (account != undefined)
-		this.account = account;
-	else
-		this.account = "";
+	this.account = "";
 
 	this.prepareURL = function() {
 		var url = "http://";
@@ -49,6 +46,10 @@ function Bitcoin(host, port, user, pass, account) {
 				});
 	}
 
+	this.listAccounts = function(callback) {
+		this.RPC("listaccounts", null, callback);
+	}
+
 	this.listTransactions = function(callback) {
 		this.RPC("listtransactions", ['"' + this.account + '"', 999999], callback);
 	}
@@ -71,6 +72,13 @@ function Bitcoin(host, port, user, pass, account) {
 
 	this.getInfo = function(callback) {
 		this.RPC("getinfo", null, callback);
+	}
+
+	this.selectAccount = function(account) {
+		if (account != undefined)
+			this.account = account;
+		else
+			this.account = "";
 	}
 
 	this.init = function() {

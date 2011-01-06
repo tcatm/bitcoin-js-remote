@@ -18,6 +18,7 @@ function BitcoinApp() {
 
 	this.onGetBalance = function(balance) {
 		$('#balance').text(balance.formatBTC());
+		$('#currentAccount').text('"' + app.bitcoin.account + '"');
 		app.balance = balance;
 	}
 
@@ -31,10 +32,11 @@ function BitcoinApp() {
 		if(info.version) {
 			app.connected = true;
 
-			app.refreshAccount();
+			app.refreshAll();
 
 			$('#section_Settings').next().slideUp('fast');
-			$('#accountInfo').slideDown('fast');
+			$('#address').slideDown('fast');
+			$('#section_Accounts').show();
 			$('#section_SendBTC').show();
 			$('#section_TX').show().next().show();
 			$('#serverInfo').show();
@@ -52,17 +54,24 @@ function BitcoinApp() {
 
 	this.onDisconnect = function() {
 		app.connected = false;
-		app.balance = false;
 		app.setTitle("Bitcoin (not connected)");
 
-		$('#accountInfo').slideUp('fast');
+		$('#address').slideUp('fast');
 		$('#serverInfo').hide();
 		$('#serverInfo table').children().remove();
 		$('#section_SendBTC').hide().next().hide();
 		$('#section_TX').hide().next().hide();
+		$('#section_Accounts').hide().next().hide();
 		$('#section_Settings').next().show();
 		$('#connectionInfo').html('').hide();
 
+		app.clearAccounts();
+		app.clearAccountInfo();
+	}
+
+	this.clearAccountInfo = function() {
+		$('#currentAccount').text('');
+		app.balance = false;
 		app.clearTransactions();
 	}
 
@@ -97,7 +106,7 @@ function BitcoinApp() {
 		hideValidation(obj);
 
 		app.notify("Bitcoins sent");
-		app.refreshAccount();
+		app.refreshAll();
 	}
 
 	this.onValidateAddressField = function(result) {
@@ -107,6 +116,40 @@ function BitcoinApp() {
 			showValidation(field, true);
 		else
 			showValidation(field, false);
+	}
+
+	this.onListAccounts = function(accounts) {
+		for (var account in accounts) {
+			var balance = accounts[account];
+
+			var row = $('#accountList tbody').children('tr[name="' + account + '"]');
+
+			if (row.length == 0) {
+				row = $('<tr></tr>');
+
+				var html ='<td class="left">"' + account + '"</td>';
+					html += '<td></td>';
+
+				row.append(html);
+
+				row.attr('name', account);
+				row.click( function() {
+							app.selectAccount($(this).attr('name'));
+						})
+
+				$('#accountList tbody').append(row);
+			}
+
+			app.updateAccountRow(row, balance);
+		}
+	}
+
+	this.updateAccountRow = function(row, balance) {
+		var balanceClass = "";
+		if(balance != 0)
+			balanceClass = (balance<0?'debit':'credit');
+
+		row.children('td:last-child').removeClass().addClass("right").addClass(balanceClass).text(balance.formatBTC());
 	}
 
 	this.onListTransactions = function(transactions) {
@@ -140,6 +183,10 @@ function BitcoinApp() {
 		 */
 
 		app.refreshInterval = Math.min(Math.max(newInterval, 1000), 10000);
+	}
+
+	this.clearAccounts = function() {
+		$('#accountList tbody').children().remove();
 	}
 
 	this.clearTransactions = function() {
@@ -222,7 +269,7 @@ function BitcoinApp() {
 		return txitem;
 	}
 
-	this.refreshAccount = function() {
+	this.refreshAll = function() {
 		clearTimeout(this.refreshTimeout);
 
 		if(!this.connected) {
@@ -233,12 +280,17 @@ function BitcoinApp() {
 		this.refreshBalance();
 		this.refreshTransactions();
 		this.refreshAddress();
+		this.refreshAccounts();
 
-		this.refreshTimeout = setTimeout("app.refreshAccount();", this.refreshInterval);
+		this.refreshTimeout = setTimeout("app.refreshAll();", this.refreshInterval);
 	}
 
 	this.refreshServerInfo = function() {
 		this.bitcoin.getInfo(this.onGetInfo);
+	}
+
+	this.refreshAccounts = function() {
+		this.bitcoin.listAccounts(this.onListAccounts);
 	}
 
 	this.refreshTransactions = function() {
@@ -253,11 +305,19 @@ function BitcoinApp() {
 		this.bitcoin.getAddress(this.onGetAddress);
 	}
 
+	this.selectAccount = function(account) {
+		this.clearAccountInfo();
+		this.bitcoin.selectAccount(account);
+		if (this.connected)
+			this.refreshAll();
+	}
+
 	this.connect = function(host, port, user, pass, account) {
 		this.onDisconnect();
 		this.notify("Connecting");
-		this.bitcoin = new Bitcoin(host, port, user, pass, account);
+		this.bitcoin = new Bitcoin(host, port, user, pass);
 		this.bitcoin.init();
+		this.selectAccount(account);
 		this.bitcoin.getInfo(this.onConnect);
 	}
 
@@ -311,7 +371,7 @@ function BitcoinApp() {
 		this.addPrototypes();
 
 		if(!this.connected) {
-			$('#accountInfo').hide();
+			$('#address').hide();
 
 			$.getJSON('settings.json', function(data) {
 						if(data) {

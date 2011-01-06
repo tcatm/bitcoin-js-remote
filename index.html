@@ -14,11 +14,16 @@
 	<body>
 		<h1><span id="title">Javascript required!</span> <span id="disconnectButton">X</span></h1>
 		<div id="sections">
-			<div id="accountInfo" class="section">
-				<table>
-					<tr class="big"><td><label>Balance</label></td><td class="right"><span id="balance"></span></td></tr>
+			<p id="address"></p>
+			<h3 id="section_Accounts">Account <span id="currentAccount"></span><span id="balance"</span></h3>
+			<div class="section">
+				<table id="accountList">
+					<thead>
+						<tr><th class="left">Account</th><th class="right">Balance</th></tr>
+					</thead>
+					<tbody>
+					</tbody>
 				</table>
-				<p class="center" id="address"></p>
 			</div>
 			<h3 id="section_Settings">Settings / Server Information</h3>
 			<div class="section">

@@ -160,7 +160,7 @@ form input {
 	table-layout: fixed;
 }
 
-#sections h3, #disconnectButton, #txlist tbody tr {
+#sections h3, #disconnectButton, #txlist tbody tr, #accountList tbody tr {
 	cursor:pointer; cursor:hand;
 }
 
@@ -176,7 +176,7 @@ form input {
 	background: transparent;
 }
 
-#txlist tbody tr:hover {
+#txlist tbody tr:hover, #accountList tbody tr:hover {
 	background: #fe8;
 }
 
@@ -196,4 +196,17 @@ form input {
 
 #txlist tr.txinfo div label, #connectionInfo label {
 	font-weight: bold;
+}
+
+#balance {
+	float: right;
+}
+
+#address {
+	text-align: center;
+	background: #fff;
+	padding: 0.3em;
+	color: #222;
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-serif;
+	margin: 0;
 }

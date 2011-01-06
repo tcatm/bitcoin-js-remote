@@ -42,11 +42,16 @@ function BitcoinApp() {
 		}
 	}
 
+	this.setTitle = function(title) {
+		$('#title').text(title);
+		document.title = title;
+	}
+
 	this.onDisconnect = function() {
 		app.connected = false;
 		app.balance = false;
+		app.setTitle("Bitcoin (not connected)");
 
-		$('#title').text("Bitcoin (not connected)");
 		$('#accountInfo').slideUp('fast');
 		$('#serverInfo').hide();
 		$('#serverInfo table').children().remove();
@@ -63,7 +68,7 @@ function BitcoinApp() {
 			sNetwork = "Testnet";
 		}
 
-		$('#title').text(sNetwork + " on " + app.bitcoin.RPCHost);
+		app.setTitle(sNetwork + " on " + app.bitcoin.RPCHost);
 
 		var serverInfo = $('#serverInfo table');
 

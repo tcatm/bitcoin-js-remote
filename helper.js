@@ -10,13 +10,13 @@ function getFormValue(form, name) {
 }
 
 function sortTransactions(a, b) {
-	if(b.time != a.time) 
-		return (b.time - a.time);
+	if(a.time != b.time)
+		return (a.time - b.time);
 
-	if(b.category != a.category)
-		return (a.category < b.category) ? -1 : 1;
+	if(a.category != b.category)
+		return (b.category < a.category) ? -1 : 1;
 
-	return (a.amount - b.amount);
+	return (b.amount - a.amount);
 }
 
 function hideValidation(obj) {

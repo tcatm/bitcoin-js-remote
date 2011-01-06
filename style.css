@@ -160,8 +160,39 @@ form input {
 	table-layout: fixed;
 }
 
+#sections h3, #disconnectButton, #txlist tbody tr {
+	cursor:pointer; cursor:hand;
+}
+
 #txlist td.info {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	width: 100px;
+}
+
+#txlist tr.txinfo, #txlist tr.txinfo td {
+	padding: 0;
+	margin: 0;
+	background: transparent;
+}
+
+#txlist tbody tr:hover {
+	background: #fe8;
+}
+
+#txlist tbody tr.txinfo:hover {
+	background: transparent;
+}
+
+#txlist tbody tr:hover + tr.txinfo div {
+	background: #fe8;
+}
+
+#txlist tr div {
+	margin: 0 0 4pt 0;
+	padding: 0 6pt 4pt 6pt;
+}
+
+#txlist tr div label {
+	font-weight: bold;
 }

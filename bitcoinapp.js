@@ -1,4 +1,4 @@
-/* Because of the way JSONP works this codes assumes a global 
+/* Because of the way JSONP works this codes assumes a global
  * variable named 'app' pointing to the BitcoinApp() instance!
  *
  * <script type="text/javascript">
@@ -92,46 +92,84 @@ function BitcoinApp() {
 	this.onValidateAddressField = function(result) {
 		var field = $('form#sendBTC input[name="address"]')
 
-		if(result.isvalid && field.val() == result.address) 
+		if(result.isvalid && field.val() == result.address)
 			showValidation(field, true);
 		else
 			showValidation(field, false);
 	}
 
 	this.onListTransactions = function(transactions) {
-		for (var key in transactions) 
+		for (var key in transactions)
 			if (transactions[key].time == undefined)
 				transactions[key].time = 0;
 
 		transactions.sort(sortTransactions);
 
-		app.clearTransactions();
-
 		var txlistContainer = $('#txlist');
 
-		if(txlistContainer.children('tbody').length == 0) 
+		if(txlistContainer.children('tbody').length == 0)
 			txlistContainer.append('<tbody />');
 
 		var txlist = txlistContainer.children('tbody');
 
+		for (var key in transactions)
+			app.processTransaction(txlist, transactions[key]);
 
-		for (var key in transactions) 
-			app.addTransaction(txlist, transactions[key]);
-
-		$('#txlist tbody tr:odd').addClass('odd');
-
-		txlist.children('tr').click( function() {
-					var txrow = $(this);
-					var tx = JSON.parse(txrow.attr('txinfo'));
-					alert(tx.address);
-				});
+		$('#txlist tbody tr:not(.txinfo):odd').addClass('odd').next('.txinfo').addClass('odd');
+		$('#txlist tbody tr:not(.txinfo):even').removeClass('odd').next('.txinfo').removeClass('odd');
 	}
 
 	this.clearTransactions = function() {
 		$('#txlist tbody').children().remove();
 	}
 
-	this.addTransaction = function(txlist, tx) {
+	this.processTransaction = function(txlist, tx) {
+		if (tx.txid == undefined)
+			tx.txid = ("tx" + tx.time + tx.amount + tx.otheraccount).replace(/ /g,'');
+
+		var txrow = $(txlist).children('#' + tx.txid);
+
+		if (txrow.length == 0) {
+			txrow = $('<tr id="' + tx.txid + '"></tr>');
+			txlist.prepend(txrow);
+			var txdiv = $('<tr colspan="4" class="txinfo"><td colspan="4"><div style="display: none"></div></td></tr>');
+			txrow.after(txdiv);
+
+			txrow.click( function() {
+					$(this).next('tr.txinfo').children('td').children('div').slideToggle('fast');
+				});
+		}
+
+		var json = JSON.stringify(tx);
+
+		/* Only update TX if it differs from current one */
+		if(txrow.attr('json') != json) {
+			txrow.attr('json', json);
+			txrow.html(this.txRowHTML(tx));
+
+			txrow.next('tr.txinfo').children('td').children('div').html(this.txInfoHTML(tx));
+
+			if (tx.confirmations == 0)
+				txrow.addClass("unconfirmed");
+			else
+				txrow.removeClass("unconfirmed");
+		}
+	}
+
+	this.txInfoHTML = function(tx) {
+		var html = "";
+
+		if(tx.category != undefined) html += "<label>Category:</label> " + tx.category.capitalize() + "<br/>";
+		if(tx.address != undefined) html += "<label>Address:</label> " + tx.address + "<br/>";
+		if(tx.otheraccount != undefined) html += "<label>Other Account:</label> " + tx.otheraccount + "<br/>";
+		if(tx.confirmations != undefined) html += "<label>Confirmations:</label> " + tx.confirmations + "<br/>";
+		if(tx.fee != undefined) html += "<label>Fee:</label> " + tx.fee.formatBTC() + "<br/>";
+		if(tx.comment != undefined) html += "<label>Comment:</label> " + tx.comment + "<br/>";
+
+		return html;
+	}
+
+	this.txRowHTML = function(tx) {
 		var confirmations = tx.confirmations<10?tx.confirmations:'&#x2713;';
 
 		var timestamp = new Date();
@@ -139,21 +177,22 @@ function BitcoinApp() {
 
 		var info = tx.category.capitalize();
 
-		if(tx.address) 
-			info += " " + tx.address;
+		if (tx.category == 'send' || tx.category == 'receive')
+			info = tx.address;
 
-		if(tx.otheraccount) 
-			info += " " + tx.otheraccount;
+		if (tx.category == 'move')
+			info = '"' + tx.otheraccount + '"';
 
-		var txitem = $('<tr><td class="center">' + confirmations + '</td><td>' + timestamp.format(this.dateFormat) + '</td><td class="info">' + info + '</td><td class="' + (tx.amount<0?'debit':'credit') + ' right">' + tx.amount.formatBTC(true) + '</td></tr>');
+		var amountClass = (tx.amount<0?'debit':'credit');
 
-		txitem.attr("txinfo", JSON.stringify(tx));
+		var html = '<td class="center">' + confirmations + '</td>';
+		html += '<td>' + timestamp.format(this.dateFormat) + '</td>';
+		html += '<td class="' + ((tx.address || tx.otheraccount)?amountClass + ' ':null) + 'info">' + info + '</td>';
+		html += '<td class="' + amountClass + ' right">' + tx.amount.formatBTC(true) + '</td>';
 
-		if (tx.confirmations == 0) {
-			txitem.addClass("unconfirmed");
-		}
+		var txitem = $(html);
 
-		txlist.append(txitem);
+		return txitem;
 	}
 
 	this.refreshAccount = function() {
@@ -281,7 +320,7 @@ function BitcoinApp() {
 
 					var address = $(this).val();
 
-					app.bitcoin.validateAddress(app.onValidateAddressField, address); 
+					app.bitcoin.validateAddress(app.onValidateAddressField, address);
 				});
 
 		$('form#sendBTC input[name="amount"]').change( function() {
@@ -292,7 +331,7 @@ function BitcoinApp() {
 
 					var amount = $(this).val();
 
-					if(amount > 0 && amount <= app.balance) 
+					if(amount > 0 && amount <= app.balance)
 						showValidation(this, true);
 					else
 						showValidation(this, false);

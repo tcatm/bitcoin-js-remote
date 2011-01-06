@@ -155,3 +155,13 @@ form input {
 	margin-left: 0.3em;
 	font-size: 1.5em;
 }
+
+#txlist {
+	table-layout: fixed;
+}
+
+#txlist td.info {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	width: 100px;
+}

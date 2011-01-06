@@ -13,6 +13,8 @@ function BitcoinApp() {
 	this.balance;
 	this.connected = false;
 	this.refreshTimeout = false;
+	this.refreshInterval = 5000;
+
 	this.dateFormat = "dd/mm/yyyy HH:MM";
 
 	this.onGetBalance = function(balance) {
@@ -99,6 +101,8 @@ function BitcoinApp() {
 	}
 
 	this.onListTransactions = function(transactions) {
+		var start = new Date().getTime();
+
 		for (var key in transactions)
 			if (transactions[key].time == undefined)
 				transactions[key].time = 0;
@@ -117,6 +121,16 @@ function BitcoinApp() {
 
 		$('#txlist tbody tr:not(.txinfo):odd').addClass('odd').next('.txinfo').addClass('odd');
 		$('#txlist tbody tr:not(.txinfo):even').removeClass('odd').next('.txinfo').removeClass('odd');
+
+		var end = new Date().getTime();
+		var time = end - start;
+		var newInterval = time * 10;
+
+		/* adjust refresh interval within 1..10 seconds depending
+		 * processing time of txlist
+		 */
+
+		app.refreshInterval = Math.min(Math.max(newInterval, 1000), 10000);
 	}
 
 	this.clearTransactions = function() {
@@ -207,7 +221,7 @@ function BitcoinApp() {
 		this.refreshTransactions();
 		this.refreshAddress();
 
-		this.refreshTimeout = setTimeout("app.refreshAccount();", 1000);
+		this.refreshTimeout = setTimeout("app.refreshAccount();", this.refreshInterval);
 	}
 
 	this.refreshServerInfo = function() {

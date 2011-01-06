@@ -14,6 +14,7 @@ function BitcoinApp() {
 	this.refreshTimeout = false;
 	this.refreshInterval = 5000;
 
+	this.generateConfirm = 120;
 	this.dateFormat = "dd/mm/yyyy HH:MM";
 
 	this.onGetBalance = function(balance) {
@@ -223,7 +224,7 @@ function BitcoinApp() {
 
 			txrow.next('tr.txinfo').children('td').children('div').html(this.txInfoHTML(tx));
 
-			if (tx.confirmations == 0)
+			if (tx.confirmations == 0 || (tx.category == "generate" && tx.confirmations < this.generateConfirm))
 				txrow.addClass("unconfirmed");
 			else
 				txrow.removeClass("unconfirmed");
@@ -245,6 +246,9 @@ function BitcoinApp() {
 
 	this.txRowHTML = function(tx) {
 		var confirmations = tx.confirmations<10?tx.confirmations:'&#x2713;';
+
+		if (tx.category == "generate")
+			confirmations = tx.confirmations<this.generateConfirm?'&#x2717':'&#x2713';
 
 		var timestamp = new Date();
 		timestamp.setTime (tx.time * 1000);

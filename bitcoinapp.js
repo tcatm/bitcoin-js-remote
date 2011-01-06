@@ -145,7 +145,7 @@ function BitcoinApp() {
 
 		tx.id += tx.category;
 
-		var txrow = $(txlist).children('#' + tx.id);
+		var txrow = $(document.getElementById(tx.id));
 
 		if (txrow.length == 0) {
 			txrow = $('<tr id="' + tx.id + '"></tr>');
@@ -158,11 +158,11 @@ function BitcoinApp() {
 				});
 		}
 
-		var json = JSON.stringify(tx);
+		var checksum = tx.id + tx.confirmations + tx.time;
 
 		/* Only update TX if it differs from current one */
-		if(txrow.attr('json') != json) {
-			txrow.attr('json', json);
+		if(txrow.attr('checksum') != checksum) {
+			txrow.attr('checksum', checksum);
 			txrow.html(this.txRowHTML(tx));
 
 			txrow.next('tr.txinfo').children('td').children('div').html(this.txInfoHTML(tx));

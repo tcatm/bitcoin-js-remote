@@ -139,12 +139,16 @@ function BitcoinApp() {
 
 	this.processTransaction = function(txlist, tx) {
 		if (tx.txid == undefined)
-			tx.txid = ("tx" + tx.time + tx.amount + tx.otheraccount).replace(/ /g,'');
+			tx.id = (tx.time + tx.amount + tx.otheraccount).replace(/ /g,'');
+		else
+			tx.id = tx.txid;
 
-		var txrow = $(txlist).children('#' + tx.txid);
+		tx.id += tx.category;
+
+		var txrow = $(txlist).children('#' + tx.id);
 
 		if (txrow.length == 0) {
-			txrow = $('<tr id="' + tx.txid + '"></tr>');
+			txrow = $('<tr id="' + tx.id + '"></tr>');
 			txlist.prepend(txrow);
 			var txdiv = $('<tr colspan="4" class="txinfo"><td colspan="4"><div style="display: none"></div></td></tr>');
 			txrow.after(txdiv);

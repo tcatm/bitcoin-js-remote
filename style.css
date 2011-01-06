@@ -188,11 +188,12 @@ form input {
 	background: #fe8;
 }
 
-#txlist tr div {
+#txlist tr.txinfo div {
 	margin: 0 0 4pt 0;
 	padding: 0 6pt 4pt 6pt;
+	overflow: hidden;
 }
 
-#txlist tr div label {
+#txlist tr.txinfo div label {
 	font-weight: bold;
 }

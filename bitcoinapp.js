@@ -164,7 +164,7 @@ function BitcoinApp() {
 		if(tx.otheraccount != undefined) html += "<label>Other Account:</label> " + tx.otheraccount + "<br/>";
 		if(tx.confirmations != undefined) html += "<label>Confirmations:</label> " + tx.confirmations + "<br/>";
 		if(tx.fee != undefined) html += "<label>Fee:</label> " + tx.fee.formatBTC() + "<br/>";
-		if(tx.comment != undefined) html += "<label>Comment:</label> " + tx.comment + "<br/>";
+		if(tx.comment != "") html += "<label>Comment:</label> " + tx.comment + "<br/>";
 
 		return html;
 	}

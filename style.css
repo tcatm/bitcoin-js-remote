@@ -194,6 +194,6 @@ form input {
 	overflow: hidden;
 }
 
-#txlist tr.txinfo div label {
+#txlist tr.txinfo div label, #connectionInfo label {
 	font-weight: bold;
 }

@@ -1,9 +1,14 @@
-function Bitcoin(host, port, user, pass) {
+function Bitcoin(host, port, user, pass, account) {
 	this.RPCHost = host;
 	this.RPCPort = port;
 	this.RPCUser = user;
 	this.RPCPass = pass;
 	this.RPCURL;
+
+	if (account != undefined)
+		this.account = account;
+	else
+		this.account = "";
 
 	this.prepareURL = function() {
 		var url = "http://";
@@ -44,24 +49,24 @@ function Bitcoin(host, port, user, pass) {
 				});
 	}
 
-	this.listTransactions = function(callback, account) {
-		this.RPC("listtransactions", ['"' + account + '"', 999999], callback);
+	this.listTransactions = function(callback) {
+		this.RPC("listtransactions", ['"' + this.account + '"', 999999], callback);
 	}
 
 	this.validateAddress = function(callback, address) {
 		this.RPC("validateaddress", ['"' + address + '"'], callback);
 	}
 
-	this.sendBTC = function(callback, account, address, amount) {
-		this.RPC("sendfrom", ['"' + account + '"', address, amount], callback);
+	this.sendBTC = function(callback, address, amount) {
+		this.RPC("sendfrom", ['"' + this.account + '"', address, amount], callback);
 	}
 
-	this.getAddress = function(callback, account) {
-		this.RPC("getaccountaddress", ['"' + account + '"'], callback);
+	this.getAddress = function(callback) {
+		this.RPC("getaccountaddress", ['"' + this.account + '"'], callback);
 	}
 
-	this.getBalance = function(callback, account) {
-		this.RPC("getbalance", ['"' + account + '"'], callback);
+	this.getBalance = function(callback) {
+		this.RPC("getbalance", ['"' + this.account + '"'], callback);
 	}
 
 	this.getInfo = function(callback) {

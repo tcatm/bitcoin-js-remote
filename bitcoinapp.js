@@ -9,7 +9,6 @@
 
 function BitcoinApp() {
 	this.bitcoin = false;
-	this.account = "";
 	this.balance;
 	this.connected = false;
 	this.refreshTimeout = false;
@@ -39,6 +38,10 @@ function BitcoinApp() {
 			$('#section_SendBTC').show();
 			$('#section_TX').show().next().show();
 			$('#serverInfo').show();
+
+			var connInfo = '<label>Connected to:</label> ' + app.bitcoin.RPCHost + ':' + app.bitcoin.RPCPort + '<br/><label>Account:</label> "' + app.bitcoin.account + '"';
+
+			$('#connectionInfo').html(connInfo).show();
 		}
 	}
 
@@ -58,6 +61,7 @@ function BitcoinApp() {
 		$('#section_SendBTC').hide().next().hide();
 		$('#section_TX').hide().next().hide();
 		$('#section_Settings').next().show();
+		$('#connectionInfo').html('').hide();
 
 		app.clearTransactions();
 	}
@@ -238,21 +242,21 @@ function BitcoinApp() {
 	}
 
 	this.refreshTransactions = function() {
-		this.bitcoin.listTransactions(this.onListTransactions, this.account);
+		this.bitcoin.listTransactions(this.onListTransactions);
 	}
 
 	this.refreshBalance = function() {
-		this.bitcoin.getBalance(this.onGetBalance, this.account);
+		this.bitcoin.getBalance(this.onGetBalance);
 	}
 
 	this.refreshAddress = function() {
-		this.bitcoin.getAddress(this.onGetAddress, this.account);
+		this.bitcoin.getAddress(this.onGetAddress);
 	}
 
-	this.connect = function(host, port, user, pass) {
+	this.connect = function(host, port, user, pass, account) {
 		this.onDisconnect();
 		this.notify("Connecting");
-		this.bitcoin = new Bitcoin(host, port, user, pass);
+		this.bitcoin = new Bitcoin(host, port, user, pass, account);
 		this.bitcoin.init();
 		this.bitcoin.getInfo(this.onConnect);
 	}
@@ -278,7 +282,7 @@ function BitcoinApp() {
 		var confString = "Send " + amount.formatBTC() + " to " + address + "?";
 
 		if(confirm(confString)) {
-			app.bitcoin.sendBTC(this.onSendBTC, this.account, '"' + address + '"', amount);
+			app.bitcoin.sendBTC(this.onSendBTC, '"' + address + '"', amount);
 		}
 	}
 
@@ -316,6 +320,7 @@ function BitcoinApp() {
 							setFormValue(form, "port", data.port);
 							setFormValue(form, "user", data.user);
 							setFormValue(form, "pass", data.pass);
+							setFormValue(form, "account", data.account);
 						}
 					});
 			this.onDisconnect();
@@ -331,7 +336,8 @@ function BitcoinApp() {
 					var port = getFormValue(this, "port");
 					var user = getFormValue(this, "user");
 					var pass = getFormValue(this, "pass");
-					app.connect(host, port, user, pass);
+					var account = getFormValue(this, "account");
+					app.connect(host, port, user, pass, account);
 					return false;
 				});
 

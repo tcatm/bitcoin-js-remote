@@ -33,9 +33,6 @@ function Bitcoin(host, port, user, pass, account) {
 		var request;
 
 		if(params != null) {
-			for(var key in params) {
-				params[key] = params[key];
-			}
 			request = {method: method, params: params};
 		} else {
 			request = {method: method};

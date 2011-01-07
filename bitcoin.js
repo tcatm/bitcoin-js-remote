@@ -64,6 +64,17 @@ function Bitcoin(host, port, user, pass, account) {
 					success:
 						 function(data) {
 							callback(data.result, data.error, context);
+						},
+					error:
+						 function(req, options, error) {
+							try  {
+								var data = jQuery.parseJSON(req.responseText);
+							} catch (err) {
+								var data = {result: null, error: null};
+								data.error = {code: req.status, message: req.statusText};
+							}
+
+							callback(data.result, data.error, context);
 						}
 					});
 	}

@@ -1,0 +1,149 @@
+body {
+	margin: 0;
+	padding: 0;
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 10pt;
+	background: #111;
+	color: #fff;
+}
+
+h1 {
+	padding: 8pt;
+	margin: 0;
+	font-size: 1.8em;
+}
+
+h4 {
+	margin: 3pt 0;
+}
+
+a.button {
+	color: #eee !important;
+	background: #333 url(images/background-section-head.png) top left repeat-x;
+	padding: 5pt 5pt 5.5pt 5pt;
+	text-shadow: #000 2px 2px 0px;
+}
+
+a.button:hover {
+	color: #fd4 !important;
+	text-decoration: none !important;
+	background: #444;
+}
+
+#sections {
+	width: 40%;
+	float: left;
+	margin-right: 1em;
+}
+
+#sections h3 {
+	color: #eee;
+	background: #333 url(images/background-section-head.png) top left repeat-x;
+	padding: 0.5em;
+	margin: 0;
+	text-shadow: #000 2px 2px 0px;
+}
+
+#sections .section {
+	background: #fff url(images/background-section.png) top left repeat-x;
+	padding: 6pt 8pt 4pt 8pt;
+	color: #222;
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-serif;
+}
+
+#sections.wide {
+	width: auto;
+}
+
+table {
+	font-size: 10pt;
+	color: #222;
+	white-space: nowrap;
+	margin: 0;
+	padding: 0;
+	border-spacing: 0;
+}
+
+table td {
+	padding: 0.3em 3pt;
+}
+
+table th {
+	padding: 0.3em 3pt;
+}
+
+table tr {
+	margin: 0;
+}
+
+table tr.odd {
+	background: #f5f5f5;
+}
+
+.big {
+	font-size: 12pt;
+}
+
+.left {
+	text-align: left;
+}
+
+.right {
+	text-align: right;
+}
+
+.center {
+	text-align: center;
+}
+
+form {
+	padding: 5pt;
+}
+
+form label {
+	display: inline-block;
+	text-align: right;
+	width: 5em;
+	margin-right: 1em;
+}
+
+form input {
+	border: 1px solid #ddd;
+	margin: 0.3em 0;
+	padding: 0.5em;
+	background: transparent;
+}
+
+#footer {
+	text-align: center;
+	padding-top: 1em;
+	color: #999;
+	clear: both;
+}
+
+a {
+	color: #fd4;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #ea1;
+}
+
+.section a {
+	color: #E9793C;
+}
+
+.section a:hover {
+	text-decoration: underline;
+}
+
+pre {
+	color: #fff;
+	background: #111;
+	padding: 1.0em;;
+}
+
+p label {
+	font-weight: bold;
+}

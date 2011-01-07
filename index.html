@@ -1,78 +1,77 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<title>bitcoin-js-remote</title>
 
-	<title>tcatm/bitcoin-js-remote @ GitHub</title>
-	
-	<style type="text/css">
-		body {
-  		margin-top: 1.0em;
-  		background-color: #f9ca50;
-		  font-family: "Helvetica,Arial,FreeSans";
-  		color: #000000;
-    }
-    #container {
-      margin: 0 auto;
-      width: 700px;
-    }
-		h1 { font-size: 3.8em; color: #0635af; margin-bottom: 3px; }
-		h1 .small { font-size: 0.4em; }
-		h1 a { text-decoration: none }
-		h2 { font-size: 1.5em; color: #0635af; }
-    h3 { text-align: center; color: #0635af; }
-    a { color: #0635af; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-    .download { float: right; }
-		pre { background: #000; color: #fff; padding: 15px;}
-    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
-	</style>
-	
-</head>
+		<link rel="stylesheet" href="style.css" type="text/css" /> 
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script> 
+	</head>
 
-<body>
-  <a href="http://github.com/tcatm/bitcoin-js-remote"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+	<body>
+		<a href="http://github.com/tcatm/bitcoin-js-remote"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
 
-  <div id="container">
+		<h1><a href="http://github.com/tcatm/bitcoin-js-remote">bitcoin-js-remote</a>
+			<span class="small">by <a href="http://github.com/tcatm">tcatm</a></span></h1>
 
-    <div class="download">
-      <a href="http://github.com/tcatm/bitcoin-js-remote/zipball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-      <a href="http://github.com/tcatm/bitcoin-js-remote/tarball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
-    </div>
+		<div id="sections">
+			<h3>A JavaScript Remote for <a href="http://bitcoin.org">Bitcoin</a></h3>
+			<div class="section">
+				<p>bitcoin-js-remote is a user interface for Bitcoin written in JavaScript. It does not require any server side dependencies other than <a href="https://en.bitcoin.it/wiki/API_tutorial_(JSON-RPC)">bitcoind</a>.</p>
+				<p>You can try out this demo or even use it to connect to your own bitcoind:</p>
+				<p class="center">
+				<a class="button" target="_new" href="http://bitcoincharts.com/media/stuff/js-remote/">Start / Demo</a>
+				</p>
+			</div>
 
-    <h1><a href="http://github.com/tcatm/bitcoin-js-remote">bitcoin-js-remote</a>
-      <span class="small">by <a href="http://github.com/tcatm">tcatm</a></span></h1>
+			<h3>Features</h3>
+			<div class="section">
+				<ul>
+					<li>List transactions</li>
+					<li>Send and receive Bitcoins</li>
+					<li>Supports multiple accounts</li>
+				</ul>
+			</div>
 
-    <div class="description">
-      Javascript remote for bitcoind
-    </div>
+			<h3>Missing Features</h3>
+			<div class="section">
+				<ul>
+					<li>no SSL support (please don't use it over the internet yet!)</li>
+				</ul>
+			</div>
 
-    <h2>Contact</h2>
-<p> (tcatm@gawab.com)<br/>      </p>
+			<h3>Download</h3>
+			<div class="section">
+				<p>
+				<a class="button" href="http://github.com/tcatm/bitcoin-js-remote/zipball/master">Download .zip</a>
+				<a class="button" href="http://github.com/tcatm/bitcoin-js-remote/tarball/master">Download .tar</a>
+				</p>
+				<p>Uncompress zip/tarball and open <code>index.html</code> in your favourite browser.</p>
+				<p>You can also clone the project with <a href="http://git-scm.com">Git</a>
+				by running:
+	  <pre>$ git clone git://github.com/tcatm/bitcoin-js-remote</pre>
+				</p>
+			</div>
 
+			<h3>Contact</h3>
+			<div class="section">
+				<p><label>email:</label> tcatm@gawab.com<br/>
+					<label>irc:</label> tcatm on freenode</p>
+			</div>
 
-    <h2>Download</h2>
-    <p>
-      You can download this project in either
-      <a href="http://github.com/tcatm/bitcoin-js-remote/zipball/master">zip</a> or
-      <a href="http://github.com/tcatm/bitcoin-js-remote/tarball/master">tar</a> formats.
-    </p>
-    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-      by running:
-      <pre>$ git clone git://github.com/tcatm/bitcoin-js-remote</pre>
-    </p>
+		</div>
 
-    <div class="footer">
-      get the source code on GitHub : <a href="http://github.com/tcatm/bitcoin-js-remote">tcatm/bitcoin-js-remote</a>
-    </div>
+		<div id="sections" class="wide">
+			<h3>Screenshots</h3>
+			<div class="section">
+				<img src="screenshot1.png" />
+			</div>
+		</div>
 
-  </div>
-
-  
-</body>
+		<div id="footer">
+			get the source code on GitHub: <a href="http://github.com/tcatm/bitcoin-js-remote">tcatm/bitcoin-js-remote</a>
+		</div>
+	</body>
 </html>

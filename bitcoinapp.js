@@ -169,6 +169,11 @@ function BitcoinApp() {
 
 		var txlist = txlistContainer.children('tbody');
 
+		txlist.children('#txlistempty').remove();
+
+		if (transactions.length == 0)
+			txlist.append('<tr id="txlistempty"><td colspan="4" class="center">no transactions</td></tr>');
+
 		for (var key in transactions)
 			app.processTransaction(txlist, transactions[key]);
 

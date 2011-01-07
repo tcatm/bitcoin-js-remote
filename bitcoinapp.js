@@ -291,7 +291,7 @@ function BitcoinApp() {
 		this.refreshAddress();
 		this.refreshAccounts();
 
-//		this.refreshTimeout = setTimeout("app.refreshAll();", this.refreshInterval);
+		this.refreshTimeout = setTimeout("app.refreshAll();", this.refreshInterval);
 	}
 
 	this.refreshServerInfo = function() {

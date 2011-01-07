@@ -19,7 +19,7 @@ function BitcoinApp() {
 
 	this.onGetBalance = function(balance) {
 		$('#balance').text(balance.formatBTC());
-		$('#currentAccount').text('"' + app.bitcoin.account + '"');
+		$('#currentAccount').text(app.bitcoin.account);
 		app.balance = balance;
 	}
 
@@ -291,7 +291,7 @@ function BitcoinApp() {
 		this.refreshAddress();
 		this.refreshAccounts();
 
-		this.refreshTimeout = setTimeout("app.refreshAll();", this.refreshInterval);
+//		this.refreshTimeout = setTimeout("app.refreshAll();", this.refreshInterval);
 	}
 
 	this.refreshServerInfo = function() {
@@ -325,7 +325,6 @@ function BitcoinApp() {
 		this.onDisconnect();
 		this.notify("Connecting");
 		this.bitcoin = new Bitcoin(host, port, user, pass);
-		this.bitcoin.init();
 		this.selectAccount(account);
 		this.bitcoin.getInfo(this.onConnect);
 	}
@@ -351,7 +350,7 @@ function BitcoinApp() {
 		var confString = "Send " + amount.formatBTC() + " to " + address + "?";
 
 		if(confirm(confString)) {
-			app.bitcoin.sendBTC(this.onSendBTC, '"' + address + '"', amount);
+			app.bitcoin.sendBTC(this.onSendBTC, address, amount);
 		}
 	}
 

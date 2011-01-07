@@ -20,15 +20,21 @@
 			<h3>A JavaScript Remote for <a href="http://bitcoin.org">Bitcoin</a></h3>
 			<div class="section">
 				<p>bitcoin-js-remote is a user interface for Bitcoin written in JavaScript. It does not require any server side dependencies other than <a href="https://en.bitcoin.it/wiki/API_tutorial_(JSON-RPC)">bitcoind</a>.</p>
+				<p>It works in most modern browsers as well as on Android and iPhones.</p>
 				<p>You can try out this demo or even use it to connect to your own bitcoind:</p>
 				<p class="center">
 				<a class="button" target="_new" href="http://bitcoincharts.com/media/stuff/js-remote/">Start / Demo</a>
 				</p>
+
+				<h4>Patching bitcoind</h4>
+				<p>If you want bitcoin-js-remote with your own bitcoind you need to apply a small patch (this will soon be included in the official binary).</p>
+				<p><a href="https://github.com/gavinandresen/bitcoin-git/commit/d07e51956423df3b1060865c65dd85c8e7fc3f05">CORS patch</a></p>
 			</div>
 
 			<h3>Features</h3>
 			<div class="section">
 				<ul>
+					<li>Android and iPhone support</li>
 					<li>List transactions</li>
 					<li>Send and receive Bitcoins</li>
 					<li>Supports multiple accounts</li>

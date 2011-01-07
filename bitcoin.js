@@ -29,7 +29,7 @@ function Bitcoin(host, port, user, pass, account) {
 		return url;
 	}
 
-	this.RPC = function(method, params, callback) {
+	this.RPC = function(method, params, callback, context) {
 		var request;
 
 		if(params != null) {
@@ -42,36 +42,36 @@ function Bitcoin(host, port, user, pass, account) {
 		}
 
 		jQuery.getJSON(this.RPCURL, request, function(data) {
-					callback(data.result, data.error);
+					callback(data.result, data.error, context);
 				});
 	}
 
-	this.listAccounts = function(callback) {
-		this.RPC("listaccounts", null, callback);
+	this.listAccounts = function(callback, context) {
+		this.RPC("listaccounts", null, callback, context);
 	}
 
-	this.listTransactions = function(callback) {
-		this.RPC("listtransactions", ['"' + this.account + '"', 999999], callback);
+	this.listTransactions = function(callback, context) {
+		this.RPC("listtransactions", ['"' + this.account + '"', 999999], callback, context);
 	}
 
-	this.validateAddress = function(callback, address) {
-		this.RPC("validateaddress", ['"' + address + '"'], callback);
+	this.validateAddress = function(callback, address, context) {
+		this.RPC("validateaddress", ['"' + address + '"'], callback, context);
 	}
 
-	this.sendBTC = function(callback, address, amount) {
-		this.RPC("sendfrom", ['"' + this.account + '"', address, amount], callback);
+	this.sendBTC = function(callback, address, amount, context) {
+		this.RPC("sendfrom", ['"' + this.account + '"', address, amount], callback, context);
 	}
 
-	this.getAddress = function(callback) {
-		this.RPC("getaccountaddress", ['"' + this.account + '"'], callback);
+	this.getAddress = function(callback, context) {
+		this.RPC("getaccountaddress", ['"' + this.account + '"'], callback, context);
 	}
 
-	this.getBalance = function(callback) {
-		this.RPC("getbalance", ['"' + this.account + '"'], callback);
+	this.getBalance = function(callback, context) {
+		this.RPC("getbalance", ['"' + this.account + '"'], callback, context);
 	}
 
-	this.getInfo = function(callback) {
-		this.RPC("getinfo", null, callback);
+	this.getInfo = function(callback, context) {
+		this.RPC("getinfo", null, callback, context);
 	}
 
 	this.selectAccount = function(account) {

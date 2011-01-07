@@ -366,7 +366,7 @@ function BitcoinApp() {
 
 	this.connect = function(host, port, user, pass, account) {
 		this.onDisconnect();
-		this.bitcoin = new Bitcoin({host: host, port: port, user: user, password: pass});
+		this.bitcoin = new Bitcoin({host: host, port: port}, user, pass);
 		this.selectAccount(account);
 		this.bitcoin.getInfo(this.onConnect);
 	}

@@ -20,8 +20,8 @@
  * THE SOFTWARE.
  */
 
-function Bitcoin(settings) {
-	this.settings = {host: null, port: null, auth: null, url: null, account: null, user: null, password: null};
+function Bitcoin(settings, user, password) {
+	this.settings = {host: null, port: null, auth: null, url: null, account: null};
 
 	this.prepareURL = function() {
 		var url = "http://";
@@ -121,17 +121,17 @@ function Bitcoin(settings) {
 			this.settings.account = "";
 	}
 
-	this.init = function(settings) {
+	this.init = function(settings, user, password) {
 		this.settings = settings;
 
 		if (!this.settings.url)
 			this.settings.url = this.prepareURL();
 
-		if (!this.settings.auth)
-			this.settings.auth = this.prepareAuth(this.settings.user, this.settings.password);
+		if (!this.settings.auth && user && password)
+			this.settings.auth = this.prepareAuth(user, password);
 		
 		this.selectAccount(settings.account);
 	}
 
-	this.init(settings);
+	this.init(settings, user, password);
 }

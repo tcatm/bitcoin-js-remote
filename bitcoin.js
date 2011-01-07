@@ -1,22 +1,35 @@
-function Bitcoin(app, host, port, user, pass) {
-	this.app = app;
+/*
+ * Copyright (c) 2010 Nils Schneider
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
+function Bitcoin(host, port, user, pass, account) {
 	this.RPCHost = host;
 	this.RPCPort = port;
-	this.RPCUser = user;
-	this.RPCPass = pass;
+	this.RPCAuth;
 	this.RPCURL;
+
+	this.account = "";
 
 	this.prepareURL = function() {
 		var url = "http://";
-
-		if(this.RPCUser) {
-			url += this.RPCUser;
-			if(this.RPCPass) {
-				url += ":" + this.RPCPass;
-			}
-			url += "@";
-		}
 
 		url += this.RPCHost;
 
@@ -24,13 +37,16 @@ function Bitcoin(app, host, port, user, pass) {
 			url += ":" + this.RPCPort;
 		}
 
-		url += "/?callback=?";
-
 		return url;
-	};
+	}
 
-	this.RPC = function(method, params, callback) {
+	this.prepareAuth = function(user, pass) {
+		return "Basic " + jQuery.base64_encode(user + ":" + pass);
+	}
+
+	this.RPC = function(method, params, callback, context) {
 		var request;
+		var auth = this.RPCAuth;
 
 		if(params != null) {
 			request = {method: method, params: params};
@@ -38,112 +54,59 @@ function Bitcoin(app, host, port, user, pass) {
 			request = {method: method};
 		}
 
-		jQuery.getJSON(this.RPCURL, request, function(data) {
-					callback(data.result);
-				});
+		jQuery.ajax({url: this.RPCURL, dataType: 'json', type: 'POST',
+					contentType: 'application/json',
+					data: JSON.stringify(request),
+					timeout: 5000,
+					beforeSend: function(req){
+                		req.setRequestHeader("Authorization", auth);
+					},
+					success:
+						 function(data) {
+							callback(data.result, data.error, context);
+						}
+					});
 	}
 
-	this.getBalance = function(account) {
-		this.RPC("getbalance", {account: account}, this.app.onGetBalance);
+	this.listAccounts = function(callback, context) {
+		this.RPC("listaccounts", null, callback, context);
 	}
 
-	this.getInfo = function() {
-		this.RPC("getinfo", null, this.app.onGetInfo);
+	this.listTransactions = function(callback, context) {
+		this.RPC("listtransactions", [this.account, 999999], callback, context);
 	}
 
-	this.connect = function() {
-		this.RPC("getinfo", null, this.app.onConnect);
+	this.validateAddress = function(callback, address, context) {
+		this.RPC("validateaddress", [address], callback, context);
 	}
 
-	this.init = function() {
+	this.sendBTC = function(callback, address, amount, context) {
+		this.RPC("sendfrom", [this.account, address, amount], callback, context);
+	}
+
+	this.getAddress = function(callback, context) {
+		this.RPC("getaccountaddress", [this.account], callback, context);
+	}
+
+	this.getBalance = function(callback, context) {
+		this.RPC("getbalance", [this.account], callback, context);
+	}
+
+	this.getInfo = function(callback, context) {
+		this.RPC("getinfo", null, callback, context);
+	}
+
+	this.selectAccount = function(account) {
+		if (account != undefined)
+			this.account = account;
+		else
+			this.account = "";
+	}
+
+	this.init = function(user, pass) {
 		this.RPCURL = this.prepareURL();
+		this.RPCAuth = this.prepareAuth(user, pass);
 	}
 
-	this.init();
-}
-
-function formatBTC(btc, addSign) {
-	var nf = new NumberFormat(Math.abs(btc));
-	nf.setPlaces(2);
-	nf.setCurrency(true);
-	nf.setCurrencyValue(" BTC");
-	nf.setCurrencyPosition(nf.RIGHT_OUTSIDE);
-
-	var s = nf.toFormatted();
-
-	if(addSign) {
-		var sign;
-		if(btc > 0) {
-			sign = "+";
-		} else if(btc < 0) {
-			sign = "-";
-		}
-		s = sign + s;
-	}
-
-	return s;
-}
-
-function getFormValue(form, name) {
-	return $(form).children('input[name="' + name + '"]').attr('value');
-}
-
-/* Because of the way JSONP works this codes assumes a global 
- * variable named 'app' pointing to the BitcoinApp() instance!
- *
- * <script type="text/javascript">
- *     var app = new BitcoinApp();
- * </script>
- */
-
-function BitcoinApp() {
-	this.bitcoin = false;
-	this.account = "";
-
-	this.onGetBalance = function(balance) {
-		$('#balance').text(formatBTC(balance));
-	}
-
-	this.onConnect = function(info) {
-		if(info.version) {
-			$('#section_Settings').next().slideToggle('fast');
-			app.onGetInfo(info);
-			app.refreshBalance();
-		}
-	}
-
-	this.onGetInfo = function(info) {
-		var sNetwork = "Bitcoin";
-		if(info.testnet) {
-			sNetwork = "Testnet";
-		}
-
-		$('#title').text(sNetwork + " on " + app.bitcoin.RPCHost);
-	}
-
-	this.refreshBalance = function() {
-		this.bitcoin.getBalance(this.account);
-	};
-
-	this.connect = function(host, port, user, pass) {
-		this.bitcoin = new Bitcoin(this, host, port, user, pass);
-		this.bitcoin.connect();
-	}
-
-	this.init = function() {
-		if(!this.bitcoin) {
-			$('#title').text("Bitcoin (not connected)");
-		}
-
-		$('form#settingsServer').submit( function() {
-					var host = getFormValue(this, "host");
-					var port = getFormValue(this, "port");
-					var user = getFormValue(this, "user");
-					var pass = getFormValue(this, "pass");
-					app.connect(host, port, user, pass);
-					return false;
-				});
-	};
-
-	this.init();
+	this.init(user, pass);
 }

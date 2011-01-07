@@ -13,11 +13,16 @@ h1 {
 	font-size: 1.8em;
 }
 
+h4 {
+	margin: 3pt 0;
+}
+
 #sections h3 {
 	color: #eee;
 	background: #333 url(images/background-section-head.png) top left repeat-x;
 	padding: 0.5em;
 	margin: 0;
+	text-shadow: #000 2px 2px 0px;
 }
 
 #sections h3:hover {
@@ -27,9 +32,13 @@ h1 {
 
 #sections .section {
 	background: #fff url(images/background-section.png) top left repeat-x;
-	padding: 8pt;
+	padding: 10pt 8pt 4pt 8pt;
 	color: #222;
 	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-serif;
+}
+
+p {
+	margin: 0.3em 3pt;
 }
 
 table {
@@ -40,10 +49,33 @@ table {
 	font-size: 10pt;
 	color: #222;
 	white-space: nowrap;
+	margin: 0;
+	padding: 0;
+	border-spacing: 0;
+}
+
+table td {
+	padding: 0.3em 3pt;
+}
+
+table th {
+	padding: 0.3em 3pt;
+}
+
+table tr {
+	margin: 0;
+}
+
+table tr.odd {
+	background: #f5f5f5;
 }
 
 .big {
 	font-size: 12pt;
+}
+
+.left {
+	text-align: left;
 }
 
 .right {
@@ -55,13 +87,126 @@ table {
 }
 
 tr.unconfirmed {
-	color: #888;
+	opacity: 0.4;
 }
 
-.credit {
+.credit, .valRight {
 	color: #0E8C3A;
 }
 
-.debit {
+.debit, .valWrong {
 	color: #DB2645;
+}
+
+div.humanized-message{
+	position: absolute;
+	text-align: center;
+	width: 70%;
+	min-height: 20px;
+	_height: 20px;
+	background: #333;
+	color: #fff;
+	z-index: 100000;
+	padding: 20px;
+	font-size: 30px;
+	visibility: hidden;
+	-moz-border-radius:10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+}
+
+#disconnectButton {
+	position: absolute;
+	top: 8pt;
+	right: 5pt;
+	color: red;
+}
+
+form {
+	padding: 5pt;
+}
+
+form label {
+	display: inline-block;
+	text-align: right;
+	width: 5em;
+	margin-right: 1em;
+}
+
+form input {
+	border: 1px solid #ddd;
+	margin: 0.3em 0;
+	padding: 0.5em;
+	background: transparent;
+}
+
+#footer {
+	text-align: center;
+	margin-top: 1em;
+	color: #999;
+}
+
+#footer a {
+	color: #fd4;
+	text-decoration: none;
+}
+
+.valRight, .valWrong {
+	margin-left: 0.3em;
+	font-size: 1.5em;
+}
+
+#txlist {
+	table-layout: fixed;
+}
+
+#sections h3, #disconnectButton, #txlist tbody tr, #accountList tbody tr {
+	cursor:pointer; cursor:hand;
+}
+
+#txlist td.info {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	width: 100px;
+}
+
+#txlist tr.txinfo, #txlist tr.txinfo td {
+	padding: 0;
+	margin: 0;
+	background: transparent;
+}
+
+#txlist tbody tr:hover, #accountList tbody tr:hover {
+	background: #fe8;
+}
+
+#txlist tbody tr.txinfo:hover {
+	background: transparent;
+}
+
+#txlist tbody tr:hover + tr.txinfo div {
+	background: #fe8;
+}
+
+#txlist tr.txinfo div {
+	margin: 0 0 4pt 0;
+	padding: 0 6pt 4pt 6pt;
+	overflow: hidden;
+}
+
+#txlist tr.txinfo div label, #connectionInfo label {
+	font-weight: bold;
+}
+
+#balance {
+	float: right;
+}
+
+#address {
+	text-align: center;
+	background: #fff;
+	padding: 0.3em;
+	color: #222;
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-serif;
+	margin: 0;
 }

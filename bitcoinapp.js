@@ -71,6 +71,8 @@ function BitcoinApp() {
 	}
 
 	this.clearAccountInfo = function() {
+		clearTimeout(this.refreshTimeout);
+
 		$('#currentAccount').text('');
 		app.balance = false;
 		app.clearTransactions();
@@ -153,12 +155,18 @@ function BitcoinApp() {
 		row.children('td:last-child').removeClass().addClass("right").addClass(balanceClass).text(balance.formatBTC());
 	}
 
-	this.onListTransactions = function(transactions) {
+	this.onListTransactions = function(rawtxlist) {
 		var start = new Date().getTime();
 
-		for (var key in transactions)
-			if (transactions[key].time == undefined)
-				transactions[key].time = 0;
+		var transactions = new Array();
+
+		for (var key in rawtxlist)
+			if (rawtxlist[key].account == app.bitcoin.account) {
+				if (rawtxlist[key].time == undefined)
+					rawtxlist[key].time = 0;
+
+				transactions.push(rawtxlist[key]);
+			}
 
 		transactions.sort(sortTransactions);
 

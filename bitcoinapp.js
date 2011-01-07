@@ -75,7 +75,7 @@ function BitcoinApp() {
 		document.title = title;
 	}
 
-	this.onDisconnect = function() {
+	this.onDisconnect = function(hideSettings) {
 		app.connected = false;
 		app.setTitle("Bitcoin (not connected)");
 
@@ -85,7 +85,12 @@ function BitcoinApp() {
 		$('#section_SendBTC').hide().next().hide();
 		$('#section_TX').hide().next().hide();
 		$('#section_Accounts').hide().next().hide();
-		$('#section_Settings').next().show();
+
+		if (hideSettings) {
+			$('#section_Settings').next().hide();
+		} else {
+			$('#section_Settings').next().show();
+		}
 
 		app.clearAccounts();
 		app.clearAccountInfo();
@@ -365,15 +370,17 @@ function BitcoinApp() {
 	}
 
 	this.connect = function(host, port, user, pass, account) {
-		this.onDisconnect();
-		try {
-			var settings = JSON.parse(jQuery.base64_decode(host));
-			this.bitcoin = new Bitcoin(settings);
-		} catch (err) {
+		this.onDisconnect(host.settings?true:false);
+
+		/* host might contain query with settings and request */
+		if (host.settings) {
+			this.bitcoin = new Bitcoin(host.settings);
+			this.bitcoin.getInfo(this.onConnect, host.request);
+		} else {
 			this.bitcoin = new Bitcoin({host: host, port: port}, user, pass);
 			this.selectAccount(account);
+			this.bitcoin.getInfo(this.onConnect);
 		}
-		this.bitcoin.getInfo(this.onConnect);
 	}
 
 	this.error = function(msg) {
@@ -429,12 +436,34 @@ function BitcoinApp() {
 		}
 	}
 
+	this.serializeSettings = function(request) {
+		var obj = {settings: app.bitcoin.settings, request: request};
+		return jQuery.base64_encode(JSON.stringify(obj));
+	}
+
 	this.init = function() {
 		this.addPrototypes();
 		$('#version').text(this.version);
 
-		if(!this.connected) {
+		var query;
+
+		try {
+			var hash = window.location.hash.substring(1);
+			query = JSON.parse(jQuery.base64_decode(hash));
+		} catch (err) {
+			query = undefined;
+		}
+
+		/* remove locationhash as it might contain passwords */
+		window.location.hash = "";
+
+		if (query) {
+			this.connect(query);
+		}
+
+		if(!this.connected && !query) {
 			$('#address').hide();
+			this.onDisconnect();
 
 			$.getJSON('settings.json', function(data) {
 						if(data) {
@@ -446,7 +475,6 @@ function BitcoinApp() {
 							setFormValue(form, "account", data.account);
 						}
 					});
-			this.onDisconnect();
 		}
 
 		$('#disconnectButton').click( function() {

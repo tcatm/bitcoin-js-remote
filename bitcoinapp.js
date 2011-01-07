@@ -19,7 +19,7 @@ function BitcoinApp() {
 
 	this.onGetBalance = function(balance) {
 		$('#balance').text(balance.formatBTC());
-		$('#currentAccount').text(app.bitcoin.account);
+		$('#currentAccount').text(app.bitcoin.account.prettyAccount());
 		app.balance = balance;
 	}
 
@@ -128,7 +128,7 @@ function BitcoinApp() {
 			if (row.length == 0) {
 				row = $('<tr></tr>');
 
-				var html ='<td class="left">"' + account + '"</td>';
+				var html ='<td class="left">' + account.prettyAccount() + '</td>';
 					html += '<td></td>';
 
 				row.append(html);
@@ -241,7 +241,7 @@ function BitcoinApp() {
 
 		if(tx.category != undefined) html += "<label>Category:</label> " + tx.category.capitalize() + "<br/>";
 		if(tx.address != undefined) html += "<label>Address:</label> " + tx.address + "<br/>";
-		if(tx.otheraccount != undefined) html += "<label>Other Account:</label> " + tx.otheraccount + "<br/>";
+		if(tx.otheraccount != undefined) html += "<label>Other Account:</label> " + tx.otheraccount.prettyAccount() + "<br/>";
 		if(tx.confirmations != undefined) html += "<label>Confirmations:</label> " + tx.confirmations + "<br/>";
 		if(tx.fee != undefined) html += "<label>Fee:</label> " + tx.fee.formatBTC() + "<br/>";
 		if(tx.comment != "" && tx.comment != undefined) html += "<label>Comment:</label> " + tx.comment + "<br/>";
@@ -264,7 +264,7 @@ function BitcoinApp() {
 			info = tx.address;
 
 		if (tx.category == 'move')
-			info = '"' + tx.otheraccount + '"';
+			info = tx.otheraccount.prettyAccount();
 
 		var amountClass = (tx.amount<0?'debit':'credit');
 
@@ -357,6 +357,13 @@ function BitcoinApp() {
 	this.addPrototypes = function() {
 		String.prototype.capitalize = function() {
 			    return this.charAt(0).toUpperCase() + this.slice(1);
+		}
+
+		String.prototype.prettyAccount = function() {
+			if (this == "")
+				return "(default)";
+
+			return this.toString();
 		}
 
 		Number.prototype.formatBTC = function(addSign) {

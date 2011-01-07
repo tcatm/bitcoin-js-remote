@@ -20,33 +20,28 @@
  * THE SOFTWARE.
  */
 
-function Bitcoin(host, port, user, pass, account) {
-	this.RPCHost = host;
-	this.RPCPort = port;
-	this.RPCAuth;
-	this.RPCURL;
-
-	this.account = "";
+function Bitcoin(settings) {
+	this.settings = {host: null, port: null, auth: null, url: null, account: null, user: null, password: null};
 
 	this.prepareURL = function() {
 		var url = "http://";
 
-		url += this.RPCHost;
+		url += this.settings.host;
 
-		if(this.RPCPort) {
-			url += ":" + this.RPCPort;
+		if(this.settings.port) {
+			url += ":" + this.settings.port;
 		}
 
 		return url;
 	}
 
-	this.prepareAuth = function(user, pass) {
-		return "Basic " + jQuery.base64_encode(user + ":" + pass);
+	this.prepareAuth = function(user, password) {
+		return "Basic " + jQuery.base64_encode(user + ":" + password);
 	}
 
 	this.RPC = function(method, params, callback, context) {
 		var request;
-		var auth = this.RPCAuth;
+		var auth = this.settings.auth;
 
 		if(params != null) {
 			request = {method: method, params: params};
@@ -54,7 +49,7 @@ function Bitcoin(host, port, user, pass, account) {
 			request = {method: method};
 		}
 
-		jQuery.ajax({url: this.RPCURL, dataType: 'json', type: 'POST',
+		jQuery.ajax({url: this.settings.url, dataType: 'json', type: 'POST',
 					contentType: 'application/json',
 					data: JSON.stringify(request),
 					timeout: 5000,
@@ -96,7 +91,7 @@ function Bitcoin(host, port, user, pass, account) {
 	}
 
 	this.listTransactions = function(callback, context) {
-		this.RPC("listtransactions", [this.account, 999999], callback, context);
+		this.RPC("listtransactions", [this.settings.account, 999999], callback, context);
 	}
 
 	this.validateAddress = function(callback, address, context) {
@@ -104,15 +99,15 @@ function Bitcoin(host, port, user, pass, account) {
 	}
 
 	this.sendBTC = function(callback, address, amount, context) {
-		this.RPC("sendfrom", [this.account, address, amount], callback, context);
+		this.RPC("sendfrom", [this.settings.account, address, amount], callback, context);
 	}
 
 	this.getAddress = function(callback, context) {
-		this.RPC("getaccountaddress", [this.account], callback, context);
+		this.RPC("getaccountaddress", [this.settings.account], callback, context);
 	}
 
 	this.getBalance = function(callback, context) {
-		this.RPC("getbalance", [this.account], callback, context);
+		this.RPC("getbalance", [this.settings.account], callback, context);
 	}
 
 	this.getInfo = function(callback, context) {
@@ -121,15 +116,22 @@ function Bitcoin(host, port, user, pass, account) {
 
 	this.selectAccount = function(account) {
 		if (account != undefined)
-			this.account = account;
+			this.settings.account = account;
 		else
-			this.account = "";
+			this.settings.account = "";
 	}
 
-	this.init = function(user, pass) {
-		this.RPCURL = this.prepareURL();
-		this.RPCAuth = this.prepareAuth(user, pass);
+	this.init = function(settings) {
+		this.settings = settings;
+
+		if (!this.settings.url)
+			this.settings.url = this.prepareURL();
+
+		if (!this.settings.auth)
+			this.settings.auth = this.prepareAuth(this.settings.user, this.settings.password);
+		
+		this.selectAccount(settings.account);
 	}
 
-	this.init(user, pass);
+	this.init(settings);
 }

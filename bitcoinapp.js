@@ -43,7 +43,7 @@ function BitcoinApp() {
 
 	this.onGetBalance = function(balance) {
 		$('#balance').text(balance.formatBTC());
-		$('#currentAccount').text(app.bitcoin.account.prettyAccount());
+		$('#currentAccount').text(app.bitcoin.settings.account.prettyAccount());
 		app.balance = balance;
 	}
 
@@ -105,7 +105,7 @@ function BitcoinApp() {
 			sNetwork = "Testnet";
 		}
 
-		app.setTitle(sNetwork + " on " + app.bitcoin.RPCHost);
+		app.setTitle(sNetwork + " on " + app.bitcoin.settings.host);
 
 		var serverInfo = $('#serverInfo table');
 
@@ -182,7 +182,7 @@ function BitcoinApp() {
 		var transactions = new Array();
 
 		for (var key in rawtxlist)
-			if (rawtxlist[key].account == app.bitcoin.account) {
+			if (rawtxlist[key].account == app.bitcoin.settings.account) {
 				if (rawtxlist[key].time == undefined)
 					rawtxlist[key].time = 0;
 
@@ -366,7 +366,7 @@ function BitcoinApp() {
 
 	this.connect = function(host, port, user, pass, account) {
 		this.onDisconnect();
-		this.bitcoin = new Bitcoin(host, port, user, pass);
+		this.bitcoin = new Bitcoin({host: host, port: port, user: user, password: pass});
 		this.selectAccount(account);
 		this.bitcoin.getInfo(this.onConnect);
 	}

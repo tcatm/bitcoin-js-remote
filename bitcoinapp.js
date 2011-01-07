@@ -8,6 +8,8 @@
  */
 
 function BitcoinApp() {
+	this.version = "0.1";
+
 	this.bitcoin = false;
 	this.balance;
 	this.connected = false;
@@ -403,6 +405,7 @@ function BitcoinApp() {
 
 	this.init = function() {
 		this.addPrototypes();
+		$('#version').text(this.version);
 
 		if(!this.connected) {
 			$('#address').hide();

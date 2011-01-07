@@ -1,7 +1,0 @@
-{ 
-	"host": "85.116.192.135",
-	"port": 7332,
-	"user": "testnet",
-	"pass": "letmein",
-	"account": ""
-}

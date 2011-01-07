@@ -43,8 +43,6 @@ function BitcoinApp() {
 			$('#serverInfo').show();
 
 			var connInfo = '<label>Connected to:</label> ' + app.bitcoin.RPCHost + ':' + app.bitcoin.RPCPort + '<br/><label>Account:</label> "' + app.bitcoin.account + '"';
-
-			$('#connectionInfo').html(connInfo).show();
 		}
 	}
 
@@ -64,7 +62,6 @@ function BitcoinApp() {
 		$('#section_TX').hide().next().hide();
 		$('#section_Accounts').hide().next().hide();
 		$('#section_Settings').next().show();
-		$('#connectionInfo').html('').hide();
 
 		app.clearAccounts();
 		app.clearAccountInfo();

@@ -366,8 +366,13 @@ function BitcoinApp() {
 
 	this.connect = function(host, port, user, pass, account) {
 		this.onDisconnect();
-		this.bitcoin = new Bitcoin({host: host, port: port}, user, pass);
-		this.selectAccount(account);
+		try {
+			var settings = JSON.parse(jQuery.base64_decode(host));
+			this.bitcoin = new Bitcoin(settings);
+		} catch (err) {
+			this.bitcoin = new Bitcoin({host: host, port: port}, user, pass);
+			this.selectAccount(account);
+		}
 		this.bitcoin.getInfo(this.onConnect);
 	}
 

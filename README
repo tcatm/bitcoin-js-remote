@@ -1,0 +1,33 @@
+This is a javascript UI for bitcoind. The following patch needs to be applied to bitcoind:
+
+diff --git a/rpc.cpp b/rpc.cpp
+index 5209219..d273059 100644
+--- a/rpc.cpp
++++ b/rpc.cpp
+@@ -1353,6 +1353,8 @@ string HTTPReply(int nStatus, const string& strMsg)
+             "Date: %s\r\n"
+             "Server: bitcoin-json-rpc\r\n"
+             "WWW-Authenticate: Basic realm=\"jsonrpc\"\r\n"
++            "Access-Control-Allow-Origin: *\r\n"
++            "Access-Control-Allow-Headers: Authorization, Content-Type\r\n"
+             "Content-Type: text/html\r\n"
+             "Content-Length: 296\r\n"
+             "\r\n"
+@@ -1377,6 +1379,8 @@ string HTTPReply(int nStatus, const string& strMsg)
+             "Content-Length: %d\r\n"
+             "Content-Type: application/json\r\n"
+             "Server: bitcoin-json-rpc/1.0\r\n"
++            "Access-Control-Allow-Origin: *\r\n"
++            "Access-Control-Allow-Headers: Authorization, Content-Type\r\n"
+             "\r\n"
+             "%s",
+         nStatus,
+@@ -1531,7 +1535,7 @@ string JSONRPCReply(const Value& result, const Value& error, const Value& id)
+ void ErrorReply(std::ostream& stream, const Object& objError, const Value& id)
+ {
+     // Send error reply from json-rpc error object
+-    int nStatus = 500;
++    int nStatus = 200;
+     int code = find_value(objError, "code").get_int();
+     if (code == -32600) nStatus = 400;
+     else if (code == -32601) nStatus = 404;

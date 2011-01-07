@@ -76,7 +76,7 @@ function Bitcoin(host, port, user, pass, account) {
 							} catch (err) {
 								data = {result: null, error: {code: req.status}};
 
-								if (data.error.code === 0) 
+								if (data.error.code === 0 && !req.status) 
 									data.error.message = "RPC not found";
 								else {
 									if (req.statusText)

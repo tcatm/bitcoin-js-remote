@@ -239,9 +239,23 @@ function BitcoinApp() {
 	this.txInfoHTML = function(tx) {
 		var html = "";
 
-		if(tx.category != undefined) html += "<label>Category:</label> " + tx.category.capitalize() + "<br/>";
-		if(tx.address != undefined) html += "<label>Address:</label> " + tx.address + "<br/>";
-		if(tx.otheraccount != undefined) html += "<label>Other Account:</label> " + tx.otheraccount.prettyAccount() + "<br/>";
+		switch (tx.category) {
+			case "generate":
+				html += "<label>Generated coins</label><br/>";
+				break;
+			case "move":
+				html += "<label>Moved " + (tx.amount<0?"to":"from") + ":</label> " + tx.otheraccount.prettyAccount() + "<br/>";
+				break;
+			case "send":
+				html += "<label>Sent to:</label> " + tx.address + "<br/>";
+				break;
+			case "receive":
+				html += "<label>Received on:</label> " + tx.address + "<br/>";
+				break;
+			default:
+				html += "<label>Category:</label> " + tx.category + "<br/>";
+		}
+
 		if(tx.confirmations != undefined) html += "<label>Confirmations:</label> " + tx.confirmations + "<br/>";
 		if(tx.fee != undefined) html += "<label>Fee:</label> " + tx.fee.formatBTC() + "<br/>";
 		if(tx.comment != "" && tx.comment != undefined) html += "<label>Comment:</label> " + tx.comment + "<br/>";
@@ -264,13 +278,13 @@ function BitcoinApp() {
 			info = tx.address;
 
 		if (tx.category == 'move')
-			info = tx.otheraccount.prettyAccount();
+			info = (tx.amount<0?"to ":"from ") + tx.otheraccount.prettyAccount();
 
 		var amountClass = (tx.amount<0?'debit':'credit');
 
 		var html = '<td class="center">' + confirmations + '</td>';
 		html += '<td>' + timestamp.format(this.dateFormat) + '</td>';
-		html += '<td class="' + ((tx.address || tx.otheraccount)?amountClass + ' ':null) + 'info">' + info + '</td>';
+		html += '<td class="info">' + info + '</td>';
 		html += '<td class="' + amountClass + ' right">' + tx.amount.formatBTC(true) + '</td>';
 
 		var txitem = $(html);

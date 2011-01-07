@@ -66,12 +66,24 @@ function Bitcoin(host, port, user, pass, account) {
 							callback(data.result, data.error, context);
 						},
 					error:
-						 function(req, options, error) {
+						 function(req, textStatus, error) {
+							var data;
 							try  {
-								var data = jQuery.parseJSON(req.responseText);
+								if (!req.responseText)
+									throw "no responseText";
+
+								data = jQuery.parseJSON(req.responseText);
 							} catch (err) {
-								var data = {result: null, error: null};
-								data.error = {code: req.status, message: req.statusText};
+								data = {result: null, error: {code: req.status}};
+
+								if (data.error.code === 0) 
+									data.error.message = "RPC not found";
+								else {
+									if (req.statusText)
+										data.error.message = req.statusText;
+									else
+										data.error.message = data.error.code.toString();
+								}
 							}
 
 							callback(data.result, data.error, context);

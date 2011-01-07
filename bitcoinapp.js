@@ -53,8 +53,8 @@ function BitcoinApp() {
 			$('#address').text(address);
 	}
 
-	this.onConnect = function(info) {
-		if(info.version) {
+	this.onConnect = function(info, error) {
+		if (error == null) {
 			app.connected = true;
 
 			app.refreshAll();
@@ -65,8 +65,8 @@ function BitcoinApp() {
 			$('#section_SendBTC').show();
 			$('#section_TX').show().next().show();
 			$('#serverInfo').show();
-
-			var connInfo = '<label>Connected to:</label> ' + app.bitcoin.RPCHost + ':' + app.bitcoin.RPCPort + '<br/><label>Account:</label> "' + app.bitcoin.account + '"';
+		} else {
+			app.error(error.message);
 		}
 	}
 
@@ -366,7 +366,6 @@ function BitcoinApp() {
 
 	this.connect = function(host, port, user, pass, account) {
 		this.onDisconnect();
-		this.notify("Connecting");
 		this.bitcoin = new Bitcoin(host, port, user, pass);
 		this.selectAccount(account);
 		this.bitcoin.getInfo(this.onConnect);

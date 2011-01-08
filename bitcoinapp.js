@@ -447,11 +447,19 @@ function BitcoinApp() {
 
 		var query;
 
+		var hash = window.location.hash.split('#');
+
 		try {
-			var hash = window.location.hash.substring(1);
-			query = JSON.parse(jQuery.base64_decode(hash));
+			query = JSON.parse(jQuery.base64_decode(hash[1]));
 		} catch (err) {
 			query = undefined;
+		}
+
+		if (query && hash[2]) {
+			if (!query.request)
+				query['request'] = {}
+
+			query.request.data = hash[2];
 		}
 
 		/* remove locationhash as it might contain passwords */

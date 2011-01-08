@@ -167,7 +167,7 @@ function BitcoinApp() {
 			sNetwork = "Testnet";
 		}
 
-		app.setTitle(sNetwork + " on " + app.bitcoin.settings.host);
+		app.setTitle(sNetwork + " on " + app.bitcoin.settings.url);
 
 		var serverInfo = $('#serverInfo table');
 
@@ -426,15 +426,15 @@ function BitcoinApp() {
 			this.refreshAll();
 	}
 
-	this.connect = function(host, port, user, pass, account) {
-		this.onDisconnect(host.settings?true:false);
+	this.connect = function(url, user, pass, account) {
+		this.onDisconnect(url.settings?true:false);
 
-		/* host might contain query with settings and request */
-		if (host.settings) {
-			this.bitcoin = new Bitcoin(host.settings);
-			this.bitcoin.getInfo(this.onConnect, host.request);
+		/* url might contain query with settings and request */
+		if (url.settings) {
+			this.bitcoin = new Bitcoin(url.settings);
+			this.bitcoin.getInfo(this.onConnect, url.request);
 		} else {
-			this.bitcoin = new Bitcoin({host: host, port: port}, user, pass);
+			this.bitcoin = new Bitcoin({url: url}, user, pass);
 			this.selectAccount(account);
 			this.bitcoin.getInfo(this.onConnect);
 		}
@@ -578,8 +578,7 @@ function BitcoinApp() {
 			$.getJSON('settings.json', function(data) {
 						if(data) {
 							var form = $('form#settingsServer');
-							setFormValue(form, "host", data.host);
-							setFormValue(form, "port", data.port);
+							setFormValue(form, "url", data.url);
 							setFormValue(form, "user", data.user);
 							setFormValue(form, "pass", data.pass);
 							setFormValue(form, "account", data.account);
@@ -609,12 +608,11 @@ function BitcoinApp() {
 				});
 
 		$('form#settingsServer').submit( function() {
-					var host = getFormValue(this, "host");
-					var port = getFormValue(this, "port");
+					var url = getFormValue(this, "url");
 					var user = getFormValue(this, "user");
 					var pass = getFormValue(this, "pass");
 					var account = getFormValue(this, "account");
-					app.connect(host, port, user, pass, account);
+					app.connect(url, user, pass, account);
 					return false;
 				});
 

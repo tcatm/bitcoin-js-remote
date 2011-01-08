@@ -21,19 +21,7 @@
  */
 
 function Bitcoin(settings, user, password) {
-	this.settings = {host: null, port: null, auth: null, url: null, account: null};
-
-	this.prepareURL = function() {
-		var url = "http://";
-
-		url += this.settings.host;
-
-		if(this.settings.port) {
-			url += ":" + this.settings.port;
-		}
-
-		return url;
-	}
+	this.settings = {url: null, auth: null, account: null};
 
 	this.prepareAuth = function(user, password) {
 		return "Basic " + jQuery.base64_encode(user + ":" + password);
@@ -123,9 +111,6 @@ function Bitcoin(settings, user, password) {
 
 	this.init = function(settings, user, password) {
 		this.settings = settings;
-
-		if (!this.settings.url)
-			this.settings.url = this.prepareURL();
 
 		if (!this.settings.auth && user && password)
 			this.settings.auth = this.prepareAuth(user, password);

@@ -37,6 +37,7 @@ function BitcoinApp() {
 	this.connected = false;
 	this.refreshTimeout = false;
 	this.refreshInterval = 5000;
+	this.hashchangeTimeout;
 
 	this.generateConfirm = 120;
 	this.dateFormat = "dd/mm/yyyy HH:MM";
@@ -88,14 +89,14 @@ function BitcoinApp() {
 			var width = $(window).width();
 			var height = $(window).height();
 			var size = Math.min(width, height, 540);
-			var QRurl = 'https://chart.googleapis.com/chart?chs=' + size + 'x' + size + '&cht=qr&chl=' + address + 'd&choe=UTF-8';
+			var QRurl = 'https://chart.googleapis.com/chart?chs=' + size + 'x' + size + '&cht=qr&chl=' + address + '&choe=UTF-8';
 			this.showFullscreenObj($('<img src="' + QRurl + '" />'));
 		} else {
 			this.error("No address found!");
 		}
 	}
 
-	this.onConnect = function(info, error) {
+	this.onConnect = function(info, error, request) {
 		if (error == null) {
 			app.connected = true;
 
@@ -107,9 +108,23 @@ function BitcoinApp() {
 			$('#section_SendBTC').show();
 			$('#section_TX').show().next().show();
 			$('#serverInfo').show();
+
+			if (request)
+				app.parseRequest(request);
+
 		} else {
 			app.error(error.message);
 		}
+	}
+
+	this.parseRequest = function(request) {
+		if (request.action)
+			switch (request.action) {
+				case "sendtoaddress":
+					setFormValue($('form#sendBTC'), "address", request.data);
+					$('#section_SendBTC').next().show();
+					break;
+			}
 	}
 
 	this.setTitle = function(title) {
@@ -483,9 +498,34 @@ function BitcoinApp() {
 		return jQuery.base64_encode(JSON.stringify(obj));
 	}
 
-	this.init = function() {
+	this.scanQR = function(request) {
+		var request = {request: request};
+		var url = window.location.href.split('#')[0];
+		var ret = url + "%23" + jQuery.base64_encode(JSON.stringify(request)) + "/";
+		var scanurl = "http://zxing.appspot.com/scan?ret=" + ret + "{CODE}";
+
+		this.detectHashchange();
+
+		window.location = scanurl;
+	}
+
+	this.detectHashchange = function(oldhash) {
+		clearTimeout(this.hashchangeTimeout);
+
+		var hash = window.location.hash.substring(1);
+
+		if (oldhash != undefined)
+			if (oldhash != hash) {
+				this.parseHash(hash);
+				return;
+			}
+
+		this.hashchangeTimeout = setTimeout('app.detectHashchange("'+ hash +'");', 500);
+	}
+
+	this.parseHash = function(hash) {
 		/* This function parses the location hash. Format:
-		 * #$base64json[#rawdata]
+		 * #$base64json[/rawdata]
 		 *
 		 * $base64json is parsed into query and should contain
 		 * settings and an optional request (created by serializeSettings())
@@ -493,34 +533,46 @@ function BitcoinApp() {
 		 * Optional rawData will be stored in query.request.data
 		 */
 
-		this.addPrototypes();
-		$('#version').text(this.version);
-
-		var query;
-
-		var hash = window.location.hash.split('#');
+		var hash = hash.split('/');
 
 		try {
-			query = JSON.parse(jQuery.base64_decode(hash[1]));
+			query = JSON.parse(jQuery.base64_decode(hash[0]));
 		} catch (err) {
 			query = undefined;
 		}
 
-		if (query && hash[2]) {
+		if (query && hash[1]) {
 			if (!query.request)
 				query['request'] = {}
 
-			query.request.data = hash[2];
+			query.request.data = hash[1];
 		}
 
 		/* remove locationhash as it might contain passwords */
 		window.location.hash = "";
 
-		if (query) {
-			this.connect(query);
-		}
+		if (query)
+			if (query.settings) {
+				this.connect(query);
+				return true;
+			} else if (query.request) {
+				this.parseRequest(query.request);
+			}
 
-		if(!this.connected && !query) {
+		return false;
+	}
+
+	this.init = function() {
+		this.addPrototypes();
+		$('#version').text(this.version);
+
+		var query;
+
+		var hash = window.location.hash.substring(1);
+
+		var ret = this.parseHash(hash);
+
+		if(!this.connected && !ret) {
 			this.onDisconnect();
 
 			$.getJSON('settings.json', function(data) {
@@ -534,6 +586,17 @@ function BitcoinApp() {
 						}
 					});
 		}
+
+		var uagent = navigator.userAgent.toLowerCase();
+
+		/* hide scanQRbutton on non-android platforms */
+		if (uagent.search("android") <= -1)
+			$('#scanQRbutton').hide();
+
+		$('#scanQRbutton').click( function() {
+					app.scanQR({action: "sendtoaddress"});
+					return false;
+				});
 
 		$('#QRbutton').click( function() {
 					app.showQRAddress();

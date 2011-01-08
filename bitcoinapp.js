@@ -53,6 +53,48 @@ function BitcoinApp() {
 			$('#address').text(address);
 	}
 
+	this.showFullscreenObj = function(obj) {
+		var width = $(window).width();
+		var height = $(window).height();
+		var box = $('<div/>');
+		var innerBox = $('<div/>');
+		box.width(width);
+		box.height(height);
+		box.css('position', 'absolute');
+		box.css('top', 0);
+		box.css('left', 0);
+		box.css('background', 'white');
+
+		innerBox.width(width);
+		innerBox.height(height);
+		innerBox.css('display', 'table-cell');
+		innerBox.css('text-align', 'center');
+		innerBox.css('vertical-align', 'middle');
+
+		innerBox.append(obj);
+
+		box.append(innerBox);
+
+		box.click( function() {
+					$(this).remove();
+				});
+
+		$('body').append(box);
+	}
+
+	this.showQRAddress = function() {
+		var address = $('#address').text();
+		if (address != "") {
+			var width = $(window).width();
+			var height = $(window).height();
+			var size = Math.min(width, height, 540);
+			var QRurl = 'https://chart.googleapis.com/chart?chs=' + size + 'x' + size + '&cht=qr&chl=' + address + 'd&choe=UTF-8';
+			this.showFullscreenObj($('<img src="' + QRurl + '" />'));
+		} else {
+			this.error("No address found!");
+		}
+	}
+
 	this.onConnect = function(info, error) {
 		if (error == null) {
 			app.connected = true;
@@ -60,7 +102,7 @@ function BitcoinApp() {
 			app.refreshAll();
 
 			$('#section_Settings').next().slideUp('fast');
-			$('#addressBox').slideDown('fast');
+			$('#addressBox').show();
 			$('#section_Accounts').show();
 			$('#section_SendBTC').show();
 			$('#section_TX').show().next().show();
@@ -79,7 +121,7 @@ function BitcoinApp() {
 		app.connected = false;
 		app.setTitle("Bitcoin (not connected)");
 
-		$('#addressBox').slideUp('fast');
+		$('#addressBox').hide();
 		$('#serverInfo').hide();
 		$('#serverInfo table').children().remove();
 		$('#section_SendBTC').hide().next().hide();
@@ -479,7 +521,6 @@ function BitcoinApp() {
 		}
 
 		if(!this.connected && !query) {
-			$('#addressBox').hide();
 			this.onDisconnect();
 
 			$.getJSON('settings.json', function(data) {
@@ -493,6 +534,11 @@ function BitcoinApp() {
 						}
 					});
 		}
+
+		$('#QRbutton').click( function() {
+					app.showQRAddress();
+					return false;
+				});
 
 		$('#disconnectButton').click( function() {
 					app.onDisconnect();

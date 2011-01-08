@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import socket, os, time, shutil, signal
+from multiprocessing import Process, current_process, freeze_support
 from SocketServer import BaseServer, ThreadingMixIn
 import ssl
 
@@ -25,7 +26,7 @@ class SecureHTTPServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
 		self.server_bind()
 		self.server_activate()
 
-class SecureHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 	def address_string(self):
 		return self.client_address[0]
 
@@ -117,18 +118,37 @@ class SecureHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.end_headers()
 		return f
 
-def run(HandlerClass = SecureHTTPRequestHandler,
-		 ServerClass = SecureHTTPServer):
-	server_address = ('', 8888) 
-	httpd = ServerClass(server_address, HandlerClass)
-	sa = httpd.socket.getsockname()
-	print "Serving HTTPS on", sa[0], "port", sa[1], "..."
-	httpd.serve_forever()
+def serve_forever(server):
+	print('starting server')
+	try:
+		server.serve_forever()
+	except KeyboardInterrupt:
+		pass
 
-def exit_handler(signum, frame):
-	print "Exit"
-	os._exit(0)
+
+def runpool(address, number_of_processes):
+	# create a single server object -- children will each inherit a copy
+	server = SecureHTTPServer(address, RequestHandler)
+
+	# create child processes to act as workers
+	for i in range(number_of_processes-1):
+		Process(target=serve_forever, args=(server,)).start()
+
+	# main process also acts as a worker
+	serve_forever(server)
+
+
+def run():
+	ADDRESS = ('', 8888)
+	NUMBER_OF_PROCESSES = 4
+
+	print 'Serving at http://%s:%d using %d worker processes' % \
+		  (ADDRESS[0], ADDRESS[1], NUMBER_OF_PROCESSES)
+	print 'To exit press Ctrl-C'
+
+	runpool(ADDRESS, NUMBER_OF_PROCESSES)
+
 
 if __name__ == '__main__':
-	signal.signal(signal.SIGINT, exit_handler)
+	freeze_support()
 	run()

@@ -575,6 +575,13 @@ function BitcoinApp() {
 
 		var ret = this.parseHash(hash);
 
+		var href = new URI(window.location.href);
+
+		/* If using SSL try to connect to the same host */
+		if (href.scheme == "https")
+			setFormValue($('form#settingsServer'), "url", "/");
+
+
 		if(!this.connected && !ret) {
 			this.onDisconnect();
 

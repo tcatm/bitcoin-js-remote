@@ -1,33 +1,22 @@
-This is a javascript UI for bitcoind. The following patch needs to be applied to bitcoind:
+This is a javascript UI for bitcoind. You can either use the RPC interface at localhost
+or use the included SSLserver.py to access your wallet over the internet.
 
-diff --git a/rpc.cpp b/rpc.cpp
-index 5209219..d273059 100644
---- a/rpc.cpp
-+++ b/rpc.cpp
-@@ -1353,6 +1353,8 @@ string HTTPReply(int nStatus, const string& strMsg)
-             "Date: %s\r\n"
-             "Server: bitcoin-json-rpc\r\n"
-             "WWW-Authenticate: Basic realm=\"jsonrpc\"\r\n"
-+            "Access-Control-Allow-Origin: *\r\n"
-+            "Access-Control-Allow-Headers: Authorization, Content-Type\r\n"
-             "Content-Type: text/html\r\n"
-             "Content-Length: 296\r\n"
-             "\r\n"
-@@ -1377,6 +1379,8 @@ string HTTPReply(int nStatus, const string& strMsg)
-             "Content-Length: %d\r\n"
-             "Content-Type: application/json\r\n"
-             "Server: bitcoin-json-rpc/1.0\r\n"
-+            "Access-Control-Allow-Origin: *\r\n"
-+            "Access-Control-Allow-Headers: Authorization, Content-Type\r\n"
-             "\r\n"
-             "%s",
-         nStatus,
-@@ -1531,7 +1535,7 @@ string JSONRPCReply(const Value& result, const Value& error, const Value& id)
- void ErrorReply(std::ostream& stream, const Object& objError, const Value& id)
- {
-     // Send error reply from json-rpc error object
--    int nStatus = 500;
-+    int nStatus = 200;
-     int code = find_value(objError, "code").get_int();
-     if (code == -32600) nStatus = 400;
-     else if (code == -32601) nStatus = 404;
+Setting up SSLserver.py
+=======================
+
+1. Create server .cert and .pem
+
+openssl req -new -newkey rsa:1024 -days 365 -nodes -x509 -keyout server.pem -out server.cert
+
+2. Start SSLserver.py
+
+python SSLserver.py 
+
+SSLserver.py will listen on port 8338 by default. Remember to use https:// instead of http://
+Try it by opening https://localhost:8338/ in your browser.
+
+If your bitcoind isn't running on the same machine SSLserver.py will run on, you can
+change the RPC URL with the -r parameter:
+
+python SSLserver.py -r http://other.host:8332/
+

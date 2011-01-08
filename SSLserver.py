@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import socket, os, time, shutil
+import socket, os, time, shutil, signal
 from SocketServer import BaseServer, ThreadingMixIn
 import ssl
 
@@ -10,11 +10,14 @@ import cgi
 
 BITCOIN = "http://192.168.42.3:7332"
 
-class SecureHTTPServer(BaseHTTPServer.HTTPServer):
+class SecureHTTPServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
 	def __init__(self, server_address, HandlerClass):
 		BaseServer.__init__(self, server_address, HandlerClass)
 		fpem = 'server.pem'
 		fcert = 'server.cert'
+
+		self.daemon_threads = True
+		self.protocol_version = 'HTTP/1.1'
 
 		self.socket = ssl.wrap_socket(socket.socket(self.address_family, self.socket_type),
 				keyfile=fpem, certfile=fcert, server_side=True, ssl_version=ssl.PROTOCOL_SSLv3)
@@ -23,10 +26,8 @@ class SecureHTTPServer(BaseHTTPServer.HTTPServer):
 		self.server_activate()
 
 class SecureHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
-	def setup(self):
-		self.connection = self.request
-		self.rfile = socket._fileobject(self.request, "rb", self.rbufsize)
-		self.wfile = socket._fileobject(self.request, "wb", self.wbufsize)
+	def address_string(self):
+		return self.client_address[0]
 
 	def do_POST(self):
 		length = int(self.headers.getheader('content-length'))
@@ -35,6 +36,7 @@ class SecureHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		req = urllib2.Request(BITCOIN, query, self.headers)
 
+		print "PRE"
 		try:
 			response = urllib2.urlopen(req)
 		except urllib2.URLError, e:
@@ -50,6 +52,8 @@ class SecureHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 					self.request.send(data)
 			except:
 				self.send_error(404, "File not found")
+
+		print " -- POST"
 
 
 	def do_GET(self):
@@ -78,7 +82,7 @@ class SecureHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 	def copyfile(self, source, outputfile):
 		shutil.copyfileobj(source, outputfile)
-			
+
 	def send_head(self):
 		path = self.translate_path(self.path)
 		f = None
@@ -118,6 +122,10 @@ def run(HandlerClass = SecureHTTPRequestHandler,
 	print "Serving HTTPS on", sa[0], "port", sa[1], "..."
 	httpd.serve_forever()
 
+def exit_handler(signum, frame):
+	print "Exit"
+	os._exit(0)
 
 if __name__ == '__main__':
+	signal.signal(signal.SIGINT, exit_handler)
 	run()

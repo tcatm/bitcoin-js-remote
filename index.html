@@ -2,7 +2,7 @@
 	<head> 
 		<title>Bitcoin</title>
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-		<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+		<meta name="viewport" content="height=device-height,width=device-width; initial-scale=1.0, user-scalable=no">
 		<link rel="stylesheet" href="style.css" type="text/css" /> 
 		<script type="text/javascript" src="jquery-1.4.4.min.js"></script>
 		<script type="text/javascript" src="jquery.humanMsg.js"></script>
@@ -13,8 +13,13 @@
 		<script type="text/javascript" src="helper.js"></script>
 		<script type="text/javascript" src="bitcoin.js"></script>
 		<script type="text/javascript" src="bitcoinapp.js"></script>
+		<script type="text/javascript">
+			function scrollTo0() {
+				window.scrollTo(0,1);
+			}
+		</script>
 	</head> 
-	<body>
+	<body onorientationchange="setTimeout(scrollTo0, 10);"; onload="setTimeout(scrollTo0, 10);">
 		<h1><span id="title">Javascript required!</span> <span class="button" id="disconnectButton">X</span></h1>
 		<div id="sections">
 			<div id="addressBox">

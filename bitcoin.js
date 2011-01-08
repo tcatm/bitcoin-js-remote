@@ -112,6 +112,9 @@ function Bitcoin(settings, user, password) {
 	this.init = function(settings, user, password) {
 		this.settings = settings;
 
+		if (this.settings.url == "")
+			this.settings.url = window.location.href;
+
 		if (!this.settings.auth && user && password)
 			this.settings.auth = this.prepareAuth(user, password);
 		

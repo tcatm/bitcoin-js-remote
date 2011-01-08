@@ -36,7 +36,6 @@ class SecureHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		req = urllib2.Request(BITCOIN, query, self.headers)
 
-		print "PRE"
 		try:
 			response = urllib2.urlopen(req)
 		except urllib2.URLError, e:
@@ -52,9 +51,6 @@ class SecureHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 					self.request.send(data)
 			except:
 				self.send_error(404, "File not found")
-
-		print " -- POST"
-
 
 	def do_GET(self):
 		f = self.send_head()

@@ -52,7 +52,7 @@ function Bitcoin(settings, user, password) {
 		jQuery.ajax({url: this.settings.url, dataType: 'json', type: 'POST',
 					contentType: 'application/json',
 					data: JSON.stringify(request),
-					timeout: 5000,
+					timeout: 15000,
 					beforeSend: function(req){
                 		req.setRequestHeader("Authorization", auth);
 					},

@@ -13,7 +13,7 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
@@ -442,6 +442,15 @@ function BitcoinApp() {
 	}
 
 	this.init = function() {
+		/* This function parses the location hash. Format:
+		 * #$base64json[#rawdata]
+		 *
+		 * $base64json is parsed into query and should contain
+		 * settings and an optional request (created by serializeSettings())
+		 *
+		 * Optional rawData will be stored in query.request.data
+		 */
+
 		this.addPrototypes();
 		$('#version').text(this.version);
 

@@ -96,6 +96,13 @@ class SecureHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 					break
 
 		try:
+			# Only serve files with trusted extensions
+			# to prevent accidentially serving our
+			# SSL keyfile
+			ext = os.path.splitext(path)[1]
+			if not ext in ['.html', '.css', '.js', '.json', '.png', '.jpeg', '.jpg']:
+				raise IOError
+
 			# Always read in binary mode. Opening files in text mode may cause
 			# newline translations, making the actual size of the content
 			# transmitted *less* than the content-length!

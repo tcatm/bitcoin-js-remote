@@ -60,7 +60,7 @@ function BitcoinApp() {
 			app.refreshAll();
 
 			$('#section_Settings').next().slideUp('fast');
-			$('#address').slideDown('fast');
+			$('#addressBox').slideDown('fast');
 			$('#section_Accounts').show();
 			$('#section_SendBTC').show();
 			$('#section_TX').show().next().show();
@@ -79,7 +79,7 @@ function BitcoinApp() {
 		app.connected = false;
 		app.setTitle("Bitcoin (not connected)");
 
-		$('#address').slideUp('fast');
+		$('#addressBox').slideUp('fast');
 		$('#serverInfo').hide();
 		$('#serverInfo table').children().remove();
 		$('#section_SendBTC').hide().next().hide();
@@ -479,7 +479,7 @@ function BitcoinApp() {
 		}
 
 		if(!this.connected && !query) {
-			$('#address').hide();
+			$('#addressBox').hide();
 			this.onDisconnect();
 
 			$.getJSON('settings.json', function(data) {

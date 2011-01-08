@@ -160,7 +160,7 @@ form input {
 	table-layout: fixed;
 }
 
-#sections h3, #disconnectButton, #txlist tbody tr, #accountList tbody tr {
+#sections h3, .button, #txlist tbody tr, #accountList tbody tr {
 	cursor:pointer; cursor:hand;
 }
 
@@ -202,11 +202,21 @@ form input {
 	float: right;
 }
 
+#addressBox {
+	background: #fff;
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-serif;
+	color: #222;
+	padding: 0.3em;
+	min-height: 1em;
+}
+
 #address {
 	text-align: center;
-	background: #fff;
-	padding: 0.3em;
-	color: #222;
-	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-serif;
 	margin: 0;
+	padding: 0;
+}
+
+#QRbutton {
+	float: right;
+	color: #0E8C3A;
 }

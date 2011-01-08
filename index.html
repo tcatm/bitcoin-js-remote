@@ -15,9 +15,12 @@
 		<script type="text/javascript" src="bitcoinapp.js"></script>
 	</head> 
 	<body>
-		<h1><span id="title">Javascript required!</span> <span id="disconnectButton">X</span></h1>
+		<h1><span id="title">Javascript required!</span> <span class="button" id="disconnectButton">X</span></h1>
 		<div id="sections">
-			<p id="address"></p>
+			<div id="addressBox">
+				<span class="button" id="QRbutton">[QR]</span>
+				<p id="address"></p>
+			</div>
 			<h3 id="section_Accounts">Account <span id="currentAccount"></span><span id="balance"</span></h3>
 			<div class="section">
 				<table id="accountList">

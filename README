@@ -8,6 +8,9 @@ Setting up SSLserver.py
 
 openssl req -new -newkey rsa:1024 -days 365 -nodes -x509 -keyout server.pem -out server.cert
 
+You don't have to worry about your keyfile being in the same directory as js-remote.
+SSLserver.py will only serve files ending in .html, .css, .js, .json, .png, .jpeg, or .jpg
+
 2. Start SSLserver.py
 
 python SSLserver.py 

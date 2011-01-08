@@ -100,6 +100,16 @@ function BitcoinApp() {
 		if (error == null) {
 			app.connected = true;
 
+			var sNetwork = "Bitcoin";
+
+			if(info.testnet)
+				sNetwork = "Testnet";
+
+			var href = new URI(window.location.href);
+			var rpcurl = new URI(app.bitcoin.settings.url).resolve(href);
+
+			app.setTitle(sNetwork + " on " + rpcurl.authority);
+
 			app.refreshAll();
 
 			$('#section_Settings').next().slideUp('fast');
@@ -162,13 +172,6 @@ function BitcoinApp() {
 	}
 
 	this.onGetInfo = function(info) {
-		var sNetwork = "Bitcoin";
-		if(info.testnet) {
-			sNetwork = "Testnet";
-		}
-
-		app.setTitle(sNetwork + " on " + app.bitcoin.settings.url);
-
 		var serverInfo = $('#serverInfo table');
 
 		serverInfo.children().remove();

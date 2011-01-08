@@ -2,31 +2,32 @@
 import socket, os, time, shutil, signal
 from multiprocessing import Process, current_process, freeze_support
 from SocketServer import BaseServer, ThreadingMixIn
+from optparse import OptionParser
 import ssl
-
 import posixpath
 import BaseHTTPServer
 import urllib, urllib2
 import cgi
 
-BITCOIN = "http://192.168.42.3:7332"
-
 class SecureHTTPServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
-	def __init__(self, server_address, HandlerClass):
+	def __init__(self, server_address, HandlerClass, options):
 		BaseServer.__init__(self, server_address, HandlerClass)
-		fpem = 'server.pem'
-		fcert = 'server.cert'
+
+		self.options = options
 
 		self.daemon_threads = True
 		self.protocol_version = 'HTTP/1.1'
 
 		self.socket = ssl.wrap_socket(socket.socket(self.address_family, self.socket_type),
-				keyfile=fpem, certfile=fcert, server_side=True, ssl_version=ssl.PROTOCOL_SSLv3)
+				keyfile=self.options.key, certfile=self.options.cert, server_side=True, ssl_version=ssl.PROTOCOL_SSLv3)
 
 		self.server_bind()
 		self.server_activate()
 
 class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+	def __init__(self, request, client_address, server):
+		BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, request, client_address, server)
+
 	def address_string(self):
 		return self.client_address[0]
 
@@ -35,7 +36,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		query = self.rfile.read(length)
 
-		req = urllib2.Request(BITCOIN, query, self.headers)
+		req = urllib2.Request(self.server.options.url, query, self.headers)
 
 		try:
 			response = urllib2.urlopen(req)
@@ -119,36 +120,33 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 		return f
 
 def serve_forever(server):
-	print('starting server')
 	try:
 		server.serve_forever()
 	except KeyboardInterrupt:
 		pass
 
 
-def runpool(address, number_of_processes):
-	# create a single server object -- children will each inherit a copy
-	server = SecureHTTPServer(address, RequestHandler)
+def runpool(options):
+	server = SecureHTTPServer(('', options.port), RequestHandler, options)
 
 	# create child processes to act as workers
-	for i in range(number_of_processes-1):
+	for i in range(options.procs-1):
 		Process(target=serve_forever, args=(server,)).start()
 
 	# main process also acts as a worker
 	serve_forever(server)
 
+parser = OptionParser()
+parser.add_option('-r', dest='url', default='http://localhost:8332/',   help='URL to bitcoin RPC (default: %default)')
+parser.add_option('-p', dest='port', default=8338,   help='listen port (default: %default)')
+parser.add_option('-n', dest='procs', default=4,   help='number of HTTP processes (default: %default)')
+parser.add_option('-k', dest='key', default='server.pem',   help='.pem (default: %default)')
+parser.add_option('-c', dest='cert', default='server.cert',   help='.cert (default: %default)')
 
-def run():
-	ADDRESS = ('', 8888)
-	NUMBER_OF_PROCESSES = 4
+(options, args) = parser.parse_args()
 
-	print 'Serving at http://%s:%d using %d worker processes' % \
-		  (ADDRESS[0], ADDRESS[1], NUMBER_OF_PROCESSES)
-	print 'To exit press Ctrl-C'
+freeze_support()
 
-	runpool(ADDRESS, NUMBER_OF_PROCESSES)
+print 'Ctrl-C to exit'
 
-
-if __name__ == '__main__':
-	freeze_support()
-	run()
+runpool(options)

@@ -167,6 +167,8 @@ function BitcoinApp() {
 		clearTimeout(this.refreshTimeout);
 
 		$('#currentAccount').text('(no account)');
+		$('#balance').text('');
+		$('#address').text('');
 		app.balance = false;
 		app.clearTransactions();
 	}

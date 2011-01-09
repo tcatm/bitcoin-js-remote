@@ -139,6 +139,7 @@ a:hover {
 }
 
 pre {
+	white-space: normal;
 	color: #fff;
 	background: #111;
 	padding: 1.0em;;

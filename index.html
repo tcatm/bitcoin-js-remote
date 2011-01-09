@@ -6,8 +6,8 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<title>bitcoin-js-remote</title>
 
-		<link rel="stylesheet" href="style.css" type="text/css" /> 
-		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script> 
+		<link rel="stylesheet" href="style.css" type="text/css" />
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
 	</head>
 
 	<body>
@@ -17,23 +17,22 @@
 		<div id="sections">
 			<h3>A JavaScript Remote for <a href="http://bitcoin.org">Bitcoin</a></h3>
 			<div class="section">
-				<p>bitcoin-js-remote is a user interface for Bitcoin written in JavaScript. It does not require any server side dependencies other than <a href="https://en.bitcoin.it/wiki/API_tutorial_(JSON-RPC)">bitcoind</a>.</p>
-				<p>It works in most modern browsers as well as on Android and iPhones. If run it on an Android phone you can even scan QR codes with addreses to send Bitcoins to!</p>
-				<p>You can try out the demo or even use this online version to connect to your own bitcoind:</p>
+				<p>bitcoin-js-remote is a user interface for Bitcoin written in JavaScript.
+				It works in most modern browsers as well as on Android and iPhones. If run it on an Android phone you can even scan QR codes with addreses to send Bitcoins to!</p>
+				<p>js-remote requires a small server side script to support SSL. It's written in Python and easy to setup.</p>
+				<p>You can try out the demo using this link:</p>
 				<p class="center">
-				<img src="http://chart.apis.google.com/chart?choe=ISO-8859-1&chs=200x200&cht=qr&chl=http%3A%2F%2Fbit.ly%2FgIxEbB" width="200" height="200" alt="" /><br/>
-				<a class="button" target="_new" href="http://bitcoincharts.com/media/stuff/js-remote/">Start / Demo</a>
+				<img src="http://chart.apis.google.com/chart?choe=ISO-8859-1&chs=200x200&cht=qr&chl=https%3A%2F%2F85.116.192.135:8338/" width="200" height="200" alt="" /><br/>
+				<a class="button" target="_new" href="https://85.116.192.135:8338/">Demo</a>
 				</p>
 				<p>Donations accepted at <code>18pnDgDYFMAKsHTA3ZqyAi6t8q9ztaWWXt</code></p>
 
-				<h4>Patching bitcoind</h4>
-				<p>If you want bitcoin-js-remote with your own bitcoind you need to apply a small patch (this will soon be included in the official binary).</p>
-				<p><a href="https://github.com/gavinandresen/bitcoin-git/commit/d07e51956423df3b1060865c65dd85c8e7fc3f05">CORS patch</a></p>
 			</div>
 
 			<h3>Features</h3>
 			<div class="section">
 				<ul>
+					<li>Data is encrypted with SSL</li>
 					<li>Display address as QR code</li>
 					<li>on Android: scan QR code for address</li>
 					<li>Android and iPhone support</li>
@@ -43,11 +42,23 @@
 				</ul>
 			</div>
 
-			<h3>Missing Features</h3>
+			<h3>Setup included SSLserver.py</h3>
 			<div class="section">
-				<ul>
-					<li>no SSL support (please don't use it over the internet yet!)</li>
-				</ul>
+				<h4>1. Create server .cert and .pem</h4>
+
+				<pre>openssl req -new -newkey rsa:1024 -days 365 -nodes -x509 -keyout server.pem -out server.cert</pre>
+
+				<p>You don't have to worry about your keyfile being in the same directory as js-remote. SSLserver.py will only serve files ending in .html, .css, .js, .json, .png, .jpeg, or .jpg</p>
+
+				<h4>2. Start SSLserver.py</h4>
+
+				<pre>python SSLserver.py</pre>
+
+				<p>SSLserver.py will listen on port 8338 by default. Remember to use https:// instead of http://! Try it by opening https://localhost:8338/ in your browser.</p>
+
+				<p>If your bitcoind isn't running on the same machine SSLserver.py will run on, you can change the RPC URL:</p>
+
+				<pre>python SSLserver.py -r http://other.host:8332/</pre>
 			</div>
 
 			<h3>Download</h3>

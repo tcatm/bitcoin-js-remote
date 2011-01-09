@@ -252,3 +252,7 @@ form input {
 	padding: 0.15em 0.3em;
 	background: #D6FFE4;
 }
+
+span.button:hover {
+	background: #fe5 !important;
+}

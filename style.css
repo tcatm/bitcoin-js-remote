@@ -117,9 +117,12 @@ div.humanized-message{
 
 #disconnectButton {
 	position: absolute;
-	top: 8pt;
+	top: 5pt;
 	right: 5pt;
-	color: red;
+	color: #DB2645;
+	border-color: #DB2645;
+	background-color: #FFD1D9;
+	padding: 0em 0.3em;
 }
 
 form {
@@ -129,7 +132,7 @@ form {
 form label {
 	display: inline-block;
 	text-align: right;
-	width: 5em;
+	width: 4em;
 	margin-right: 1em;
 }
 
@@ -206,8 +209,8 @@ form input {
 	background: #fff;
 	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-serif;
 	color: #222;
-	padding: 0.3em;
-	min-height: 1em;
+	padding: 0.5em 0.3em;
+	min-height: 1.5em;
 }
 
 #address {
@@ -217,10 +220,19 @@ form input {
 }
 
 #QRbutton {
-	float: right;
-	color: #0E8C3A;
+	float: left;
+	margin-top: -0.2em;
 }
 
 #scanQRbutton {
+	font-size: 1.2em;
+}
+
+.button {
+	text-align: center;
+	display: inline-block;
+	border: 1px solid #0E8C3A;
 	color: #0E8C3A;
+	padding: 0.15em 0.3em;
+	background: #D6FFE4;
 }

@@ -12,6 +12,14 @@ html, body {
 	padding: 0 0 1px 0;
 }
 
+.clearfix:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
 #container {
 	border-color: #bbb;
 	border-style: solid;
@@ -225,19 +233,16 @@ form input {
 	background: #fff;
 	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-serif;
 	color: #222;
-	padding: 0.5em 0.3em;
-	min-height: 1.5em;
+	padding: 0.3em;
 }
 
 #address {
 	text-align: center;
-	margin: 0;
-	padding: 0;
+	margin: 0.2em 0;
 }
 
 #QRbutton {
 	float: left;
-	margin-top: -0.2em;
 }
 
 #scanQRbutton {

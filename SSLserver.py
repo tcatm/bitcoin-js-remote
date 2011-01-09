@@ -9,6 +9,9 @@ import BaseHTTPServer
 import urllib, urllib2
 import cgi
 
+def _quote_html(html):
+    return html.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
 class SecureHTTPServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
 	def __init__(self, server_address, HandlerClass, options):
 		BaseServer.__init__(self, server_address, HandlerClass)
@@ -27,6 +30,26 @@ class SecureHTTPServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
 class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 	def __init__(self, request, client_address, server):
 		BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, request, client_address, server)
+
+	def send_error(self, code, message=None):
+		try:
+			short, long = self.responses[code]
+		except KeyError:
+			short, long = '???', '???'
+		if message is None:
+			message = short
+		explain = long
+		self.log_error("code %d, message %s", code, message)
+		content = (self.error_message_format %
+				   {'code': code, 'message': _quote_html(message), 'explain': explain})
+		self.send_response(code, message)
+		self.send_header("Content-Type", self.error_content_type)
+		if self.command != 'HEAD' and code >= 200 and code not in (204, 304):
+			self.send_header("Content-Length", len(content))
+		self.send_header('Connection', 'close')
+		self.end_headers()
+		if self.command != 'HEAD' and code >= 200 and code not in (204, 304):
+			self.wfile.write(content)
 
 	def address_string(self):
 		return self.client_address[0]

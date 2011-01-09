@@ -166,7 +166,7 @@ function BitcoinApp() {
 	this.clearAccountInfo = function() {
 		clearTimeout(this.refreshTimeout);
 
-		$('#currentAccount').text('');
+		$('#currentAccount').text('(no account)');
 		app.balance = false;
 		app.clearTransactions();
 	}

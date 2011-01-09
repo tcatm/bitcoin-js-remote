@@ -254,5 +254,6 @@ form input {
 }
 
 span.button:hover {
-	background: #fe5 !important;
+	background: #ffa !important;
+	border-color: #fa0 !important;
 }

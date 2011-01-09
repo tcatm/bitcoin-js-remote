@@ -22,62 +22,64 @@
 		</script>
 	</head>
 	<body onorientationchange="setTimeout(scrollTo0, 10);"; onload="setTimeout(scrollTo0, 10);">
-		<h1><span id="title">Javascript required!</span> <span class="button" id="disconnectButton">X</span></h1>
-		<div id="sections">
-			<div id="addressBox">
-				<span class="button" id="QRbutton">QR</span>
-				<p id="address"></p>
-			</div>
-			<h3 id="section_Accounts">
-				<span id="currentAccount"></span>
-				<span id="balance"</span>
-			</h3>
-			<div class="section">
-				<table id="accountList">
-					<thead>
-						<tr><th class="left">Account</th><th class="right">Balance</th></tr>
-					</thead>
-					<tbody>
-					</tbody>
-				</table>
-			</div>
-			<h3 id="section_Settings">Settings / Server Information</h3>
-			<div class="section">
-				<form id="settingsServer">
-					<label>User</label><input name="user" /></br>
-					<label>Password</label><input name="pass" type="password"/></br>
-					<label>Account*</label><input name="account" /></br>
-					<label>URL</label><input name="url" value="http://localhost:8332"/></br>
-					<label></label><button>Connect</button><br/>
-				</form>
-					*Account may be left empty to connect to the default account.<br/>
-				<div id="serverInfo">
-					<h4>Server Information</h4>
-					<table>
+		<div id="container">
+			<h1><span id="title">Javascript required!</span> <span class="button" id="disconnectButton">X</span></h1>
+			<div id="sections">
+				<div id="addressBox">
+					<span class="button" id="QRbutton">QR</span>
+					<p id="address"></p>
+				</div>
+				<h3 id="section_Accounts">
+					<span id="currentAccount"></span>
+					<span id="balance"</span>
+				</h3>
+				<div class="section">
+					<table id="accountList">
+						<thead>
+							<tr><th class="left">Account</th><th class="right">Balance</th></tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+				<h3 id="section_Settings">Settings / Server Information</h3>
+				<div class="section">
+					<form id="settingsServer">
+						<label>User</label><input name="user" /></br>
+						<label>Password</label><input name="pass" type="password"/></br>
+						<label>Account*</label><input name="account" /></br>
+						<label>URL</label><input name="url" value="http://localhost:8332"/></br>
+						<label></label><button>Connect</button><br/>
+					</form>
+						*Account may be left empty to connect to the default account.<br/>
+					<div id="serverInfo">
+						<h4>Server Information</h4>
+						<table>
+						</table>
+					</div>
+				</div>
+				<h3 id="section_SendBTC">Send bitcoins</h3>
+				<div class="section">
+					<form id="sendBTC">
+						<label>Address</label><input name="address" /><span></span><br/>
+						<label>Amount</label><input name="amount" /><span></span><br/>
+						<label>
+						<span id="scanQRbutton" class="button">scan QR</span>
+						</label><button>Send Bitcoins</button>
+					</form>
+				</div>
+				<h3 id="section_TX">Transactions</h3>
+				<div class="section">
+					<table id="txlist">
+						<thead>
+							<tr><th style="width: 1em">#</th><th style="width: 9.5em" class="left">Date</th><th class="left">Info</th><th style="width: 9em" class="right">Amount</th></tr>
+						</thead>
 					</table>
 				</div>
 			</div>
-			<h3 id="section_SendBTC">Send bitcoins</h3>
-			<div class="section">
-				<form id="sendBTC">
-					<label>Address</label><input name="address" /><span></span><br/>
-					<label>Amount</label><input name="amount" /><span></span><br/>
-					<label>
-					<span id="scanQRbutton" class="button">scan QR</span>
-					</label><button>Send Bitcoins</button>
-				</form>
+			<div id="footer">
+				<p><a href="http://tcatm.github.com/bitcoin-js-remote">bitcoin-js-remote</a> <span id="version"></span> by <a href="mailto:tcatm@gawab.com">tcatm</a></p>
 			</div>
-			<h3 id="section_TX">Transactions</h3>
-			<div class="section">
-				<table id="txlist">
-					<thead>
-						<tr><th style="width: 1em">#</th><th style="width: 9.5em" class="left">Date</th><th class="left">Info</th><th style="width: 9em" class="right">Amount</th></tr>
-					</thead>
-				</table>
-			</div>
-		</div>
-		<div id="footer">
-			<p><a href="http://tcatm.github.com/bitcoin-js-remote">bitcoin-js-remote</a> <span id="version"></span> by <a href="mailto:tcatm@gawab.com">tcatm</a></p>
 		</div>
 
 		<script type="text/javascript">

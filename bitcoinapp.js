@@ -169,7 +169,7 @@ function BitcoinApp() {
 		this.txlist.refresh();
 		this.accountlist.refresh();
 
-		this.refreshTimeout = setTimeout("app.refreshAll();", this.refreshInterval);
+		this.refreshTimeout = setTimeout(this.refreshAll.proxy(this), this.refreshInterval);
 	}
 
 	this.refreshServerInfo = function() {
@@ -332,18 +332,26 @@ function BitcoinApp() {
 		window.location = scanurl;
 	}
 
-	this.detectHashchange = function(oldhash) {
+	this.detectHashchange = function() {
 		clearTimeout(this.hashchangeTimeout);
 
-		var hash = window.location.hash.substring(1);
+		var hash = this.getLocationHash();
 
-		if (oldhash != undefined)
-			if (oldhash != hash) {
+		if (hash != "" ) {
 				this.parseHash(hash);
 				return;
-			}
+		}
 
-		this.hashchangeTimeout = setTimeout('app.detectHashchange("'+ hash +'");', 500);
+		this.hashchangeTimeout = setTimeout(this.detectHashchange.proxy(this), 500);
+	}
+
+	this.getLocationHash = function () {
+		var hash = window.location.hash.substring(1);
+
+		/* remove locationhash as it might contain passwords */
+		window.location.hash = "";
+
+		return hash;
 	}
 
 	this.parseHash = function(hash) {
@@ -371,9 +379,6 @@ function BitcoinApp() {
 			query.request.data = hash[1];
 		}
 
-		/* remove locationhash as it might contain passwords */
-		window.location.hash = "";
-
 		if (query)
 			if (query.settings) {
 				this.connect(query);
@@ -391,9 +396,7 @@ function BitcoinApp() {
 
 		var query;
 
-		var hash = window.location.hash.substring(1);
-
-		var ret = this.parseHash(hash);
+		var hash = this.parseHash(this.getLocationHash());
 
 		var href = new URI(window.location.href);
 
@@ -402,7 +405,7 @@ function BitcoinApp() {
 			setFormValue($('form#settingsServer'), "url", "/");
 
 
-		if(!this.connected && !ret) {
+		if(!this.connected && !hash) {
 			this.onDisconnect();
 
 			$.getJSON('settings.json', function(data) {

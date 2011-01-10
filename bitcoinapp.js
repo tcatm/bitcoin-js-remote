@@ -23,6 +23,9 @@
 function BitcoinApp() {
 	this.version = "0.1";
 
+	/* hack to allow event handlers to find us */
+	var app = this;
+
 	this.bitcoin = false;
 	this.balance;
 	this.connected = false;
@@ -98,8 +101,8 @@ function BitcoinApp() {
 	}
 
 	this.onDisconnect = function(hideSettings) {
-		app.connected = false;
-		app.setTitle("Bitcoin (not connected)");
+		this.connected = false;
+		this.setTitle("Bitcoin (not connected)");
 
 		$('#addressBox').hide();
 		$('#serverInfo').hide();
@@ -114,8 +117,8 @@ function BitcoinApp() {
 			$('#section_Settings').next().show();
 		}
 
-		app.accountlist.clear();
-		app.clearAccountInfo();
+		this.accountlist.clear();
+		this.clearAccountInfo();
 	}
 
 	this.clearAccountInfo = function() {
@@ -124,13 +127,13 @@ function BitcoinApp() {
 		$('#currentAccount').text('(no account)');
 		$('#balance').text('');
 		$('#address').text('');
-		app.balance = false;
-		app.txlist.clear();
+		this.balance = false;
+		this.txlist.clear();
 	}
 
 	this.onSendBTC = function(result, error) {
 		if(error != null) {
-			app.error(error.message);
+			this.error(error.message);
 			return;
 		}
 		var obj;
@@ -140,8 +143,8 @@ function BitcoinApp() {
 		obj = setFormValue($('form#sendBTC'), "amount", "");
 		hideValidation(obj);
 
-		app.notify("Bitcoins sent");
-		app.refreshAll();
+		this.notify("Bitcoins sent");
+		this.refreshAll();
 	}
 
 	this.onValidateAddressField = function(result) {
@@ -187,7 +190,7 @@ function BitcoinApp() {
 	this.refreshBalance = function() {
 		function next(balance) {
 			$('#balance').text(balance.formatBTC());
-			$('#currentAccount').text(app.bitcoin.settings.account.prettyAccount());
+			$('#currentAccount').text(this.bitcoin.settings.account.prettyAccount());
 			this.balance = balance;
 		}
 
@@ -214,7 +217,7 @@ function BitcoinApp() {
 	this.connect = function(url, user, pass, account) {
 		function next(info, error, request) {
 			if (error == null) {
-				app.connected = true;
+				this.connected = true;
 
 				var sNetwork = "Bitcoin";
 
@@ -222,11 +225,11 @@ function BitcoinApp() {
 					sNetwork = "Testnet";
 
 				var href = new URI(window.location.href);
-				var rpcurl = new URI(app.bitcoin.settings.url).resolve(href);
+				var rpcurl = new URI(this.bitcoin.settings.url).resolve(href);
 
-				app.setTitle(sNetwork + " on " + rpcurl.authority);
+				this.setTitle(sNetwork + " on " + rpcurl.authority);
 
-				app.refreshAll();
+				this.refreshAll();
 
 				$('#section_Settings').next().slideUp('fast');
 				$('#addressBox').show();
@@ -236,10 +239,10 @@ function BitcoinApp() {
 				$('#serverInfo').show();
 
 				if (request)
-					app.parseRequest(request);
+					this.parseRequest(request);
 
 			} else {
-				app.error(error.message);
+				this.error(error.message);
 			}
 		}
 
@@ -277,7 +280,7 @@ function BitcoinApp() {
 		var confString = "Send " + amount.formatBTC() + " to " + address + "?";
 
 		if(confirm(confString)) {
-			app.bitcoin.sendBTC(this.onSendBTC, address, amount);
+			this.bitcoin.sendBTC(this.onSendBTC, address, amount);
 		}
 	}
 
@@ -314,7 +317,7 @@ function BitcoinApp() {
 	}
 
 	this.serializeSettings = function(request) {
-		var obj = {settings: app.bitcoin.settings, request: request};
+		var obj = {settings: this.bitcoin.settings, request: request};
 		return jQuery.base64_encode(JSON.stringify(obj));
 	}
 

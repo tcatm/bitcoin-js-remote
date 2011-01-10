@@ -100,7 +100,7 @@ function BitcoinApp() {
 		document.title = title;
 	}
 
-	this.onDisconnect = function(hideSettings) {
+	this.disconnect = function(hideSettings) {
 		this.connected = false;
 		this.setTitle("Bitcoin (not connected)");
 
@@ -246,7 +246,7 @@ function BitcoinApp() {
 			}
 		}
 
-		this.onDisconnect(url.settings?true:false);
+		this.disconnect(url.settings?true:false);
 
 		/* url might contain query with settings and request */
 		if (url.settings) {
@@ -406,7 +406,7 @@ function BitcoinApp() {
 
 
 		if(!this.connected && !hash) {
-			this.onDisconnect();
+			this.disconnect();
 
 			$.getJSON('settings.json', function(data) {
 						if(data) {
@@ -436,7 +436,7 @@ function BitcoinApp() {
 				});
 
 		$('#disconnectButton').click( function() {
-					app.onDisconnect();
+					app.disconnect();
 					return false;
 				});
 

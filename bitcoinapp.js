@@ -334,6 +334,7 @@ function BitcoinApp() {
 
 	this.txInfoHTML = function(tx) {
 		var html = "";
+		var extra = "";
 
 		switch (tx.category) {
 			case "generate":
@@ -343,10 +344,14 @@ function BitcoinApp() {
 				html += "<label>Moved " + (tx.amount<0?"to":"from") + ":</label> " + tx.otheraccount.prettyAccount() + "<br/>";
 				break;
 			case "send":
-				html += "<label>Sent to:</label> " + tx.address + "<br/>";
+				if (tx.to)
+					extra = " (" + tx.to + ")";
+				html += "<label>Sent to:</label> " + tx.address + extra + "<br/>";
 				break;
 			case "receive":
-				html += "<label>Received on:</label> " + tx.address + "<br/>";
+				if (tx.from)
+					extra = " (" + tx.from + ")";
+				html += "<label>Received on:</label> " + tx.address + extra + "<br/>";
 				break;
 			default:
 				html += "<label>Category:</label> " + tx.category + "<br/>";
@@ -370,8 +375,20 @@ function BitcoinApp() {
 
 		var info = tx.category.capitalize();
 
-		if (tx.category == 'send' || tx.category == 'receive')
-			info = tx.address;
+		if (tx.category == 'send')
+			if (tx.to)
+				info = tx.to;
+			else
+				info = tx.address;
+
+		if (tx.category == 'receive')
+			if (tx.from)
+				info = tx.from;
+			else
+				info = tx.address;
+
+		if (tx.comment)
+			info += " (" + tx.comment + ")";
 
 		if (tx.category == 'move')
 			info = (tx.amount<0?"to ":"from ") + tx.otheraccount.prettyAccount();

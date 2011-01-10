@@ -121,17 +121,6 @@ function BitcoinApp() {
 		app.clearTransactions();
 	}
 
-	this.onGetInfo = function(info) {
-		var serverInfo = $('#serverInfo table');
-
-		serverInfo.children().remove();
-
-		for (var key in info) {
-			serverInfo.append('<tr><td>' + key.capitalize() + '</td><td class="right">' + info[key] + '</td></tr>');
-		}
-		$('#serverInfo tr:odd').addClass('odd');
-	}
-
 	this.onSendBTC = function(result, error) {
 		if(error != null) {
 			app.error(error.message);
@@ -370,7 +359,18 @@ function BitcoinApp() {
 	}
 
 	this.refreshServerInfo = function() {
-		this.bitcoin.getInfo(this.onGetInfo);
+		function next(info) {
+			var serverInfo = $('#serverInfo table');
+
+			serverInfo.children().remove();
+
+			for (var key in info) {
+				serverInfo.append('<tr><td>' + key.capitalize() + '</td><td class="right">' + info[key] + '</td></tr>');
+			}
+			$('#serverInfo tr:odd').addClass('odd');
+		}
+
+		this.bitcoin.getInfo(next.proxy(this));
 	}
 
 	this.refreshAccounts = function() {

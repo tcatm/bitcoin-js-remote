@@ -31,16 +31,6 @@ function getFormValue(form, name) {
 	return $(form).children('input[name="' + name + '"]').val();
 }
 
-function sortTransactions(a, b) {
-	if(a.time != b.time)
-		return (a.time - b.time);
-
-	if(a.category != b.category)
-		return (b.category < a.category) ? -1 : 1;
-
-	return (b.amount - a.amount);
-}
-
 function hideValidation(obj) {
 	var o = $(obj).next('span').removeClass().text('');
 }

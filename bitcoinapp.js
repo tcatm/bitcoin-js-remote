@@ -30,10 +30,15 @@ function BitcoinApp() {
 	this.refreshInterval = 5000;
 	this.hashchangeTimeout;
 
-	this.generateConfirm = 120;
 	this.dateFormat = "dd/mm/yyyy HH:MM";
 
 	this.accountlist = new AccountList($("#accountList tbody"), this);
+	this.txlist = new TXList($("#txlist tbody"), this, {generateConfirm: 120});
+
+	this.setRefreshInterval = function(interval) {
+		/* limit interval to 1 .. 10 s */
+		this.refreshInterval = Math.min(Math.max(interval * 10, 1000), 10000);
+	}
 
 	this.showFullscreenObj = function(obj) {
 		var width = $(window).width();
@@ -120,7 +125,7 @@ function BitcoinApp() {
 		$('#balance').text('');
 		$('#address').text('');
 		app.balance = false;
-		app.clearTransactions();
+		app.txlist.clear();
 	}
 
 	this.onSendBTC = function(result, error) {
@@ -148,164 +153,6 @@ function BitcoinApp() {
 			showValidation(field, false);
 	}
 
-	this.onListTransactions = function(rawtxlist) {
-		var start = new Date().getTime();
-
-		var transactions = new Array();
-
-		for (var key in rawtxlist)
-			if (rawtxlist[key].account == app.bitcoin.settings.account) {
-				if (rawtxlist[key].time == undefined)
-					rawtxlist[key].time = 0;
-
-				transactions.push(rawtxlist[key]);
-			}
-
-		transactions.sort(sortTransactions);
-
-		var txlistContainer = $('#txlist');
-
-		if(txlistContainer.children('tbody').length == 0)
-			txlistContainer.append('<tbody />');
-
-		var txlist = txlistContainer.children('tbody');
-
-		txlist.children('#txlistempty').remove();
-
-		if (transactions.length == 0)
-			txlist.append('<tr id="txlistempty"><td colspan="4" class="center">no transactions</td></tr>');
-
-		for (var key in transactions)
-			app.processTransaction(txlist, transactions[key]);
-
-		$('#txlist tbody tr:not(.txinfo):odd').addClass('odd').next('.txinfo').addClass('odd');
-		$('#txlist tbody tr:not(.txinfo):even').removeClass('odd').next('.txinfo').removeClass('odd');
-
-		var end = new Date().getTime();
-		var time = end - start;
-		var newInterval = time * 10;
-
-		/* adjust refresh interval within 1..10 seconds depending
-		 * processing time of txlist
-		 */
-
-		app.refreshInterval = Math.min(Math.max(newInterval, 1000), 10000);
-	}
-
-	this.clearTransactions = function() {
-		$('#txlist tbody').children().remove();
-	}
-
-	this.processTransaction = function(txlist, tx) {
-		if (tx.txid == undefined)
-			tx.id = (tx.time + tx.amount + tx.otheraccount).replace(/ /g,'');
-		else
-			tx.id = tx.txid;
-
-		tx.id += tx.category;
-
-		var txrow = $(document.getElementById(tx.id));
-
-		if (txrow.length == 0) {
-			txrow = $('<tr id="' + tx.id + '"></tr>');
-			txlist.prepend(txrow);
-			var txdiv = $('<tr colspan="4" class="txinfo"><td colspan="4"><div style="display: none"></div></td></tr>');
-			txrow.after(txdiv);
-
-			txrow.click( function() {
-					$(this).next('tr.txinfo').children('td').children('div').slideToggle('fast');
-				});
-		}
-
-		var checksum = tx.id + tx.confirmations + tx.time;
-
-		/* Only update TX if it differs from current one */
-		if(txrow.attr('checksum') != checksum) {
-			txrow.attr('checksum', checksum);
-			txrow.html(this.txRowHTML(tx));
-
-			txrow.next('tr.txinfo').children('td').children('div').html(this.txInfoHTML(tx));
-
-			if (tx.confirmations == 0 || (tx.category == "generate" && tx.confirmations < this.generateConfirm))
-				txrow.addClass("unconfirmed");
-			else
-				txrow.removeClass("unconfirmed");
-		}
-	}
-
-	this.txInfoHTML = function(tx) {
-		var html = "";
-		var extra = "";
-
-		switch (tx.category) {
-			case "generate":
-				html += "<label>Generated coins</label><br/>";
-				break;
-			case "move":
-				html += "<label>Moved " + (tx.amount<0?"to":"from") + ":</label> " + tx.otheraccount.prettyAccount() + "<br/>";
-				break;
-			case "send":
-				if (tx.to)
-					extra = " (" + tx.to + ")";
-				html += "<label>Sent to:</label> " + tx.address + extra + "<br/>";
-				break;
-			case "receive":
-				if (tx.from)
-					extra = " (" + tx.from + ")";
-				html += "<label>Received on:</label> " + tx.address + extra + "<br/>";
-				break;
-			default:
-				html += "<label>Category:</label> " + tx.category + "<br/>";
-		}
-
-		if(tx.confirmations != undefined) html += "<label>Confirmations:</label> " + tx.confirmations + "<br/>";
-		if(tx.fee != undefined) html += "<label>Fee:</label> " + tx.fee.formatBTC() + "<br/>";
-		if(tx.comment != "" && tx.comment != undefined) html += "<label>Comment:</label> " + tx.comment + "<br/>";
-
-		return html;
-	}
-
-	this.txRowHTML = function(tx) {
-		var confirmations = tx.confirmations<10?tx.confirmations:'&#x2713;';
-
-		if (tx.category == "generate")
-			confirmations = tx.confirmations<this.generateConfirm?'&#x2717':'&#x2713';
-
-		var timestamp = new Date();
-		timestamp.setTime (tx.time * 1000);
-
-		var info = tx.category.capitalize();
-
-		if (tx.category == 'send')
-			if (tx.to)
-				info = tx.to;
-			else
-				info = tx.address;
-
-		if (tx.category == 'receive')
-			if (tx.from)
-				info = tx.from;
-			else
-				info = tx.address;
-
-		if (tx.comment)
-			info += " (" + tx.comment + ")";
-
-		if (tx.category == 'move')
-			info = (tx.amount<0?"to ":"from ") + tx.otheraccount.prettyAccount();
-
-		var amountClass = (tx.amount<0?'debit':'credit');
-
-		var html = '<td class="center">' + confirmations + '</td>';
-		html += '<td>' + timestamp.format(this.dateFormat) + '</td>';
-		html += '<td class="info">' + info + '</td>';
-		html += '<td class="' + amountClass + ' right">' + tx.amount.formatBTC(true) + '</td>';
-
-		var txitem = $(html);
-
-		return txitem;
-	}
-
 	this.refreshAll = function() {
 		clearTimeout(this.refreshTimeout);
 
@@ -315,8 +162,8 @@ function BitcoinApp() {
 
 		this.refreshServerInfo();
 		this.refreshBalance();
-		this.refreshTransactions();
 		this.refreshAddress();
+		this.txlist.refresh();
 		this.accountlist.refresh();
 
 		this.refreshTimeout = setTimeout("app.refreshAll();", this.refreshInterval);
@@ -335,10 +182,6 @@ function BitcoinApp() {
 		}
 
 		this.bitcoin.getInfo(next.proxy(this));
-	}
-
-	this.refreshTransactions = function() {
-		this.bitcoin.listTransactions(this.onListTransactions);
 	}
 
 	this.refreshBalance = function() {

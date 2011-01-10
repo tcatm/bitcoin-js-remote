@@ -479,8 +479,8 @@ function BitcoinApp() {
 	}
 
 	this.addPrototypes = function() {
-		Function.prototype.proxy = function(obj) {
-		    return $.proxy(this, obj);
+		Function.prototype.proxy = function(context) {
+		    return $.proxy(this, context);
 		}
 
 		String.prototype.capitalize = function() {

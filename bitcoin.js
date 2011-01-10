@@ -23,6 +23,10 @@
 function Bitcoin(settings, user, password) {
 	this.settings = {url: null, auth: null, account: null};
 
+	var ajaxRequests = new Array();
+
+	var log;
+
 	this.prepareAuth = function(user, password) {
 		return "Basic " + jQuery.base64_encode(user + ":" + password);
 	}
@@ -37,7 +41,7 @@ function Bitcoin(settings, user, password) {
 			request = {method: method};
 		}
 
-		jQuery.ajax({url: this.settings.url, dataType: 'json', type: 'POST',
+		var req = jQuery.ajax({url: this.settings.url, dataType: 'json', type: 'POST',
 					contentType: 'application/json',
 					data: JSON.stringify(request),
 					timeout: 15000,
@@ -70,8 +74,31 @@ function Bitcoin(settings, user, password) {
 							}
 
 							callback(data.result, data.error, context);
+						},
+					complete:
+						function(req, textStatus) {
+							ajaxRequests = jQuery.grep(ajaxRequests, function (n) { return n != req; });		
+							debugAJAX();
 						}
 					});
+		ajaxRequests.push(req);
+		debugAJAX();
+	}
+
+	function debugAJAX() {
+		if (!log) {
+			log = jQuery('<ul></ul>');
+			log.css('position', 'absolute').css('top', 0).css('left', 0).css('color', 'black');
+			jQuery('body').append(log);
+		}
+
+		log.children().remove();
+		
+		for (var key in ajaxRequests) {
+			var item = jQuery('<li/>');
+			item.html(key + " " + ajaxRequests[key]);
+			log.append(item);
+		}	
 	}
 
 	this.listAccounts = function(callback, context) {

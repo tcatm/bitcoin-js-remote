@@ -33,6 +33,8 @@ function BitcoinApp() {
 	this.generateConfirm = 120;
 	this.dateFormat = "dd/mm/yyyy HH:MM";
 
+	this.accountlist = new AccountList($("#accountList tbody"), this);
+
 	this.showFullscreenObj = function(obj) {
 		var width = $(window).width();
 		var height = $(window).height();
@@ -107,7 +109,7 @@ function BitcoinApp() {
 			$('#section_Settings').next().show();
 		}
 
-		app.clearAccounts();
+		app.accountlist.clear();
 		app.clearAccountInfo();
 	}
 
@@ -144,40 +146,6 @@ function BitcoinApp() {
 			showValidation(field, true);
 		else
 			showValidation(field, false);
-	}
-
-	this.onListAccounts = function(accounts) {
-		for (var account in accounts) {
-			var balance = accounts[account];
-
-			var row = $('#accountList tbody').children('tr[name="' + account + '"]');
-
-			if (row.length == 0) {
-				row = $('<tr></tr>');
-
-				var html ='<td class="left">' + account.prettyAccount() + '</td>';
-					html += '<td></td>';
-
-				row.append(html);
-
-				row.attr('name', account);
-				row.click( function() {
-							app.selectAccount($(this).attr('name'));
-						})
-
-				$('#accountList tbody').append(row);
-			}
-
-			app.updateAccountRow(row, balance);
-		}
-	}
-
-	this.updateAccountRow = function(row, balance) {
-		var balanceClass = "";
-		if(balance != 0)
-			balanceClass = (balance<0?'debit':'credit');
-
-		row.children('td:last-child').removeClass().addClass("right").addClass(balanceClass).text(balance.formatBTC());
 	}
 
 	this.onListTransactions = function(rawtxlist) {
@@ -222,10 +190,6 @@ function BitcoinApp() {
 		 */
 
 		app.refreshInterval = Math.min(Math.max(newInterval, 1000), 10000);
-	}
-
-	this.clearAccounts = function() {
-		$('#accountList tbody').children().remove();
 	}
 
 	this.clearTransactions = function() {
@@ -353,7 +317,7 @@ function BitcoinApp() {
 		this.refreshBalance();
 		this.refreshTransactions();
 		this.refreshAddress();
-		this.refreshAccounts();
+		this.accountlist.refresh();
 
 		this.refreshTimeout = setTimeout("app.refreshAll();", this.refreshInterval);
 	}
@@ -371,10 +335,6 @@ function BitcoinApp() {
 		}
 
 		this.bitcoin.getInfo(next.proxy(this));
-	}
-
-	this.refreshAccounts = function() {
-		this.bitcoin.listAccounts(this.onListAccounts);
 	}
 
 	this.refreshTransactions = function() {

@@ -32,6 +32,7 @@ function BitcoinApp() {
 	this.refreshTimer = false;
 	this.refreshInterval = 5000;
 	this.hashchangeTimeout;
+	this.lastGetInfo;
 
 	this.dateFormat = "dd/mm/yyyy HH:MM";
 
@@ -164,6 +165,10 @@ function BitcoinApp() {
 			return;
 		}
 
+		var timeout = new Date().getTime() - this.lastGetInfo;
+		if (timeout > 30000)
+			this.warning("Connection lost. Please reconnect!" + timeout);
+
 		if (this.bitcoin.requestsPending() == 0) {
 			this.refreshBalance();
 			this.refreshAddress();
@@ -180,6 +185,8 @@ function BitcoinApp() {
 			if (error) 
 				return;
 
+			this.lastGetInfo = new Date().getTime();
+
 			var serverInfo = $('#serverInfo table');
 
 			serverInfo.children().remove();
@@ -188,6 +195,7 @@ function BitcoinApp() {
 				serverInfo.append('<tr><td>' + key.capitalize() + '</td><td class="right">' + info[key] + '</td></tr>');
 			}
 			$('#serverInfo tr:odd').addClass('odd');
+
 		}
 
 		this.bitcoin.getInfo(next.proxy(this));
@@ -237,6 +245,7 @@ function BitcoinApp() {
 				}
 
 				this.connected = true;
+				this.lastGetInfo = undefined;
 
 				var sNetwork = "Bitcoin";
 

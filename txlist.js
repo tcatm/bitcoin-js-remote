@@ -26,7 +26,7 @@
  * }
  */
 function TXList(list, app, settings) {
-	function sortTX(a, b) {
+	this.sortTX = function(a, b) {
 		if(a.time != b.time)
 			return (a.time - b.time);
 

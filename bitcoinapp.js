@@ -101,6 +101,8 @@ function BitcoinApp() {
 	}
 
 	this.disconnect = function(hideSettings) {
+		this.bitcoin.abortAll();
+
 		this.connected = false;
 		this.setTitle("Bitcoin (not connected)");
 

@@ -51,6 +51,7 @@ function TXList(list, app, settings) {
 		/* adjust refresh interval of app depending processing time of txlist */
 		var end = new Date().getTime();
 		var time = end - start;
+		app.notify(time);
 		app.setRefreshInterval(time * 10);
 	}
 
@@ -166,6 +167,8 @@ function TXList(list, app, settings) {
 	}
 
 	this.refresh = function() {
-		app.bitcoin.listTransactions(jQuery.proxy(this, 'processRPC'));
+		var size = list.children('tr').size();
+
+		app.bitcoin.listTransactions(jQuery.proxy(this, 'processRPC'), 99999);
 	}
 }

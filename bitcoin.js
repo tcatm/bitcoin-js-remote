@@ -86,7 +86,7 @@ function Bitcoin(settings, user, password) {
 							callback(data.result, data.error, context);
 						}
 					});
-		this.ajaxRequests.push({request: req, data: JSON.stringify(request)});
+		this.ajaxRequests.push({request: req, data: request});
 		this.debugAJAX();
 	}
 
@@ -98,6 +98,12 @@ function Bitcoin(settings, user, password) {
 		for (var key in this.ajaxRequests) {
 			/* Try to abort, request might disappear while looping */
 			try {
+				var m = this.ajaxRequests[key].data.method;
+
+				/* don't abort requests that manipulate bitcoins */
+				if (m == "sendfrom" || m == "move")
+				   	continue;
+
 				this.ajaxRequests[key].request.abort();
 			} catch (err) {
 			}
@@ -117,7 +123,7 @@ function Bitcoin(settings, user, password) {
 		
 		for (var key in this.ajaxRequests) {
 			var item = jQuery('<li/>');
-			item.html(key + " " + this.ajaxRequests[key].data);
+			item.html(key + " " + JSON.stringify(this.ajaxRequests[key].data));
 			this.log.append(item);
 		}	
 	}

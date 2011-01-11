@@ -268,7 +268,7 @@ function BitcoinApp() {
 	}
 
 	this.error = function(msg) {
-		$(window).humanMsg(msg);
+		$(window).humanMsg({message: msg, autoHide: 0});
 	}
 
 	this.notify = function(msg) {

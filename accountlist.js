@@ -35,7 +35,10 @@ function AccountList(obj, app) {
 		row.children('td:last-child').removeClass().addClass("right").addClass(balanceClass).text(balance.formatBTC());
 	}
 
-	this.parseList = function(accounts) {
+	this.parseList = function(accounts, error) {
+		if (error) 
+			return;
+
 		for (var account in accounts) {
 			var balance = accounts[account];
 

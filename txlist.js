@@ -40,7 +40,10 @@ function TXList(list, app, settings) {
 		list.children().remove();
 	}
 
-	this.processRPC = function(transactions) {
+	this.processRPC = function(transactions, error) {
+		if (error)
+			return;
+
 		var start = new Date().getTime();
 
 		var transactions = jQuery.grep(transactions,

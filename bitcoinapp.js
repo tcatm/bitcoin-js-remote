@@ -176,7 +176,10 @@ function BitcoinApp() {
 	}
 
 	this.refreshServerInfo = function() {
-		function next(info) {
+		function next(info, error) {
+			if (error) 
+				return;
+
 			var serverInfo = $('#serverInfo table');
 
 			serverInfo.children().remove();
@@ -191,7 +194,10 @@ function BitcoinApp() {
 	}
 
 	this.refreshBalance = function() {
-		function next(balance) {
+		function next(balance, error) {
+			if (error) 
+				return;
+
 			$('#balance').text(balance.formatBTC());
 			$('#currentAccount').text(this.bitcoin.settings.account.prettyAccount());
 			this.balance = balance;
@@ -201,7 +207,10 @@ function BitcoinApp() {
 	}
 
 	this.refreshAddress = function() {
-		function next(address) {
+		function next(address, error) {
+			if (error) 
+				return;
+
 			var addressField = $('#address');
 			if(addressField.text() != address)
 				$('#address').text(address);

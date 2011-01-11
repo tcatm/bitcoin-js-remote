@@ -29,6 +29,7 @@ function BitcoinApp() {
 	this.bitcoin = new Bitcoin();
 	this.balance;
 	this.connected = false;
+	this.refreshTimeout = 30000;
 	this.refreshTimer = false;
 	this.refreshInterval = 5000;
 	this.hashchangeTimeout;
@@ -166,7 +167,7 @@ function BitcoinApp() {
 		}
 
 		var timeout = new Date().getTime() - this.lastGetInfo;
-		if (timeout > 30000)
+		if (timeout > this.refreshTimeout)
 			this.warning("Connection lost. Please reconnect!" + timeout);
 
 		if (this.bitcoin.requestsPending() == 0) {

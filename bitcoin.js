@@ -41,6 +41,8 @@ function Bitcoin(settings, user, password) {
 			request = {method: method};
 		}
 
+		var me = this;
+
 		var req = jQuery.ajax({url: this.settings.url, dataType: 'json', type: 'POST',
 					contentType: 'application/json',
 					data: JSON.stringify(request),
@@ -49,11 +51,19 @@ function Bitcoin(settings, user, password) {
                 		req.setRequestHeader("Authorization", auth);
 					},
 					success:
-						 function(data) {
+						 function(data, textStatus, req) {
+							jQuery.proxy( function(req) {
+								this.ajaxRequests = jQuery.grep(this.ajaxRequests, function (n, i) { return n.request != req; });		
+								this.debugAJAX();
+							}, me)(req);
 							callback(data.result, data.error, context);
 						},
 					error:
 						 function(req, textStatus, error) {
+							jQuery.proxy( function(req) {
+								this.ajaxRequests = jQuery.grep(this.ajaxRequests, function (n, i) { return n.request != req; });		
+								this.debugAJAX();
+							}, me)(req);
 							var data;
 							try  {
 								if (!req.responseText)
@@ -74,12 +84,7 @@ function Bitcoin(settings, user, password) {
 							}
 
 							callback(data.result, data.error, context);
-						},
-					complete: jQuery.proxy(
-						function(req, textStatus) {
-							this.ajaxRequests = jQuery.grep(this.ajaxRequests, function (n, i) { return n.request != req; });		
-							this.debugAJAX();
-						}, this)
+						}
 					});
 		this.ajaxRequests.push({request: req, data: JSON.stringify(request)});
 		this.debugAJAX();
@@ -87,6 +92,11 @@ function Bitcoin(settings, user, password) {
 
 	this.requestsPending = function() {
 		return this.ajaxRequests.length;
+	}
+
+	this.abortAll = function() {
+		for (var key in this.ajaxRequests)
+			this.ajaxRequests[key].request.abort();
 	}
 
 	this.debugAJAX = function() {

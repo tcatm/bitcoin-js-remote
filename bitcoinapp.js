@@ -163,11 +163,13 @@ function BitcoinApp() {
 			return;
 		}
 
-		this.refreshServerInfo();
-		this.refreshBalance();
-		this.refreshAddress();
-		this.txlist.refresh();
-		this.accountlist.refresh();
+		if (this.bitcoin.requestsPending() == 0) {
+			this.refreshServerInfo();
+			this.refreshBalance();
+			this.refreshAddress();
+			this.txlist.refresh();
+			this.accountlist.refresh();
+		}
 
 		this.refreshTimeout = setTimeout(this.refreshAll.proxy(this), this.refreshInterval);
 	}
@@ -210,8 +212,10 @@ function BitcoinApp() {
 	this.selectAccount = function(account) {
 		this.clearAccountInfo();
 		this.bitcoin.selectAccount(account);
-		if (this.connected)
+		if (this.connected) {
+			this.bitcoin.abortAll();
 			this.refreshAll();
+		}
 	}
 
 	this.connect = function(url, user, pass, account) {

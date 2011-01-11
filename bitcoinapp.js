@@ -29,7 +29,7 @@ function BitcoinApp() {
 	this.bitcoin = new Bitcoin();
 	this.balance;
 	this.connected = false;
-	this.refreshTimeout = false;
+	this.refreshTimer = false;
 	this.refreshInterval = 5000;
 	this.hashchangeTimeout;
 
@@ -122,7 +122,7 @@ function BitcoinApp() {
 	}
 
 	this.clearAccountInfo = function() {
-		clearTimeout(this.refreshTimeout);
+		clearTimeout(this.refreshTimer);
 
 		$('#currentAccount').text('(no account)');
 		$('#balance').text('');
@@ -157,7 +157,7 @@ function BitcoinApp() {
 	}
 
 	this.refreshAll = function() {
-		clearTimeout(this.refreshTimeout);
+		clearTimeout(this.refreshTimer);
 
 		if(!this.connected) {
 			return;
@@ -171,7 +171,7 @@ function BitcoinApp() {
 			this.refreshServerInfo();
 		}
 
-		this.refreshTimeout = setTimeout(this.refreshAll.proxy(this), this.refreshInterval);
+		this.refreshTimer = setTimeout(this.refreshAll.proxy(this), this.refreshInterval);
 	}
 
 	this.refreshServerInfo = function() {

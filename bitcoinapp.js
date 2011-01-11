@@ -168,7 +168,7 @@ function BitcoinApp() {
 
 		var timeout = new Date().getTime() - this.lastGetInfo;
 		if (timeout > this.refreshTimeout)
-			this.warning("Connection lost. Please reconnect!" + timeout);
+			this.error("Connection lost (timeout)");
 
 		if (this.bitcoin.requestsPending() == 0) {
 			this.refreshBalance();

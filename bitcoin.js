@@ -23,9 +23,9 @@
 function Bitcoin(settings, user, password) {
 	this.settings = {url: null, auth: null, account: null};
 
-	var ajaxRequests = new Array();
-
-	var log;
+	this.debug;
+	this.ajaxRequests = new Array();
+	this.log;
 
 	this.prepareAuth = function(user, password) {
 		return "Basic " + jQuery.base64_encode(user + ":" + password);
@@ -75,29 +75,35 @@ function Bitcoin(settings, user, password) {
 
 							callback(data.result, data.error, context);
 						},
-					complete:
+					complete: jQuery.proxy(
 						function(req, textStatus) {
-							ajaxRequests = jQuery.grep(ajaxRequests, function (n) { return n != req; });		
-							debugAJAX();
-						}
+							this.ajaxRequests = jQuery.grep(this.ajaxRequests, function (n, i) { return n.request != req; });		
+							this.debugAJAX();
+						}, this)
 					});
-		ajaxRequests.push(req);
-		debugAJAX();
+		this.ajaxRequests.push({request: req, data: JSON.stringify(request)});
+		this.debugAJAX();
 	}
 
-	function debugAJAX() {
-		if (!log) {
-			log = jQuery('<ul></ul>');
-			log.css('position', 'absolute').css('top', 0).css('left', 0).css('color', 'black');
-			jQuery('body').append(log);
+	this.requestsPending = function() {
+		return this.ajaxRequests.length;
+	}
+
+	this.debugAJAX = function() {
+		if (!this.debug) return;
+
+		if (!this.log) {
+			this.log = jQuery('<ul></ul>');
+			this.log.css('position', 'absolute').css('top', 0).css('left', 0).css('color', 'black');
+			jQuery('body').append(this.log);
 		}
 
-		log.children().remove();
+		this.log.children().remove();
 		
-		for (var key in ajaxRequests) {
+		for (var key in this.ajaxRequests) {
 			var item = jQuery('<li/>');
-			item.html(key + " " + ajaxRequests[key]);
-			log.append(item);
+			item.html(key + " " + this.ajaxRequests[key].data);
+			this.log.append(item);
 		}	
 	}
 

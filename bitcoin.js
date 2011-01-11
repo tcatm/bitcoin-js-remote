@@ -95,8 +95,13 @@ function Bitcoin(settings, user, password) {
 	}
 
 	this.abortAll = function() {
-		for (var key in this.ajaxRequests)
-			this.ajaxRequests[key].request.abort();
+		for (var key in this.ajaxRequests) {
+			/* Try to abort, request might disappear while looping */
+			try {
+				this.ajaxRequests[key].request.abort();
+			} catch (err) {
+			}
+		}
 	}
 
 	this.debugAJAX = function() {

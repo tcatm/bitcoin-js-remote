@@ -220,7 +220,12 @@ function BitcoinApp() {
 
 	this.connect = function(url, user, pass, account) {
 		function next(info, error, request) {
-			if (error == null) {
+			if (info != null) {
+				if (info.version < 31902) {
+					this.error("Bitcoin Version >= 31902 required (Found " + info.version + ")");
+					return;
+				}
+
 				this.connected = true;
 
 				var sNetwork = "Bitcoin";

@@ -164,11 +164,11 @@ function BitcoinApp() {
 		}
 
 		if (this.bitcoin.requestsPending() == 0) {
-			this.refreshServerInfo();
 			this.refreshBalance();
 			this.refreshAddress();
 			this.txlist.refresh();
 			this.accountlist.refresh();
+			this.refreshServerInfo();
 		}
 
 		this.refreshTimeout = setTimeout(this.refreshAll.proxy(this), this.refreshInterval);

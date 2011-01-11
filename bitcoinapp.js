@@ -81,7 +81,7 @@ function BitcoinApp() {
 			var QRurl = 'https://chart.googleapis.com/chart?chs=' + size + 'x' + size + '&cht=qr&chl=' + address + '&choe=UTF-8';
 			this.showFullscreenObj($('<img src="' + QRurl + '" />'));
 		} else {
-			this.error("No address found!");
+			this.warning("No address found!");
 		}
 	}
 
@@ -133,7 +133,7 @@ function BitcoinApp() {
 
 	this.onSendBTC = function(result, error) {
 		if(error != null) {
-			this.error(error.message);
+			this.warning(error.message);
 			return;
 		}
 		var obj;
@@ -149,7 +149,6 @@ function BitcoinApp() {
 
 	this.onValidateAddressField = function(result) {
 		var field = $('form#sendBTC input[name="address"]')
-
 		if(result.isvalid && field.val() == result.address)
 			showValidation(field, true);
 		else
@@ -268,6 +267,11 @@ function BitcoinApp() {
 	}
 
 	this.error = function(msg) {
+		this.disconnect();
+		$(window).humanMsg({message: msg, autoHide: 0});
+	}
+
+	this.warning = function(msg) {
 		$(window).humanMsg({message: msg, autoHide: 0});
 	}
 

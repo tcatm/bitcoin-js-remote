@@ -26,7 +26,7 @@ function BitcoinApp() {
 	/* hack to allow event handlers to find us */
 	var app = this;
 
-	this.bitcoin = false;
+	this.bitcoin = new Bitcoin();
 	this.balance;
 	this.connected = false;
 	this.refreshTimeout = false;
@@ -259,11 +259,10 @@ function BitcoinApp() {
 
 		/* url might contain query with settings and request */
 		if (url.settings) {
-			this.bitcoin = new Bitcoin(url.settings);
+			this.bitcoin.setup(url.settings);
 			this.bitcoin.getInfo(next.proxy(this), url.request);
 		} else {
-			this.bitcoin = new Bitcoin({url: url}, user, pass);
-			this.selectAccount(account);
+			this.bitcoin.setup({url: url, account: account}, user, pass);
 			this.bitcoin.getInfo(next.proxy(this));
 		}
 	}

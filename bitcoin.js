@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-function Bitcoin(settings, user, password) {
+function Bitcoin() {
 	this.settings = {url: null, auth: null, account: null};
 
 	this.debug;
@@ -163,7 +163,7 @@ function Bitcoin(settings, user, password) {
 			this.settings.account = "";
 	}
 
-	this.init = function(settings, user, password) {
+	this.setup = function(settings, user, password) {
 		this.settings = settings;
 
 		if (this.settings.url == "")
@@ -174,6 +174,4 @@ function Bitcoin(settings, user, password) {
 		
 		this.selectAccount(settings.account);
 	}
-
-	this.init(settings, user, password);
 }

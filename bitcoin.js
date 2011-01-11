@@ -116,8 +116,8 @@ function Bitcoin() {
 		this.RPC("listaccounts", null, callback, context);
 	}
 
-	this.listTransactions = function(callback, context) {
-		this.RPC("listtransactions", [this.settings.account, 999999], callback, context);
+	this.listTransactions = function(callback, count, context) {
+		this.RPC("listtransactions", [this.settings.account, count], callback, context);
 	}
 
 	this.validateAddress = function(callback, address, context) {

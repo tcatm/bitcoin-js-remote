@@ -21,7 +21,7 @@
  */
 
 function BitcoinApp() {
-	this.version = "0.1";
+	this.version = "0.2";
 
 	/* hack to allow event handlers to find us */
 	var app = this;

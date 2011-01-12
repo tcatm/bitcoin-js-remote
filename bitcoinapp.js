@@ -515,6 +515,14 @@ function BitcoinApp() {
 					return false;
 				});
 
+		$('form#QRinject').submit( function() {
+					var urn = getFormValue(this, "urn");
+					this.reset();
+
+					app.injectQR(urn);
+					return false;
+				});
+
 		$('form#settingsServer').submit( function() {
 					var url = getFormValue(this, "url");
 					var user = getFormValue(this, "user");

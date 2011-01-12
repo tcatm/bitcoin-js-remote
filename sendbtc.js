@@ -105,7 +105,7 @@ function SendBTC(box, app) {
 		div.append(confP);
 
 		var buttonSend = $('<span class="button buttonSend"/>').text('Send');
-		var buttonCancel = $('<span class="button buttonCancel"/>').text('Cancel');
+		var buttonCancel = $('<span class="button buttonCancel"/>').text('Cancel / Edit');
 
 		buttonSend.click( function() { self.dispatchSend(context, rawcontext); });
 		buttonCancel.click( function() { self.fillAndShowForm(rawcontext); });

@@ -34,6 +34,7 @@ function BitcoinApp() {
 	this.refreshInterval = 5000;
 	this.hashchangeTimeout;
 	this.lastGetInfo;
+	this.useSlide = false;
 
 	this.dateFormat = "dd/mm/yyyy HH:MM";
 
@@ -312,7 +313,7 @@ function BitcoinApp() {
 
 				this.refreshAll();
 
-				$('#section_Settings').next().slideUp('fast');
+				$('#section_Settings').next().hide();
 				$('#addressBox').show();
 				$('#section_Accounts').show();
 				$('#section_SendBTC').show();
@@ -497,8 +498,10 @@ function BitcoinApp() {
 		var uagent = navigator.userAgent.toLowerCase();
 
 		/* hide scanQRbutton on non-android platforms */
-		if (uagent.search("android") <= -1)
+		if (uagent.search("android") <= -1) {
+			this.useSlide = true;
 			$('#scanQRbutton').hide();
+		}
 
 		$('#scanQRbutton').click( function() {
 					app.scanQR();

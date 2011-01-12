@@ -88,7 +88,9 @@ function TXList(list, app, settings) {
 			txrow.after(txdiv);
 
 			txrow.click( function() {
-					$(this).next('tr.txinfo').children('td').children('div').slideToggle('fast');
+					var div = $(this).next('tr.txinfo').children('td').children('div');
+					if (app.useSlide) div.slideToggle('fast');
+					else div.toggle();
 				});
 		}
 

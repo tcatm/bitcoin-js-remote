@@ -48,7 +48,7 @@ function Bitcoin() {
 					data: JSON.stringify(request),
 					timeout: 15000,
 					beforeSend: function(req){
-                		req.setRequestHeader("Authorization", auth);
+						req.setRequestHeader("Authorization", auth);
 					},
 					success:
 						 function(data, textStatus, req) {

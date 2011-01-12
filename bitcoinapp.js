@@ -350,11 +350,11 @@ function BitcoinApp() {
 
 	this.addPrototypes = function() {
 		Function.prototype.proxy = function(context) {
-		    return $.proxy(this, context);
+			return $.proxy(this, context);
 		}
 
 		String.prototype.capitalize = function() {
-		    return this.charAt(0).toUpperCase() + this.slice(1);
+			return this.charAt(0).toUpperCase() + this.slice(1);
 		}
 
 		String.prototype.prettyAccount = function() {

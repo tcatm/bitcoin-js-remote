@@ -107,7 +107,15 @@ function BitcoinApp() {
 			/* no scheme, let's see if it's a valid address */
 			if (!urn.scheme) 
 				this.bitcoin.validateAddress(this.requestValidAddress.proxy(this), request.data, request.data);
+
+			if (urn.scheme == 'bitcoin')
+				this.parseBitcoinScheme(urn);
+			else
+				this.notify("Unknown URN scheme " + urn.scheme);
 		}
+	}
+
+	this.parseBitcoinScheme = function(urn) {
 	}
 
 	this.setTitle = function(title) {

@@ -12,7 +12,7 @@ html, body {
 	padding: 0 0 1px 0;
 }
 
-.clearfix:after {
+.section:after, .clearfix:after {
 	content: ".";
 	display: block;
 	height: 0;
@@ -58,6 +58,23 @@ h4 {
 	padding: 10pt 8pt 4pt 8pt;
 	color: #222;
 	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-serif;
+}
+
+.error, .success {
+	color: #eee !important;
+}
+
+.success {
+	background-color: #0E8C3A !important;
+}
+
+.error {
+	background-color: #DB2645 !important;
+}
+
+.critical {
+	background-color: #712 !important;
+	color: #eee !important;
 }
 
 p {
@@ -107,6 +124,10 @@ table tr.odd {
 
 .center {
 	text-align: center;
+}
+
+.italic {
+	font-style: italic;
 }
 
 tr.unconfirmed {
@@ -261,4 +282,19 @@ form input {
 span.button:hover {
 	background: #ffa !important;
 	border-color: #fa0 !important;
+}
+
+.buttonSend, .buttonCancel {
+	padding: 0.5em;
+}
+
+.buttonSend {
+	float: left;
+}
+
+.buttonCancel {
+	float: right;
+	color: #DB2645;
+	border-color: #DB2645;
+	background-color: #FFD1D9;
 }

@@ -20,38 +20,30 @@
  * THE SOFTWARE.
  */
 
-/* Because of the way JSONP works this codes assumes a global
- * variable named 'app' pointing to the BitcoinApp() instance!
- *
- * <script type="text/javascript">
- *     var app = new BitcoinApp();
- *     app.init();
- * </script>
- */
-
 function BitcoinApp() {
 	this.version = "0.1";
 
-	this.bitcoin = false;
+	/* hack to allow event handlers to find us */
+	var app = this;
+
+	this.bitcoin = new Bitcoin();
 	this.balance;
 	this.connected = false;
-	this.refreshTimeout = false;
+	this.refreshTimeout = 30000;
+	this.refreshTimer = false;
 	this.refreshInterval = 5000;
 	this.hashchangeTimeout;
+	this.lastGetInfo;
 
-	this.generateConfirm = 120;
 	this.dateFormat = "dd/mm/yyyy HH:MM";
 
-	this.onGetBalance = function(balance) {
-		$('#balance').text(balance.formatBTC());
-		$('#currentAccount').text(app.bitcoin.settings.account.prettyAccount());
-		app.balance = balance;
-	}
+	this.accountlist = new AccountList($("#accountList tbody"), this);
+	this.txlist = new TXList($("#txlist tbody"), this, {generateConfirm: 120});
+	this.sendbtc = new SendBTC($("#sendBTC"), this);
 
-	this.onGetAddress = function(address) {
-		var addressField = $('#address');
-		if(addressField.text() != address)
-			$('#address').text(address);
+	this.setRefreshInterval = function(interval) {
+		/* limit interval to 1 .. 10 s */
+		this.refreshInterval = Math.min(Math.max(interval * 10, 1000), 10000);
 	}
 
 	this.showFullscreenObj = function(obj) {
@@ -86,44 +78,14 @@ function BitcoinApp() {
 	this.showQRAddress = function() {
 		var address = $('#address').text();
 		if (address != "") {
+			var uri = "bitcoin:" + address;
 			var width = $(window).width();
 			var height = $(window).height();
 			var size = Math.min(width, height, 540);
-			var QRurl = 'https://chart.googleapis.com/chart?chs=' + size + 'x' + size + '&cht=qr&chl=' + address + '&choe=UTF-8';
+			var QRurl = 'https://chart.googleapis.com/chart?chs=' + size + 'x' + size + '&cht=qr&chl=' + uri + '&choe=UTF-8';
 			this.showFullscreenObj($('<img src="' + QRurl + '" />'));
 		} else {
-			this.error("No address found!");
-		}
-	}
-
-	this.onConnect = function(info, error, request) {
-		if (error == null) {
-			app.connected = true;
-
-			var sNetwork = "Bitcoin";
-
-			if(info.testnet)
-				sNetwork = "Testnet";
-
-			var href = new URI(window.location.href);
-			var rpcurl = new URI(app.bitcoin.settings.url).resolve(href);
-
-			app.setTitle(sNetwork + " on " + rpcurl.authority);
-
-			app.refreshAll();
-
-			$('#section_Settings').next().slideUp('fast');
-			$('#addressBox').show();
-			$('#section_Accounts').show();
-			$('#section_SendBTC').show();
-			$('#section_TX').show().next().show();
-			$('#serverInfo').show();
-
-			if (request)
-				app.parseRequest(request);
-
-		} else {
-			app.error(error.message);
+			this.warning("No address found!");
 		}
 	}
 
@@ -142,9 +104,11 @@ function BitcoinApp() {
 		document.title = title;
 	}
 
-	this.onDisconnect = function(hideSettings) {
-		app.connected = false;
-		app.setTitle("Bitcoin (not connected)");
+	this.disconnect = function(hideSettings) {
+		this.bitcoin.abortAll();
+
+		this.connected = false;
+		this.setTitle("Bitcoin (not connected)");
 
 		$('#addressBox').hide();
 		$('#serverInfo').hide();
@@ -159,335 +123,168 @@ function BitcoinApp() {
 			$('#section_Settings').next().show();
 		}
 
-		app.clearAccounts();
-		app.clearAccountInfo();
+		this.accountlist.clear();
+		this.clearAccountInfo();
 	}
 
 	this.clearAccountInfo = function() {
-		clearTimeout(this.refreshTimeout);
+		clearTimeout(this.refreshTimer);
 
 		$('#currentAccount').text('(no account)');
 		$('#balance').text('');
 		$('#address').text('');
-		app.balance = false;
-		app.clearTransactions();
-	}
-
-	this.onGetInfo = function(info) {
-		var serverInfo = $('#serverInfo table');
-
-		serverInfo.children().remove();
-
-		for (var key in info) {
-			serverInfo.append('<tr><td>' + key.capitalize() + '</td><td class="right">' + info[key] + '</td></tr>');
-		}
-		$('#serverInfo tr:odd').addClass('odd');
-	}
-
-	this.onSendBTC = function(result, error) {
-		if(error != null) {
-			app.error(error.message);
-			return;
-		}
-		var obj;
-		obj	= setFormValue($('form#sendBTC'), "address", "");
-		hideValidation(obj);
-
-		obj = setFormValue($('form#sendBTC'), "amount", "");
-		hideValidation(obj);
-
-		app.notify("Bitcoins sent");
-		app.refreshAll();
-	}
-
-	this.onValidateAddressField = function(result) {
-		var field = $('form#sendBTC input[name="address"]')
-
-		if(result.isvalid && field.val() == result.address)
-			showValidation(field, true);
-		else
-			showValidation(field, false);
-	}
-
-	this.onListAccounts = function(accounts) {
-		for (var account in accounts) {
-			var balance = accounts[account];
-
-			var row = $('#accountList tbody').children('tr[name="' + account + '"]');
-
-			if (row.length == 0) {
-				row = $('<tr></tr>');
-
-				var html ='<td class="left">' + account.prettyAccount() + '</td>';
-					html += '<td></td>';
-
-				row.append(html);
-
-				row.attr('name', account);
-				row.click( function() {
-							app.selectAccount($(this).attr('name'));
-						})
-
-				$('#accountList tbody').append(row);
-			}
-
-			app.updateAccountRow(row, balance);
-		}
-	}
-
-	this.updateAccountRow = function(row, balance) {
-		var balanceClass = "";
-		if(balance != 0)
-			balanceClass = (balance<0?'debit':'credit');
-
-		row.children('td:last-child').removeClass().addClass("right").addClass(balanceClass).text(balance.formatBTC());
-	}
-
-	this.onListTransactions = function(rawtxlist) {
-		var start = new Date().getTime();
-
-		var transactions = new Array();
-
-		for (var key in rawtxlist)
-			if (rawtxlist[key].account == app.bitcoin.settings.account) {
-				if (rawtxlist[key].time == undefined)
-					rawtxlist[key].time = 0;
-
-				transactions.push(rawtxlist[key]);
-			}
-
-		transactions.sort(sortTransactions);
-
-		var txlistContainer = $('#txlist');
-
-		if(txlistContainer.children('tbody').length == 0)
-			txlistContainer.append('<tbody />');
-
-		var txlist = txlistContainer.children('tbody');
-
-		txlist.children('#txlistempty').remove();
-
-		if (transactions.length == 0)
-			txlist.append('<tr id="txlistempty"><td colspan="4" class="center">no transactions</td></tr>');
-
-		for (var key in transactions)
-			app.processTransaction(txlist, transactions[key]);
-
-		$('#txlist tbody tr:not(.txinfo):odd').addClass('odd').next('.txinfo').addClass('odd');
-		$('#txlist tbody tr:not(.txinfo):even').removeClass('odd').next('.txinfo').removeClass('odd');
-
-		var end = new Date().getTime();
-		var time = end - start;
-		var newInterval = time * 10;
-
-		/* adjust refresh interval within 1..10 seconds depending
-		 * processing time of txlist
-		 */
-
-		app.refreshInterval = Math.min(Math.max(newInterval, 1000), 10000);
-	}
-
-	this.clearAccounts = function() {
-		$('#accountList tbody').children().remove();
-	}
-
-	this.clearTransactions = function() {
-		$('#txlist tbody').children().remove();
-	}
-
-	this.processTransaction = function(txlist, tx) {
-		if (tx.txid == undefined)
-			tx.id = (tx.time + tx.amount + tx.otheraccount).replace(/ /g,'');
-		else
-			tx.id = tx.txid;
-
-		tx.id += tx.category;
-
-		var txrow = $(document.getElementById(tx.id));
-
-		if (txrow.length == 0) {
-			txrow = $('<tr id="' + tx.id + '"></tr>');
-			txlist.prepend(txrow);
-			var txdiv = $('<tr colspan="4" class="txinfo"><td colspan="4"><div style="display: none"></div></td></tr>');
-			txrow.after(txdiv);
-
-			txrow.click( function() {
-					$(this).next('tr.txinfo').children('td').children('div').slideToggle('fast');
-				});
-		}
-
-		var checksum = tx.id + tx.confirmations + tx.time;
-
-		/* Only update TX if it differs from current one */
-		if(txrow.attr('checksum') != checksum) {
-			txrow.attr('checksum', checksum);
-			txrow.html(this.txRowHTML(tx));
-
-			txrow.next('tr.txinfo').children('td').children('div').html(this.txInfoHTML(tx));
-
-			if (tx.confirmations == 0 || (tx.category == "generate" && tx.confirmations < this.generateConfirm))
-				txrow.addClass("unconfirmed");
-			else
-				txrow.removeClass("unconfirmed");
-		}
-	}
-
-	this.txInfoHTML = function(tx) {
-		var html = "";
-		var extra = "";
-
-		switch (tx.category) {
-			case "generate":
-				html += "<label>Generated coins</label><br/>";
-				break;
-			case "move":
-				html += "<label>Moved " + (tx.amount<0?"to":"from") + ":</label> " + tx.otheraccount.prettyAccount() + "<br/>";
-				break;
-			case "send":
-				if (tx.to)
-					extra = " (" + tx.to + ")";
-				html += "<label>Sent to:</label> " + tx.address + extra + "<br/>";
-				break;
-			case "receive":
-				if (tx.from)
-					extra = " (" + tx.from + ")";
-				html += "<label>Received on:</label> " + tx.address + extra + "<br/>";
-				break;
-			default:
-				html += "<label>Category:</label> " + tx.category + "<br/>";
-		}
-
-		if(tx.confirmations != undefined) html += "<label>Confirmations:</label> " + tx.confirmations + "<br/>";
-		if(tx.fee != undefined) html += "<label>Fee:</label> " + tx.fee.formatBTC() + "<br/>";
-		if(tx.comment != "" && tx.comment != undefined) html += "<label>Comment:</label> " + tx.comment + "<br/>";
-
-		return html;
-	}
-
-	this.txRowHTML = function(tx) {
-		var confirmations = tx.confirmations<10?tx.confirmations:'&#x2713;';
-
-		if (tx.category == "generate")
-			confirmations = tx.confirmations<this.generateConfirm?'&#x2717':'&#x2713';
-
-		var timestamp = new Date();
-		timestamp.setTime (tx.time * 1000);
-
-		var info = tx.category.capitalize();
-
-		if (tx.category == 'send')
-			if (tx.to)
-				info = tx.to;
-			else
-				info = tx.address;
-
-		if (tx.category == 'receive')
-			if (tx.from)
-				info = tx.from;
-			else
-				info = tx.address;
-
-		if (tx.comment)
-			info += " (" + tx.comment + ")";
-
-		if (tx.category == 'move')
-			info = (tx.amount<0?"to ":"from ") + tx.otheraccount.prettyAccount();
-
-		var amountClass = (tx.amount<0?'debit':'credit');
-
-		var html = '<td class="center">' + confirmations + '</td>';
-		html += '<td>' + timestamp.format(this.dateFormat) + '</td>';
-		html += '<td class="info">' + info + '</td>';
-		html += '<td class="' + amountClass + ' right">' + tx.amount.formatBTC(true) + '</td>';
-
-		var txitem = $(html);
-
-		return txitem;
+		this.balance = false;
+		this.txlist.clear();
 	}
 
 	this.refreshAll = function() {
-		clearTimeout(this.refreshTimeout);
+		clearTimeout(this.refreshTimer);
 
 		if(!this.connected) {
 			return;
 		}
 
-		this.refreshServerInfo();
-		this.refreshBalance();
-		this.refreshTransactions();
-		this.refreshAddress();
-		this.refreshAccounts();
+		var timeout = new Date().getTime() - this.lastGetInfo;
+		if (timeout > this.refreshTimeout)
+			this.error("Connection lost (timeout)");
 
-		this.refreshTimeout = setTimeout("app.refreshAll();", this.refreshInterval);
+		if (this.bitcoin.requestsPending() == 0) {
+			this.refreshBalance();
+			this.refreshAddress();
+			this.txlist.refresh();
+			this.accountlist.refresh();
+			this.refreshServerInfo();
+		}
+
+		this.refreshTimer = setTimeout(this.refreshAll.proxy(this), this.refreshInterval);
 	}
 
 	this.refreshServerInfo = function() {
-		this.bitcoin.getInfo(this.onGetInfo);
-	}
+		function next(info, error) {
+			if (error) 
+				return;
 
-	this.refreshAccounts = function() {
-		this.bitcoin.listAccounts(this.onListAccounts);
-	}
+			this.lastGetInfo = new Date().getTime();
 
-	this.refreshTransactions = function() {
-		this.bitcoin.listTransactions(this.onListTransactions);
+			var serverInfo = $('#serverInfo table');
+
+			serverInfo.children().remove();
+
+			for (var key in info) {
+				serverInfo.append('<tr><td>' + key.capitalize() + '</td><td class="right">' + info[key] + '</td></tr>');
+			}
+			$('#serverInfo tr:odd').addClass('odd');
+
+		}
+
+		this.bitcoin.getInfo(next.proxy(this));
 	}
 
 	this.refreshBalance = function() {
-		this.bitcoin.getBalance(this.onGetBalance);
+		function next(balance, error) {
+			if (error) 
+				return;
+
+			$('#balance').text(balance.formatBTC());
+			$('#currentAccount').text(this.bitcoin.settings.account.prettyAccount());
+			this.balance = balance;
+		}
+
+		this.bitcoin.getBalance(next.proxy(this));
 	}
 
 	this.refreshAddress = function() {
-		this.bitcoin.getAddress(this.onGetAddress);
+		function next(address, error) {
+			if (error) 
+				return;
+
+			var addressField = $('#address');
+			if(addressField.text() != address)
+				$('#address').text(address);
+		}
+
+		this.bitcoin.getAddress(next.proxy(this));
 	}
 
 	this.selectAccount = function(account) {
 		this.clearAccountInfo();
 		this.bitcoin.selectAccount(account);
-		if (this.connected)
+		if (this.connected) {
+			this.bitcoin.abortAll();
 			this.refreshAll();
+		}
 	}
 
 	this.connect = function(url, user, pass, account) {
-		this.onDisconnect(url.settings?true:false);
+		function next(info, error, request) {
+			if (info != null) {
+				if (info.version < 31902) {
+					this.error("Bitcoin Version >= 31902 required (Found " + info.version + ")");
+					return;
+				}
+
+				this.connected = true;
+				this.lastGetInfo = undefined;
+
+				this.sendbtc.reset();
+
+				var sNetwork = "Bitcoin";
+
+				if(info.testnet)
+					sNetwork = "Testnet";
+
+				var href = new URI(window.location.href);
+				var rpcurl = new URI(this.bitcoin.settings.url).resolve(href);
+
+				this.setTitle(sNetwork + " on " + rpcurl.authority);
+
+				this.refreshAll();
+
+				$('#section_Settings').next().slideUp('fast');
+				$('#addressBox').show();
+				$('#section_Accounts').show();
+				$('#section_SendBTC').show();
+				$('#section_TX').show().next().show();
+				$('#serverInfo').show();
+
+				if (request)
+					this.parseRequest(request);
+
+			} else {
+				this.error(error.message);
+			}
+		}
+
+		this.disconnect(url.settings?true:false);
 
 		/* url might contain query with settings and request */
 		if (url.settings) {
-			this.bitcoin = new Bitcoin(url.settings);
-			this.bitcoin.getInfo(this.onConnect, url.request);
+			this.bitcoin.setup(url.settings);
+			this.bitcoin.getInfo(next.proxy(this), url.request);
 		} else {
-			this.bitcoin = new Bitcoin({url: url}, user, pass);
-			this.selectAccount(account);
-			this.bitcoin.getInfo(this.onConnect);
+			this.bitcoin.setup({url: url, account: account}, user, pass);
+			this.bitcoin.getInfo(next.proxy(this));
 		}
 	}
 
 	this.error = function(msg) {
-		$(window).humanMsg(msg);
+		this.disconnect();
+		$(window).humanMsg({message: msg, autoHide: 0});
+	}
+
+	this.warning = function(msg) {
+		$(window).humanMsg({message: msg, autoHide: 0});
 	}
 
 	this.notify = function(msg) {
 		$(window).humanMsg(msg);
 	}
 
-	this.sendBTC = function(address, amount) {
-		if(!this.connected) {
-			return this.error("Not connected!");
-		}
-
-		if(address === "") {
-			return this.error("Invalid bitcoin address");
-		}
-
-		amount = Math.round(amount*100)/100;
-		var confString = "Send " + amount.formatBTC() + " to " + address + "?";
-
-		if(confirm(confString)) {
-			app.bitcoin.sendBTC(this.onSendBTC, address, amount);
-		}
-	}
-
 	this.addPrototypes = function() {
+		Function.prototype.proxy = function(context) {
+		    return $.proxy(this, context);
+		}
+
 		String.prototype.capitalize = function() {
 		    return this.charAt(0).toUpperCase() + this.slice(1);
 		}
@@ -516,7 +313,7 @@ function BitcoinApp() {
 	}
 
 	this.serializeSettings = function(request) {
-		var obj = {settings: app.bitcoin.settings, request: request};
+		var obj = {settings: this.bitcoin.settings, request: request};
 		return jQuery.base64_encode(JSON.stringify(obj));
 	}
 
@@ -531,18 +328,26 @@ function BitcoinApp() {
 		window.location = scanurl;
 	}
 
-	this.detectHashchange = function(oldhash) {
+	this.detectHashchange = function() {
 		clearTimeout(this.hashchangeTimeout);
 
-		var hash = window.location.hash.substring(1);
+		var hash = this.getLocationHash();
 
-		if (oldhash != undefined)
-			if (oldhash != hash) {
+		if (hash != "" ) {
 				this.parseHash(hash);
 				return;
-			}
+		}
 
-		this.hashchangeTimeout = setTimeout('app.detectHashchange("'+ hash +'");', 500);
+		this.hashchangeTimeout = setTimeout(this.detectHashchange.proxy(this), 500);
+	}
+
+	this.getLocationHash = function () {
+		var hash = window.location.hash.substring(1);
+
+		/* remove locationhash as it might contain passwords */
+		window.location.hash = "";
+
+		return hash;
 	}
 
 	this.parseHash = function(hash) {
@@ -570,9 +375,6 @@ function BitcoinApp() {
 			query.request.data = hash[1];
 		}
 
-		/* remove locationhash as it might contain passwords */
-		window.location.hash = "";
-
 		if (query)
 			if (query.settings) {
 				this.connect(query);
@@ -590,9 +392,7 @@ function BitcoinApp() {
 
 		var query;
 
-		var hash = window.location.hash.substring(1);
-
-		var ret = this.parseHash(hash);
+		var hash = this.parseHash(this.getLocationHash());
 
 		var href = new URI(window.location.href);
 
@@ -601,8 +401,8 @@ function BitcoinApp() {
 			setFormValue($('form#settingsServer'), "url", "/");
 
 
-		if(!this.connected && !ret) {
-			this.onDisconnect();
+		if(!this.connected && !hash) {
+			this.disconnect();
 
 			$.getJSON('settings.json', function(data) {
 						if(data) {
@@ -632,7 +432,7 @@ function BitcoinApp() {
 				});
 
 		$('#disconnectButton').click( function() {
-					app.onDisconnect();
+					app.disconnect();
 					return false;
 				});
 
@@ -642,39 +442,6 @@ function BitcoinApp() {
 					var pass = getFormValue(this, "pass");
 					var account = getFormValue(this, "account");
 					app.connect(url, user, pass, account);
-					return false;
-				});
-
-		$('form#sendBTC input[name="address"]').change( function() {
-					if($(this).val() === "") {
-						hideValidation(this);
-						return;
-					}
-
-					var address = $(this).val();
-
-					app.bitcoin.validateAddress(app.onValidateAddressField, address);
-				});
-
-		$('form#sendBTC input[name="amount"]').change( function() {
-					if($(this).val() === "") {
-						hideValidation(this);
-						return;
-					}
-
-					var amount = $(this).val();
-
-					if(amount > 0 && amount <= app.balance)
-						showValidation(this, true);
-					else
-						showValidation(this, false);
-				});
-
-		$('form#sendBTC').submit( function() {
-					var address = getFormValue(this, "address");
-					var amount = getFormValue(this, "amount");
-
-					app.sendBTC(address, amount);
 					return false;
 				});
 	}

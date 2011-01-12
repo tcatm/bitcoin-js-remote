@@ -20,8 +20,12 @@
  * THE SOFTWARE.
  */
 
-function Bitcoin(settings, user, password) {
+function Bitcoin() {
 	this.settings = {url: null, auth: null, account: null};
+
+	this.debug;
+	this.ajaxRequests = new Array();
+	this.log;
 
 	this.prepareAuth = function(user, password) {
 		return "Basic " + jQuery.base64_encode(user + ":" + password);
@@ -37,19 +41,29 @@ function Bitcoin(settings, user, password) {
 			request = {method: method};
 		}
 
-		jQuery.ajax({url: this.settings.url, dataType: 'json', type: 'POST',
+		var me = this;
+
+		var req = jQuery.ajax({url: this.settings.url, dataType: 'json', type: 'POST',
 					contentType: 'application/json',
 					data: JSON.stringify(request),
 					timeout: 15000,
 					beforeSend: function(req){
-                		req.setRequestHeader("Authorization", auth);
+						req.setRequestHeader("Authorization", auth);
 					},
 					success:
-						 function(data) {
+						 function(data, textStatus, req) {
+							jQuery.proxy( function(req) {
+								this.ajaxRequests = jQuery.grep(this.ajaxRequests, function (n, i) { return n.request != req; });		
+								this.debugAJAX();
+							}, me)(req);
 							callback(data.result, data.error, context);
 						},
 					error:
 						 function(req, textStatus, error) {
+							jQuery.proxy( function(req) {
+								this.ajaxRequests = jQuery.grep(this.ajaxRequests, function (n, i) { return n.request != req; });		
+								this.debugAJAX();
+							}, me)(req);
 							var data;
 							try  {
 								if (!req.responseText)
@@ -72,6 +86,46 @@ function Bitcoin(settings, user, password) {
 							callback(data.result, data.error, context);
 						}
 					});
+		this.ajaxRequests.push({request: req, data: request});
+		this.debugAJAX();
+	}
+
+	this.requestsPending = function() {
+		return this.ajaxRequests.length;
+	}
+
+	this.abortAll = function() {
+		for (var key in this.ajaxRequests) {
+			/* Try to abort, request might disappear while looping */
+			try {
+				var m = this.ajaxRequests[key].data.method;
+
+				/* don't abort requests that manipulate bitcoins */
+				if (m == "sendfrom" || m == "move")
+				   	continue;
+
+				this.ajaxRequests[key].request.abort();
+			} catch (err) {
+			}
+		}
+	}
+
+	this.debugAJAX = function() {
+		if (!this.debug) return;
+
+		if (!this.log) {
+			this.log = jQuery('<ul></ul>');
+			this.log.css('position', 'absolute').css('top', 0).css('left', 0).css('color', 'black');
+			jQuery('body').append(this.log);
+		}
+
+		this.log.children().remove();
+		
+		for (var key in this.ajaxRequests) {
+			var item = jQuery('<li/>');
+			item.html(key + " " + JSON.stringify(this.ajaxRequests[key].data));
+			this.log.append(item);
+		}	
 	}
 
 	this.listAccounts = function(callback, context) {
@@ -86,8 +140,8 @@ function Bitcoin(settings, user, password) {
 		this.RPC("validateaddress", [address], callback, context);
 	}
 
-	this.sendBTC = function(callback, address, amount, context) {
-		this.RPC("sendfrom", [this.settings.account, address, amount], callback, context);
+	this.sendBTC = function(callback, context, callback_context) {
+		this.RPC("sendfrom", [this.settings.account, context.address, context.amount, 1 /*minconf*/, context.comment, context.payee], callback, callback_context);
 	}
 
 	this.getAddress = function(callback, context) {
@@ -109,7 +163,7 @@ function Bitcoin(settings, user, password) {
 			this.settings.account = "";
 	}
 
-	this.init = function(settings, user, password) {
+	this.setup = function(settings, user, password) {
 		this.settings = settings;
 
 		if (this.settings.url == "")
@@ -120,6 +174,4 @@ function Bitcoin(settings, user, password) {
 		
 		this.selectAccount(settings.account);
 	}
-
-	this.init(settings, user, password);
 }

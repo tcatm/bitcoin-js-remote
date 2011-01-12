@@ -119,6 +119,8 @@ function SendBTC(box, app) {
 
 	this.dispatchSend = function(context, rawcontext) {
 		/* FIXME: add busy/sending indicator */
+		var div = this.div(true);
+		div.append('<p class="center">Sending...</p>');
 
 		app.bitcoin.sendBTC(this.sendCallback.proxy(this), context, rawcontext);
 	}
@@ -129,7 +131,7 @@ function SendBTC(box, app) {
 
 	this.div = function(show) {
 		var div = box.children('#sendBTCinfo');
-		div.children().remove();
+		div.contents().remove();
 
 		if (show)
 			div.show();

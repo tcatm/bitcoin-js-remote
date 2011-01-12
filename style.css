@@ -60,6 +60,11 @@ h4 {
 	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-serif;
 }
 
+.critical {
+	background-color: #712 !important;
+	color: #eee !important;
+}
+
 p {
 	margin: 0.3em 3pt;
 }

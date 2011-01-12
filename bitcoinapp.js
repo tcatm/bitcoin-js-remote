@@ -99,6 +99,10 @@ function BitcoinApp() {
 		this.warning("Could not parse request: " + request);
 	}
 
+	this.injectQR = function(qr) {
+		this.parseRequest({data: qr});
+	}
+
 	this.parseRequest = function(request) {
 		if (request.data) {
 			var urn = new URI(request.data);

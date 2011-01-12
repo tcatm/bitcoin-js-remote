@@ -99,26 +99,30 @@ function BitcoinApp() {
 		this.warning("Could not parse request: " + request);
 	}
 
+	this.injectQR = function(qr) {
+		this.parseRequest({data: qr});
+	}
+
 	this.parseRequest = function(request) {
 		if (request.data) {
-			var urn = new URI(request.data);
+			var uri = new URI(request.data);
 
 			/* no scheme, let's see if it's a valid address */
-			if (!urn.scheme)
+			if (!uri.scheme)
 				this.bitcoin.validateAddress(this.requestValidAddress.proxy(this), request.data, request.data);
-			else if (urn.scheme == 'bitcoin')
-				this.bitcoin.validateAddress(this.parseBitcoinScheme.proxy(this), urn.path.split('/', 1)[0], urn);
+			else if (uri.scheme == 'bitcoin')
+				this.bitcoin.validateAddress(this.parseBitcoinScheme.proxy(this), uri.path.split('/', 1)[0], uri);
 			else
-				this.notify("Unknown URN scheme " + urn.scheme);
+				this.notify("Unknown URN scheme " + uri.scheme);
 		}
 	}
 
-	this.parseBitcoinScheme = function(result, error, urn) {
+	this.parseBitcoinScheme = function(result, error, uri) {
 		if (!error && result.isvalid) {
 			var context = { address: result.address };
 
 			try {
-				var query = urn.query_form();
+				var query = uri.query_form();
 			} catch (err) {
 				var query = null;
 			}
@@ -508,6 +512,14 @@ function BitcoinApp() {
 
 		$('#disconnectButton').click( function() {
 					app.disconnect();
+					return false;
+				});
+
+		$('form#QRinject').submit( function() {
+					var uri = getFormValue(this, "uri");
+					this.reset();
+
+					app.injectQR(uri);
 					return false;
 				});
 

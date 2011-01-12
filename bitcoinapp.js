@@ -39,6 +39,7 @@ function BitcoinApp() {
 
 	this.accountlist = new AccountList($("#accountList tbody"), this);
 	this.txlist = new TXList($("#txlist tbody"), this, {generateConfirm: 120});
+	this.sendbtc = new SendBTC($("#sendBTC"), this);
 
 	this.setRefreshInterval = function(interval) {
 		/* limit interval to 1 .. 10 s */
@@ -77,10 +78,11 @@ function BitcoinApp() {
 	this.showQRAddress = function() {
 		var address = $('#address').text();
 		if (address != "") {
+			var uri = "bitcoin:" + address;
 			var width = $(window).width();
 			var height = $(window).height();
 			var size = Math.min(width, height, 540);
-			var QRurl = 'https://chart.googleapis.com/chart?chs=' + size + 'x' + size + '&cht=qr&chl=' + address + '&choe=UTF-8';
+			var QRurl = 'https://chart.googleapis.com/chart?chs=' + size + 'x' + size + '&cht=qr&chl=' + uri + '&choe=UTF-8';
 			this.showFullscreenObj($('<img src="' + QRurl + '" />'));
 		} else {
 			this.warning("No address found!");
@@ -133,30 +135,6 @@ function BitcoinApp() {
 		$('#address').text('');
 		this.balance = false;
 		this.txlist.clear();
-	}
-
-	this.onSendBTC = function(result, error) {
-		if(error != null) {
-			this.warning(error.message);
-			return;
-		}
-		var obj;
-		obj	= setFormValue($('form#sendBTC'), "address", "");
-		hideValidation(obj);
-
-		obj = setFormValue($('form#sendBTC'), "amount", "");
-		hideValidation(obj);
-
-		this.notify("Bitcoins sent");
-		this.refreshAll();
-	}
-
-	this.onValidateAddressField = function(result) {
-		var field = $('form#sendBTC input[name="address"]')
-		if(result.isvalid && field.val() == result.address)
-			showValidation(field, true);
-		else
-			showValidation(field, false);
 	}
 
 	this.refreshAll = function() {
@@ -248,6 +226,8 @@ function BitcoinApp() {
 				this.connected = true;
 				this.lastGetInfo = undefined;
 
+				this.sendbtc.reset();
+
 				var sNetwork = "Bitcoin";
 
 				if(info.testnet)
@@ -298,23 +278,6 @@ function BitcoinApp() {
 
 	this.notify = function(msg) {
 		$(window).humanMsg(msg);
-	}
-
-	this.sendBTC = function(address, amount) {
-		if(!this.connected) {
-			return this.error("Not connected!");
-		}
-
-		if(address === "") {
-			return this.error("Invalid bitcoin address");
-		}
-
-		amount = Math.round(amount*100)/100;
-		var confString = "Send " + amount.formatBTC() + " to " + address + "?";
-
-		if(confirm(confString)) {
-			this.bitcoin.sendBTC(this.onSendBTC, address, amount);
-		}
 	}
 
 	this.addPrototypes = function() {
@@ -479,39 +442,6 @@ function BitcoinApp() {
 					var pass = getFormValue(this, "pass");
 					var account = getFormValue(this, "account");
 					app.connect(url, user, pass, account);
-					return false;
-				});
-
-		$('form#sendBTC input[name="address"]').change( function() {
-					if($(this).val() === "") {
-						hideValidation(this);
-						return;
-					}
-
-					var address = $(this).val();
-
-					app.bitcoin.validateAddress(app.onValidateAddressField, address);
-				});
-
-		$('form#sendBTC input[name="amount"]').change( function() {
-					if($(this).val() === "") {
-						hideValidation(this);
-						return;
-					}
-
-					var amount = $(this).val();
-
-					if(amount > 0 && amount <= app.balance)
-						showValidation(this, true);
-					else
-						showValidation(this, false);
-				});
-
-		$('form#sendBTC').submit( function() {
-					var address = getFormValue(this, "address");
-					var amount = getFormValue(this, "amount");
-
-					app.sendBTC(address, amount);
 					return false;
 				});
 	}

@@ -97,11 +97,15 @@ function SendBTC(box, app) {
 
 		var div = this.div(true);
 
-		var confP = $('<p/>').text(confString).addClass("center");
-		var commentP = $('<p/>').text(context.comment).addClass("center italic");;
-
 		div.append($('<h4>').text('Confirm payment').addClass('center'));
-		div.append(commentP);
+
+		if (context.comment) {
+			var commentP = $('<p/>').text(context.comment).addClass("center italic");;
+			div.append(commentP);
+		}
+
+		var confP = $('<p/>').text(confString).addClass("center");
+
 		div.append(confP);
 
 		var buttonSend = $('<span class="button buttonSend"/>').text('Send');

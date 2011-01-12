@@ -89,14 +89,82 @@ function BitcoinApp() {
 		}
 	}
 
+	this.requestValidAddress = function(result, error, request) {
+		if (result.isvalid) {
+			this.notify("Found valid address");
+			this.sendbtc.fillAndShowForm({address: result.address});
+			return;
+		}
+
+		this.warning("Could not parse request: " + request);
+	}
+
 	this.parseRequest = function(request) {
-		if (request.action)
-			switch (request.action) {
-				case "sendtoaddress":
-					setFormValue($('form#sendBTC'), "address", request.data);
-					$('#section_SendBTC').next().show();
-					break;
+		if (request.data) {
+			var urn = new URI(request.data);
+
+			/* no scheme, let's see if it's a valid address */
+			if (!urn.scheme)
+				this.bitcoin.validateAddress(this.requestValidAddress.proxy(this), request.data, request.data);
+			else if (urn.scheme == 'bitcoin')
+				this.bitcoin.validateAddress(this.parseBitcoinScheme.proxy(this), urn.path.split('/', 1)[0], urn);
+			else
+				this.notify("Unknown URN scheme " + urn.scheme);
+		}
+	}
+
+	this.parseBitcoinScheme = function(result, error, urn) {
+		if (!error && result.isvalid) {
+			var context = { address: result.address };
+
+			try {
+				var query = urn.query_form();
+			} catch (err) {
+				var query = null;
 			}
+
+			if (query) {
+				if (query.amount)
+					try {
+						context.amount = this.parseAmount(query.amount) / 1e8;
+					} catch (err) {
+					}
+
+				if (query.label)
+					context.payee = query.label;
+
+				if (query.message)
+					context.comment = query.message;
+			}
+
+			if (context.address && context.amount)
+				this.sendbtc.sendBTC(context);
+			else {
+				this.notify("Found valid address");
+				this.sendbtc.fillAndShowForm(context);
+			}
+
+		} else {
+			this.warning("No valid address found");
+		}
+	}
+
+	/* parseAmount from luke-jr */
+	this.parseAmount = function(txt) {
+		var reAmount = /^(([\d.]+)(X(\d+))?|x([\da-f]*)(\.([\da-f]*))?(X([\da-f]+))?)$/i;
+		var m = txt.match(reAmount);
+		return m[5] ? (
+			(
+				parseInt(m[5], 16) +
+				(m[7] ? (parseInt(m[7], 16) * Math.pow(16, -(m[7].length))) : 0)
+			) * (
+				m[9] ? Math.pow(16, parseInt(m[9], 16)) : 1e8
+			)
+		) : (
+				m[2]
+			*
+				(m[4] ? Math.pow(10, m[4]) : 1e8)
+		);
 	}
 
 	this.setTitle = function(title) {
@@ -161,7 +229,7 @@ function BitcoinApp() {
 
 	this.refreshServerInfo = function() {
 		function next(info, error) {
-			if (error) 
+			if (error)
 				return;
 
 			this.lastGetInfo = new Date().getTime();
@@ -182,7 +250,7 @@ function BitcoinApp() {
 
 	this.refreshBalance = function() {
 		function next(balance, error) {
-			if (error) 
+			if (error)
 				return;
 
 			$('#balance').text(balance.formatBTC());
@@ -195,7 +263,7 @@ function BitcoinApp() {
 
 	this.refreshAddress = function() {
 		function next(address, error) {
-			if (error) 
+			if (error)
 				return;
 
 			var addressField = $('#address');
@@ -317,11 +385,14 @@ function BitcoinApp() {
 		return jQuery.base64_encode(JSON.stringify(obj));
 	}
 
-	this.scanQR = function(request) {
-		var request = {request: request};
+	this.prepareHash = function(request) {
+		return "%23" + this.serializeSettings() + "/";
+	}
+
+	this.scanQR = function() {
 		var url = window.location.href.split('#')[0];
-		var ret = url + "%23" + jQuery.base64_encode(JSON.stringify(request)) + "/";
-		var scanurl = "http://zxing.appspot.com/scan?ret=" + ret + "{CODE}";
+		var scanurl = "http://zxing.appspot.com/scan?ret=" + url + this.prepareHash() + "{CODE}";
+		//var scanurl = "http://zxing.appspot.com/scan?ret=" + url + "%23/{CODE}";
 
 		this.detectHashchange();
 
@@ -360,28 +431,32 @@ function BitcoinApp() {
 		 * Optional rawData will be stored in query.request.data
 		 */
 
-		var hash = hash.split('/');
+		var parts = hash.split('/');
+
+		var first = parts.shift();
+		var second = parts.join('/');
 
 		try {
-			query = JSON.parse(jQuery.base64_decode(hash[0]));
+			query = JSON.parse(jQuery.base64_decode(first));
 		} catch (err) {
-			query = undefined;
+			query = {};
 		}
 
-		if (query && hash[1]) {
+		if (second) {
 			if (!query.request)
 				query['request'] = {}
 
-			query.request.data = hash[1];
+			query.request.data = second;
 		}
 
-		if (query)
-			if (query.settings) {
+		if (query) {
+			if (!this.connected && query.settings) {
 				this.connect(query);
 				return true;
 			} else if (query.request) {
 				this.parseRequest(query.request);
 			}
+		}
 
 		return false;
 	}
@@ -422,7 +497,7 @@ function BitcoinApp() {
 			$('#scanQRbutton').hide();
 
 		$('#scanQRbutton').click( function() {
-					app.scanQR({action: "sendtoaddress"});
+					app.scanQR();
 					return false;
 				});
 

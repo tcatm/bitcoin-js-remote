@@ -97,15 +97,19 @@ function SendBTC(box, app) {
 
 		var div = this.div(true);
 
-		var confP = $('<p/>').text(confString).addClass("center");
-		var commentP = $('<p/>').text(context.comment).addClass("center italic");;
-
 		div.append($('<h4>').text('Confirm payment').addClass('center'));
-		div.append(commentP);
+
+		if (context.comment) {
+			var commentP = $('<p/>').text(context.comment).addClass("center italic");;
+			div.append(commentP);
+		}
+
+		var confP = $('<p/>').text(confString).addClass("center");
+
 		div.append(confP);
 
 		var buttonSend = $('<span class="button buttonSend"/>').text('Send');
-		var buttonCancel = $('<span class="button buttonCancel"/>').text('Cancel');
+		var buttonCancel = $('<span class="button buttonCancel"/>').text('Cancel / Edit');
 
 		buttonSend.click( function() { self.dispatchSend(context, rawcontext); });
 		buttonCancel.click( function() { self.fillAndShowForm(rawcontext); });
@@ -115,6 +119,8 @@ function SendBTC(box, app) {
 
 	this.dispatchSend = function(context, rawcontext) {
 		/* FIXME: add busy/sending indicator */
+		var div = this.div(true);
+		div.append('<p class="center">Sending...</p>');
 
 		app.bitcoin.sendBTC(this.sendCallback.proxy(this), context, rawcontext);
 	}
@@ -125,7 +131,7 @@ function SendBTC(box, app) {
 
 	this.div = function(show) {
 		var div = box.children('#sendBTCinfo');
-		div.children().remove();
+		div.contents().remove();
 
 		if (show)
 			div.show();

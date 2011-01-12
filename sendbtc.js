@@ -78,17 +78,43 @@ function SendBTC(box, app) {
 
 	this.sendBTC = function(context) {
 		var rawcontext = context;
+		box.show();
 
 		box.children('form').hide();
 
 		context.amount = Math.round(context.amount*100)/100;
-		var confString = "Send " + context.amount.formatBTC() + " to " + context.address + "?";
 
-		if(confirm(confString)) {
-			app.bitcoin.sendBTC(this.sendCallback.proxy(this), context, rawcontext);
-		}
+		var payeeString = "";
+		if (context.payee)
+			payeeString = " (" + context.payee + ")";
 
+		var confString = "Send " + context.amount.formatBTC() + " to " + context.address + payeeString + "?";
+
+		this.resetClass();
+		box.addClass('critical');
+
+		var div = this.div(true);
+
+		var confP = $('<p/>').text(confString).addClass("center");
+		var commentP = $('<p/>').text(context.comment).addClass("center italic");;
+
+		div.append($('<h4>').text('Confirm payment').addClass('center'));
+		div.append(commentP);
+		div.append(confP);
+
+		var buttonSend = $('<span class="button buttonSend"/>').text('Send');
+		var buttonCancel = $('<span class="button buttonCancel"/>').text('Cancel');
+
+		buttonSend.click( function() { self.dispatchSend(context, rawcontext); });
+		buttonCancel.click( function() { self.fillAndShowForm(rawcontext); });
+
+		div.append(buttonSend).append(buttonCancel);
+	}
+
+	this.dispatchSend = function(context, rawcontext) {
 		/* FIXME: add busy/sending indicator */
+
+		app.bitcoin.sendBTC(this.sendCallback.proxy(this), context, rawcontext);
 	}
 
 	this.onValidateAddressField = function(result, error, field) {

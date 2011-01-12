@@ -60,6 +60,18 @@ h4 {
 	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-serif;
 }
 
+.error, .success {
+	color: #eee !important;
+}
+
+.success {
+	background-color: #0E8C3A !important;
+}
+
+.error {
+	background-color: #DB2645 !important;
+}
+
 .critical {
 	background-color: #712 !important;
 	color: #eee !important;

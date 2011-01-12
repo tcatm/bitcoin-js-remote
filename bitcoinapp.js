@@ -89,14 +89,25 @@ function BitcoinApp() {
 		}
 	}
 
+	this.requestValidAddress = function(result, error, request) {
+		if (result.isvalid) {
+			this.notify("Found valid address");
+			this.sendbtc.fillAndShowForm({address: result.address});
+			return;
+		}
+
+		this.warning("Could not parse request: " + request);
+	}
+
 	this.parseRequest = function(request) {
-		if (request.action)
-			switch (request.action) {
-				case "sendtoaddress":
-					setFormValue($('form#sendBTC'), "address", request.data);
-					$('#section_SendBTC').next().show();
-					break;
-			}
+		if (request.data) {
+			var urn = new URI(request.data);
+			console.log(JSON.stringify(urn));
+
+			/* no scheme, let's see if it's a valid address */
+			if (!urn.scheme) 
+				this.bitcoin.validateAddress(this.requestValidAddress.proxy(this), request.data, request.data);
+		}
 	}
 
 	this.setTitle = function(title) {
@@ -317,11 +328,13 @@ function BitcoinApp() {
 		return jQuery.base64_encode(JSON.stringify(obj));
 	}
 
-	this.scanQR = function(request) {
-		var request = {request: request};
+	this.prepareHash = function(request) {
+		return "%23" + this.serializeSettings() + "/";
+	}
+
+	this.scanQR = function() {
 		var url = window.location.href.split('#')[0];
-		var ret = url + "%23" + jQuery.base64_encode(JSON.stringify(request)) + "/";
-		var scanurl = "http://zxing.appspot.com/scan?ret=" + ret + "{CODE}";
+		var scanurl = "http://zxing.appspot.com/scan?ret=" + url + this.prepareHash() + "{CODE}";
 
 		this.detectHashchange();
 
@@ -376,7 +389,7 @@ function BitcoinApp() {
 		}
 
 		if (query)
-			if (query.settings) {
+			if (!this.connected) {
 				this.connect(query);
 				return true;
 			} else if (query.request) {
@@ -422,7 +435,7 @@ function BitcoinApp() {
 			$('#scanQRbutton').hide();
 
 		$('#scanQRbutton').click( function() {
-					app.scanQR({action: "sendtoaddress"});
+					app.scanQR();
 					return false;
 				});
 

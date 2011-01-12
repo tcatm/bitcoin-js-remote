@@ -88,9 +88,9 @@ function SendBTC(box, app) {
 
 		var payeeString = "";
 		if (context.payee)
-			payeeString = " (" + context.payee + ")";
+			payeeString = " (" + $('<div/>').text(context.payee).html() + ")";
 
-		var confString = "Send " + context.amount.formatBTC() + " to " + context.address + payeeString + "?";
+		var confString = "Send <strong>" + context.amount.formatBTC() + "</strong> to " + context.address + payeeString + "?";
 
 		this.resetClass();
 		box.addClass('critical');
@@ -104,7 +104,7 @@ function SendBTC(box, app) {
 			div.append(commentP);
 		}
 
-		var confP = $('<p/>').text(confString).addClass("center");
+		var confP = $('<p/>').html(confString).addClass("center");
 
 		div.append(confP);
 

@@ -24,9 +24,9 @@ function SendBTC(box, app) {
 	/* assign class to self for event handlers */
 	var self = this;
 
-	this.sendCallback = function(result, error) {
+	this.sendCallback = function(result, error, context) {
 		if(error != null) {
-			this.warning(error.message);
+			this.showResult(error.message, false, context);
 			return;
 		}
 		var obj;
@@ -36,35 +36,85 @@ function SendBTC(box, app) {
 		obj = setFormValue($('form#sendBTC'), "amount", "");
 		hideValidation(obj);
 
-		app.notify("Bitcoins sent");
+		this.showResult("Bitcoins sent", true, context);
 		app.refreshAll();
 	}
 
-	this.sendBTC = function(address, amount) {
-		if(!app.connected) {
-			return this.warning("Not connected!");
+	this.showResult = function(message, success, context) {
+		this.resetClass();
+
+		var div = this.div(true);
+		var button = $('<span class="button"></div>');
+
+		if (success) {
+			box.addClass('success');
+			button.text('Send more bitcoins');
+			button.click(this.reset.proxy(this));
+		} else {
+			box.addClass('error');
+			button.text('Go back to form');
+			button.click( function() {
+						self.fillAndShowForm(context);
+					});
 		}
 
-		if(address === "") {
-			return this.warning("Invalid bitcoin address");
-		}
+		div.append('<p><strong>' + message + '</strong></p>').addClass('center');
+		div.append(button.wrap('<p/>').addClass('center'));
+	}
 
-		amount = Math.round(amount*100)/100;
-		var confString = "Send " + amount.formatBTC() + " to " + address + "?";
+	this.fillAndShowForm = function(context) {
+		this.reset();
+
+		var form = box.find('form');
+
+		setFormValue(form, 'address', context.address);
+		setFormValue(form, 'amount', context.amount);
+		setFormValue(form, 'payee', context.payee);
+		setFormValue(form, 'comment', context.comment);
+
+		/* call validators */
+		form.find('input').change();
+	}
+
+	this.sendBTC = function(context) {
+		var rawcontext = context;
+
+		box.children('form').hide();
+
+		context.amount = Math.round(context.amount*100)/100;
+		var confString = "Send " + context.amount.formatBTC() + " to " + context.address + "?";
 
 		if(confirm(confString)) {
-			app.bitcoin.sendBTC(this.sendCallback.proxy(this), address, amount);
+			app.bitcoin.sendBTC(this.sendCallback.proxy(this), context, rawcontext);
 		}
+
+		/* FIXME: add busy/sending indicator */
 	}
 
 	this.onValidateAddressField = function(result, error, field) {
 			showValidation(field, result.isvalid && $(field).val() == result.address);
 	}
 
+	this.div = function(show) {
+		var div = box.children('#sendBTCinfo');
+		div.children().remove();
+
+		if (show)
+			div.show();
+		else
+			div.hide();
+
+		return div;
+	}
+
+	this.resetClass = function () {
+		box.removeClass('critical error success');
+	}
+
 	this.reset = function () {
-		box.children('#sendBTCInfo').hide();
-		box.children('#sendBTCInfo').contents().remove();
-		box.removeClass('critical');
+		this.div(false);
+		this.resetClass();
+
 		box.children('form').show();
 		box.children('form').children('input').val("").each( function() {
 					hideValidation(this);
@@ -104,8 +154,12 @@ function SendBTC(box, app) {
 		box.find('form').submit( function() {
 					var address = getFormValue(this, "address");
 					var amount = getFormValue(this, "amount");
+					var payee = getFormValue(this, "payee");
+					var comment = getFormValue(this, "comment");
 
-					self.sendBTC(address, amount);
+					var context = {address: address, amount: amount, payee: payee, comment: comment};
+
+					self.sendBTC(context);
 					return false;
 				});
 	}

@@ -11,17 +11,20 @@ function AccountList(obj, app) {
 		this.list.children().remove();
 	}
 
-	this.updateRow = function(row, balance) {
+	this.updateRow = function(row, balance, timestamp) {
 		var balanceClass = "";
 		if(balance != 0)
 			balanceClass = (balance<0?'debit':'credit');
 
 		row.children('td:last-child').removeClass().addClass("right").addClass(balanceClass).text(balance.formatBTC());
+		row.attr('update', timestamp);
 	}
 
 	this.parseList = function(accounts, error) {
 		if (error) 
 			return;
+
+		var timestamp = new Date().getTime();
 
 		for (var account in accounts) {
 			var balance = accounts[account];
@@ -44,8 +47,10 @@ function AccountList(obj, app) {
 				this.list.append(row);
 			}
 
-			this.updateRow(row, balance);
+			this.updateRow(row, balance, timestamp);
 		}
+
+		this.list.children().not('[update="' + timestamp + '"]').remove();
 	}
 
 	this.refresh = function() {

@@ -40,7 +40,7 @@ a.button:hover {
 }
 
 #sections {
-	width: 40%;
+	width: 40em;
 	float: left;
 	margin-left: 1em;
 	border-color: #bbb;
@@ -61,9 +61,6 @@ a.button:hover {
 	padding: 6pt 8pt 4pt 8pt;
 	color: #222;
 	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-serif;
-}
-
-#sections.wide {
 }
 
 table {

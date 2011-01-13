@@ -149,7 +149,6 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 parser = OptionParser()
 parser.add_option('-r', dest='url', default='http://localhost:8332/',   help='URL to bitcoin RPC (default: %default)')
 parser.add_option('-p', dest='port', type="int",  default=8338,   help='listen port (default: %default)')
-parser.add_option('-n', dest='procs', type="int", default=4,   help='number of HTTP processes (default: %default)')
 parser.add_option('-k', dest='key', default='server.pem',   help='.pem (default: %default)')
 parser.add_option('-c', dest='cert', default='server.cert',   help='.cert (default: %default)')
 

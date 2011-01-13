@@ -10,27 +10,37 @@ function BitcoinApp() {
 	/* hack to allow event handlers to find us */
 	var app = this;
 
+	this.settings = {
+		refreshTimeout: 30000,
+		refreshInterval: 5000,
+		useSlide: false,
+		dateFormat: "dd/mm/yyyy HH:MM",
+	};
+
 	this.bitcoin = new Bitcoin();
 	this.balance;
 	this.balance0;
 	this.connected = false;
-	this.refreshTimeout = 30000;
 	this.refreshTimer = false;
-	this.refreshInterval = 5000;
 	this.hashchangeTimeout;
 	this.lastGetInfo;
-	this.useSlide = false;
-
-	this.dateFormat = "dd/mm/yyyy HH:MM";
 
 	this.accountlist = new AccountList($("#accountList tbody"), this);
 	this.txlist = new TXList($("#txlist tbody"), this, {generateConfirm: 120});
 	this.sendbtc = new SendBTC($("#sendBTC"), this);
 
+	this.dateFormat = function() {
+		return this.settings.dateFormat;
+	}
+
+	this.useSlide = function() {
+		return this.settings.useSlide;
+	}
+
 	this.setRefreshInterval = function(interval) {
 		/* limit interval to 1 .. 10 s */
-		this.refreshInterval = Math.min(Math.max(interval, 1000), 10000);
-		console.log("refreshInterval adjusted to " + this.refreshInterval);
+		this.settings.refreshInterval = Math.min(Math.max(interval, 1000), 10000);
+		console.log("refreshInterval adjusted to " + this.settings.refreshInterval);
 	}
 
 	this.showFullscreenObj = function(obj) {
@@ -205,7 +215,7 @@ function BitcoinApp() {
 		}
 
 		var timeout = new Date().getTime() - this.lastGetInfo;
-		if (timeout > this.refreshTimeout)
+		if (timeout > this.settings.refreshTimeout)
 			this.error("Connection lost (timeout)");
 
 		if (this.bitcoin.requestsPending() == 0) {
@@ -215,7 +225,7 @@ function BitcoinApp() {
 			this.refreshServerInfo();
 		}
 
-		this.refreshTimer = setTimeout(this.refreshAll.proxy(this), this.refreshInterval);
+		this.refreshTimer = setTimeout(this.refreshAll.proxy(this), this.settings.refreshInterval);
 	}
 
 	this.refreshServerInfo = function() {
@@ -497,7 +507,7 @@ function BitcoinApp() {
 
 		/* hide scanQRbutton on non-android platforms */
 		if (uagent.search("android") <= -1) {
-			this.useSlide = true;
+			this.settings.useSlide = true;
 			$('#scanQRbutton').hide();
 		}
 

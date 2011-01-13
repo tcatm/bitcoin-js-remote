@@ -101,7 +101,7 @@
 					bitcoinapp = new BitcoinApp();
 					bitcoinapp.init();
 
-					if (bitcoinapp.useSlide)
+					if (bitcoinapp.useSlide())
 						$('#sections h3').click(function() {
 							$(this).next().slideToggle('fast');
 							return false;

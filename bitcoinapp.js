@@ -12,6 +12,7 @@ function BitcoinApp() {
 
 	this.bitcoin = new Bitcoin();
 	this.balance;
+	this.balance0;
 	this.connected = false;
 	this.refreshTimeout = 30000;
 	this.refreshTimer = false;
@@ -192,6 +193,7 @@ function BitcoinApp() {
 		$('#balance').text('');
 		$('#address').text('');
 		this.balance = false;
+		this.balance0 = false;
 		this.txlist.clear();
 	}
 
@@ -209,7 +211,6 @@ function BitcoinApp() {
 		if (this.bitcoin.requestsPending() == 0) {
 			this.refreshBalance();
 			this.refreshAddress();
-			this.txlist.refresh();
 			this.accountlist.refresh();
 			this.refreshServerInfo();
 		}
@@ -239,16 +240,28 @@ function BitcoinApp() {
 	}
 
 	this.refreshBalance = function() {
+		function unconfirmed(balance, error) {
+			if (error)
+				return;
+
+			if (this.balance0 != balance)
+				this.txlist.refresh();
+
+			this.balance0 = balance;
+		}
+
 		function next(balance, error) {
 			if (error)
 				return;
 
 			$('#balance').text(balance.formatBTC());
 			$('#currentAccount').text(this.bitcoin.settings.account.prettyAccount());
+
 			this.balance = balance;
 		}
 
-		this.bitcoin.getBalance(next.proxy(this));
+		this.bitcoin.getBalance(unconfirmed.proxy(this), 0);
+		this.bitcoin.getBalance(next.proxy(this), 1);
 	}
 
 	this.refreshAddress = function() {

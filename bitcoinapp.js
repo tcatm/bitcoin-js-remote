@@ -15,7 +15,7 @@ function BitcoinApp() {
 	this.connected = false;
 	this.refreshTimeout = 30000;
 	this.refreshTimer = false;
-	this.refreshInterval = 5000;
+	this.refreshInterval = 3000;
 	this.hashchangeTimeout;
 	this.lastGetInfo;
 	this.useSlide = false;
@@ -28,7 +28,8 @@ function BitcoinApp() {
 
 	this.setRefreshInterval = function(interval) {
 		/* limit interval to 1 .. 10 s */
-		this.refreshInterval = Math.min(Math.max(interval * 10, 1000), 10000);
+		this.refreshInterval = Math.min(Math.max(interval, 1000), 10000);
+		console.log("refreshInterval adjusted to " + this.refreshInterval);
 	}
 
 	this.showFullscreenObj = function(obj) {

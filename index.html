@@ -19,10 +19,10 @@
 			<div class="section">
 				<p>bitcoin-js-remote is a user interface for Bitcoin written in JavaScript.
 				It works in most modern browsers as well as on Android and iPhones. If run it on an Android phone you can even scan QR codes containing addreses to send Bitcoins to! If you don't own an Android device, you can still enter raw <a href="https://en.bitcoin.it/wiki/URI_Scheme">bitcoin: URIs</a> in a textbox.</p>
+				<img class="qrdemo" src="http://chart.apis.google.com/chart?choe=ISO-8859-1&chs=200x200&cht=qr&chl=https%3A%2F%2F85.116.192.135:8338/" width="200" height="200" alt="" />
 				<p>For SSL support a small server side script written in Python is required.</p>
-				<p>You can try out the demo using this link:</p>
+				<p>You can try out the demo using this link or by scanning the QR code on your phone:</p>
 				<p class="center">
-				<img src="http://chart.apis.google.com/chart?choe=ISO-8859-1&chs=200x200&cht=qr&chl=https%3A%2F%2F85.116.192.135:8338/" width="200" height="200" alt="" /><br/>
 				<a class="button" target="_new" href="https://85.116.192.135:8338/">Demo</a>
 				</p>
 				<p>Donations accepted at <code>18pnDgDYFMAKsHTA3ZqyAi6t8q9ztaWWXt</code></p>
@@ -107,9 +107,54 @@
 				<hr/>
 				<img class="qrdemo" src="http://chart.apis.google.com/chart?chld=L|1&choe=ISO-8859-1&chs=110x110&cht=qr&chl=bitcoin:18pnDgDYFMAKsHTA3ZqyAi6t8q9ztaWWXt%3Flabel%3Dtcatm%26amount%3D20.50%26message%3DDonation%20for%20js-remote" />
 				<p>
-					Finally, include a message to the user so he knows what he is paying for.
+					Finally, include a comment so the user knows what he'll pay for:
 					<pre>bitcoin:18pnDgDYFMAKsHTA3ZqyAi6t8q9ztaWWXt?label=tcatm&amp;amount=20.50&amp;message=Donation for js-remote</pre>
 				</p>
+			</div>
+			<h3>QR and URI generator</h3>
+			<div class="section">
+				<form id="QRgen">
+					<label>Address</label><input name="address" value="18pnDgDYFMAKsHTA3ZqyAi6t8q9ztaWWXt"/><br/>
+					<label>Amount</label><input name="amount" value="3.14"/><br/>
+					<label>Label</label><input name="label" value="tcatm"/> (e.g. your name)<br/>
+					<label>Comment</label><input name="message" value="Donation for js-remote"/><br/>
+					<label></label><button>Show QR and URI</button><button type="reset">Reset</button><br/>
+				</form>
+				<p class="center">
+					<img id="QRgenimg" width="300" height="300" />
+				</p>
+				<pre id="QRgenraw"></pre>
+				<script type="text/javascript">
+					function getFormValue(form, name) {
+						return $(form).children('input[name="' + name + '"]').val();
+					}
+
+					function updateQR(form) {
+						var prefix = "http://chart.apis.google.com/chart?chld=L|1&choe=ISO-8859-1&chs=300x300&cht=qr&chl=";
+						var address = getFormValue(form, 'address');	
+						var amount = getFormValue(form, 'amount');
+						var label = getFormValue(form, 'label');
+						var message = getFormValue(form, 'message');
+
+						var uri = "bitcoin:" + address;
+						var query = new Array();
+
+						if (amount) query.push("amount=" + amount);
+						if (label) query.push("label=" + encodeURI(label));
+						if (message) query.push("message=" + encodeURI(message));
+
+						if (query)
+							uri += "?" + query.join("&");
+
+						$('#QRgenraw').text(uri);
+						$('#QRgenimg').attr('src', prefix + encodeURI(uri).replace(/&/g, "%26"));
+					}
+
+					$('form#QRgen').submit( function() {
+								updateQR(this);
+								return false;
+							});
+				</script>
 			</div>
 		</div>
 

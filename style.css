@@ -7,6 +7,14 @@ body {
 	color: #fff;
 }
 
+.section:after, .clearfix:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
 h1 {
 	padding: 8pt;
 	margin: 0;

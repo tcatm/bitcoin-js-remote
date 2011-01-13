@@ -18,7 +18,7 @@
 			<h3>A JavaScript Remote for <a href="http://bitcoin.org">Bitcoin</a></h3>
 			<div class="section">
 				<p>bitcoin-js-remote is a user interface for Bitcoin written in JavaScript.
-				It works in most modern browsers as well as on Android and iPhones. If run it on an Android phone you can even scan QR codes containing addreses to send Bitcoins to! If you don't own an Android device, you can still enter raw <a href="https://en.bitcoin.it/wiki/URI_Scheme">bitcoin: URIs</a> in a textbox.</p>
+				It works in most modern browsers as well as on Android and iPhones. If run on an Android phone it can scan QR codes containing addreses to send Bitcoins to! If you don't own an Android device, you can still enter raw <a href="https://en.bitcoin.it/wiki/URI_Scheme">bitcoin: URIs</a> in a textbox.</p>
 				<img class="qrdemo" src="http://chart.apis.google.com/chart?choe=ISO-8859-1&chs=200x200&cht=qr&chl=https%3A%2F%2F85.116.192.135:8338/" width="200" height="200" alt="" />
 				<p>For SSL support a small server side script written in Python is required.</p>
 				<p>You can try out the demo using this link or by scanning the QR code on your phone:</p>
@@ -34,7 +34,7 @@
 				<ul>
 					<li>SSL for secure communication</li>
 					<li>Display QR code with address</li>
-					<li>on Android: scan QR code</li>
+					<li>Scan QR codes (Android only)</li>
 					<li>Supports multiple accounts</li>
 					<li>Android and iPhone support</li>
 					<li>Send and receive Bitcoins</li>
@@ -85,11 +85,11 @@
 		<div id="sections">
 			<h3>QR codes and bitcoin: URIs</h3>
 			<div class="section">
-				<p><a href="https://en.bitcoin.it/wiki/URI_Scheme">bitcoin: URIs</a> allow for easy Bitcoin payments. You can encode a Bitcoin address, an amount, and optionally your name and a comment using bitcoin: URIs. You can even encode bitcoin: URIs in QR codes so phones can scan them.</p>
+				<p><a href="https://en.bitcoin.it/wiki/URI_Scheme">bitcoin: URIs</a> allow for easy Bitcoin payments. You can encode a Bitcoin address, an amount, and optionally your name and a comment. Transferring bitcoin: URIs to mobile devices is possible using QR codes.</p>
 				<h4>Examples</h4>
 				<img class="qrdemo" src="http://chart.apis.google.com/chart?chld=L|1&choe=ISO-8859-1&chs=110x110&cht=qr&chl=bitcoin:18pnDgDYFMAKsHTA3ZqyAi6t8q9ztaWWXt" />
 				<p>
-					Encoding a Bitcoin address:
+					A single Bitcoin address:
 					<pre>bitcoin:18pnDgDYFMAKsHTA3ZqyAi6t8q9ztaWWXt</pre>
 				</p>
 				<hr/>
@@ -113,6 +113,7 @@
 			</div>
 			<h3>QR and URI generator</h3>
 			<div class="section">
+				<p>This generator creates QR codes and bitcoin: URIs using <a href="http://code.google.com/apis/chart/">Googles Chart API</a>.</p>
 				<form id="QRgen">
 					<label>Address</label><input name="address" value="18pnDgDYFMAKsHTA3ZqyAi6t8q9ztaWWXt"/><br/>
 					<label>Amount</label><input name="amount" value="3.14"/><br/>

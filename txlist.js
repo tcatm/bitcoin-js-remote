@@ -53,7 +53,6 @@ function TXList(list, app, settings) {
 		var time = end - start;
 
 		console.log("TX rebuild took " + time + " ms");
-		app.setRefreshInterval(time * 10);
 	}
 
 	this.processTX = function(tx) {
@@ -168,8 +167,6 @@ function TXList(list, app, settings) {
 	}
 
 	this.refresh = function() {
-		var size = list.children('tr').size();
-
 		app.bitcoin.listTransactions(jQuery.proxy(this, 'processRPC'), 99999);
 	}
 }

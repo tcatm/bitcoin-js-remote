@@ -16,7 +16,7 @@ function BitcoinApp() {
 	this.connected = false;
 	this.refreshTimeout = 30000;
 	this.refreshTimer = false;
-	this.refreshInterval = 3000;
+	this.refreshInterval = 1000;
 	this.hashchangeTimeout;
 	this.lastGetInfo;
 	this.useSlide = false;

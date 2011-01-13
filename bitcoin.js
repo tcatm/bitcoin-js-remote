@@ -28,7 +28,7 @@ function Bitcoin() {
 	this.log;
 
 	this.prepareAuth = function(user, password) {
-		return "Basic " + jQuery.base64_encode(user + ":" + password);
+		return "Basic " + window.btoa(user + ":" + password);
 	}
 
 	this.RPC = function(method, params, callback, context) {

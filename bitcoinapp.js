@@ -387,7 +387,7 @@ function BitcoinApp() {
 
 	this.serializeSettings = function(request) {
 		var obj = {settings: this.bitcoin.settings, request: request};
-		return jQuery.base64_encode(JSON.stringify(obj));
+		return window.btoa(JSON.stringify(obj));
 	}
 
 	this.prepareHash = function(request) {
@@ -442,7 +442,7 @@ function BitcoinApp() {
 		var second = parts.join('/');
 
 		try {
-			query = JSON.parse(jQuery.base64_decode(first));
+			query = JSON.parse(window.atob(first));
 		} catch (err) {
 			query = {};
 		}

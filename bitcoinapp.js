@@ -163,7 +163,7 @@ function BitcoinApp() {
 				parseInt(m[5], 16) +
 				(m[7] ? (parseInt(m[7], 16) * Math.pow(16, -(m[7].length))) : 0)
 			) * (
-				m[9] ? Math.pow(16, parseInt(m[9], 16)) : 1e8
+				m[9] ? Math.pow(16, parseInt(m[9], 16)) : 0x10000
 			)
 		) : (
 				m[2]

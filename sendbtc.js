@@ -49,7 +49,10 @@ function SendBTC(box, app) {
 	this.fillAndShowForm = function(context) {
 		this.reset();
 
-		box.show();
+		if (app.useSlide)
+			box.slideDown('fast');
+		else
+			box.show();
 
 		var form = box.find('form');
 
@@ -64,7 +67,11 @@ function SendBTC(box, app) {
 
 	this.sendBTC = function(context) {
 		var rawcontext = context;
-		box.show();
+
+		if (app.useSlide)
+			box.slideDown('fast');
+		else
+			box.show();
 
 		box.children('form').hide();
 

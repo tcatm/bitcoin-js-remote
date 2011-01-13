@@ -53,6 +53,7 @@ function TXList(list, app, settings) {
 		var time = end - start;
 		app.notify(time);
 		app.setRefreshInterval(time * 10);
+		console.log("TX rebuild took " + time + " ms");
 	}
 
 	this.processTX = function(tx) {

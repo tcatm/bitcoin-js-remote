@@ -144,7 +144,7 @@
 						if (label) query.push("label=" + encodeURI(label));
 						if (message) query.push("message=" + encodeURI(message));
 
-						if (query)
+						if (query.length > 0)
 							uri += "?" + query.join("&");
 
 						$('#QRgenraw').text(uri);

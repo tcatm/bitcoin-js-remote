@@ -34,6 +34,7 @@ function BitcoinApp() {
 	this.refreshInterval = 5000;
 	this.hashchangeTimeout;
 	this.lastGetInfo;
+	this.useSlide = false;
 
 	this.dateFormat = "dd/mm/yyyy HH:MM";
 
@@ -162,7 +163,7 @@ function BitcoinApp() {
 				parseInt(m[5], 16) +
 				(m[7] ? (parseInt(m[7], 16) * Math.pow(16, -(m[7].length))) : 0)
 			) * (
-				m[9] ? Math.pow(16, parseInt(m[9], 16)) : 1e8
+				m[9] ? Math.pow(16, parseInt(m[9], 16)) : 0x10000
 			)
 		) : (
 				m[2]
@@ -312,7 +313,7 @@ function BitcoinApp() {
 
 				this.refreshAll();
 
-				$('#section_Settings').next().slideUp('fast');
+				$('#section_Settings').next().hide();
 				$('#addressBox').show();
 				$('#section_Accounts').show();
 				$('#section_SendBTC').show();
@@ -497,8 +498,10 @@ function BitcoinApp() {
 		var uagent = navigator.userAgent.toLowerCase();
 
 		/* hide scanQRbutton on non-android platforms */
-		if (uagent.search("android") <= -1)
+		if (uagent.search("android") <= -1) {
+			this.useSlide = true;
 			$('#scanQRbutton').hide();
+		}
 
 		$('#scanQRbutton').click( function() {
 					app.scanQR();
@@ -516,10 +519,11 @@ function BitcoinApp() {
 				});
 
 		$('form#QRinject').submit( function() {
-					var uri = getFormValue(this, "uri");
-					this.reset();
+					var uri = $(this).children('input[name="uri"]');
+					app.injectQR(uri.val());
+					uri.blur()
 
-					app.injectQR(uri);
+					this.reset();
 					return false;
 				});
 

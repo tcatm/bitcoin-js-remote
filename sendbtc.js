@@ -65,7 +65,7 @@ function SendBTC(box, app) {
 	this.fillAndShowForm = function(context) {
 		this.reset();
 
-		box.slideDown('fast');
+		box.show();
 
 		var form = box.find('form');
 

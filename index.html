@@ -18,8 +18,8 @@
 			<h3>A JavaScript Remote for <a href="http://bitcoin.org">Bitcoin</a></h3>
 			<div class="section">
 				<p>bitcoin-js-remote is a user interface for Bitcoin written in JavaScript.
-				It works in most modern browsers as well as on Android and iPhones. If run it on an Android phone you can even scan QR codes with addreses to send Bitcoins to!</p>
-				<p>js-remote requires a small server side script to support SSL. It's written in Python and easy to setup.</p>
+				It works in most modern browsers as well as on Android and iPhones. If run it on an Android phone you can even scan QR codes containing addreses to send Bitcoins to! If you don't own an Android device, you can still enter raw <a href="https://en.bitcoin.it/wiki/URI_Scheme">bitcoin: URIs</a> in a textbox.</p>
+				<p>For SSL support a small server side script written in Python is required.</p>
 				<p>You can try out the demo using this link:</p>
 				<p class="center">
 				<img src="http://chart.apis.google.com/chart?choe=ISO-8859-1&chs=200x200&cht=qr&chl=https%3A%2F%2F85.116.192.135:8338/" width="200" height="200" alt="" /><br/>
@@ -32,13 +32,13 @@
 			<h3>Features</h3>
 			<div class="section">
 				<ul>
-					<li>Data is encrypted with SSL</li>
-					<li>Display address as QR code</li>
-					<li>on Android: scan QR code for address</li>
-					<li>Android and iPhone support</li>
-					<li>List transactions</li>
-					<li>Send and receive Bitcoins</li>
+					<li>SSL for secure communication</li>
+					<li>Display QR code with address</li>
+					<li>on Android: scan QR code</li>
 					<li>Supports multiple accounts</li>
+					<li>Android and iPhone support</li>
+					<li>Send and receive Bitcoins</li>
+					<li>List transactions</li>
 				</ul>
 			</div>
 
@@ -80,6 +80,37 @@
 					<label>irc:</label> tcatm on freenode</p>
 			</div>
 
+		</div>
+
+		<div id="sections" class="wide">
+			<h3>QR codes and bitcoin: URIs</h3>
+			<div class="section">
+				<p><a href="https://en.bitcoin.it/wiki/URI_Scheme">bitcoin: URIs</a> allow for easy Bitcoin payments. You can encode a Bitcoin address, an amount, and optionally your name and a comment using bitcoin: URIs. You can even encode bitcoin: URIs in QR codes so phones can scan them.</p>
+				<h4>Examples</h4>
+				<img class="qrdemo" src="http://chart.apis.google.com/chart?chld=L|1&choe=ISO-8859-1&chs=110x110&cht=qr&chl=bitcoin:18pnDgDYFMAKsHTA3ZqyAi6t8q9ztaWWXt" />
+				<p>
+					Encoding a Bitcoin address:
+					<pre>bitcoin:18pnDgDYFMAKsHTA3ZqyAi6t8q9ztaWWXt</pre>
+				</p>
+				<hr/>
+				<img class="qrdemo" src="http://chart.apis.google.com/chart?chld=L|1&choe=ISO-8859-1&chs=110x110&cht=qr&chl=bitcoin:18pnDgDYFMAKsHTA3ZqyAi6t8q9ztaWWXt%3Flabel%3Dtcatm" />
+				<p>
+					Add your name so the payer knows who he's going to send Bitcoins to:
+					<pre>bitcoin:18pnDgDYFMAKsHTA3ZqyAi6t8q9ztaWWXt?label=tcatm</pre>
+				</p>
+				<hr/>
+				<img class="qrdemo" src="http://chart.apis.google.com/chart?chld=L|1&choe=ISO-8859-1&chs=110x110&cht=qr&chl=bitcoin:18pnDgDYFMAKsHTA3ZqyAi6t8q9ztaWWXt%3Flabel%3Dtcatm%26amount%3D20.50" />
+				<p>
+					Add an amount (20.50&nbsp;BTC) so the user will be prompted to send 20.50&nbsp;BTC to you:
+					<pre>bitcoin:18pnDgDYFMAKsHTA3ZqyAi6t8q9ztaWWXt?label=tcatm&amp;amount=20.50</pre>
+				</p>
+				<hr/>
+				<img class="qrdemo" src="http://chart.apis.google.com/chart?chld=L|1&choe=ISO-8859-1&chs=110x110&cht=qr&chl=bitcoin:18pnDgDYFMAKsHTA3ZqyAi6t8q9ztaWWXt%3Flabel%3Dtcatm%26amount%3D20.50%26message%3DDonation%20for%20js-remote" />
+				<p>
+					Finally, include a message to the user so he knows what he is paying for.
+					<pre>bitcoin:18pnDgDYFMAKsHTA3ZqyAi6t8q9ztaWWXt?label=tcatm&amp;amount=20.50&amp;message=Donation for js-remote</pre>
+				</p>
+			</div>
 		</div>
 
 		<div id="sections" class="wide">

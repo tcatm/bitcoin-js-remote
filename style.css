@@ -56,7 +56,6 @@ a.button:hover {
 }
 
 #sections.wide {
-	width: auto;
 }
 
 table {
@@ -143,12 +142,25 @@ a:hover {
 }
 
 pre {
+	font-weight: bold;
 	white-space: normal;
 	color: #fff;
 	background: #111;
-	padding: 1.0em;;
+	padding: 0.5em;
+	font-size: 0.9em;
 }
 
 p label {
 	font-weight: bold;
+}
+
+.qrdemo {
+	float: right;
+}
+
+hr {
+	clear: both;
+	border-width: 1px 0 0 0;
+	border-style: solid;
+	border-color: #eee;
 }

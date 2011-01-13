@@ -519,10 +519,11 @@ function BitcoinApp() {
 				});
 
 		$('form#QRinject').submit( function() {
-					var uri = getFormValue(this, "uri");
-					this.reset();
+					var uri = $(this).children('input[name="uri"]');
+					app.injectQR(uri.val());
+					uri.blur()
 
-					app.injectQR(uri);
+					this.reset();
 					return false;
 				});
 

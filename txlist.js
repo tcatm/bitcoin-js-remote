@@ -10,7 +10,6 @@
  * }
  */
 function TXList(list, app, settings) {
-	this.transactions;
 	this.nTXshown;
 
 	this.nTXmin = 10;
@@ -28,10 +27,6 @@ function TXList(list, app, settings) {
 
 	this.countVisibleTX = function() {
 		return list.children('tr:not(.txinfo)').size();
-	}
-
-	this.countTX = function() {
-		return this.transactions.length;
 	}
 
 	this.showMore = function() {
@@ -65,24 +60,24 @@ function TXList(list, app, settings) {
 
 		var start = new Date().getTime();
 
-		this.transactions = jQuery.grep(transactions, function(n, i) {
+		transactions = jQuery.grep(transactions, function(n, i) {
 					return n.account == app.bitcoin.settings.account;
 				}).reverse();
 
 		var end = new Date().getTime();
 		var time = end - start;
 
-		console.log("TXList: process took " + time + " ms (" + this.transactions.length + " TX)");
+		console.log("TXList: process took " + time + " ms (" + transactions.length + " TX)");
 
-		this.renderList();
+		this.renderList(transactions);
 	}
 
-	this.renderList = function() {
+	this.renderList = function(transactions) {
 		var timestamp = new Date().getTime();
 
 		var footer = this.footer();
 
-		if (this.transactions.length == 0) {
+		if (transactions.length == 0) {
 			footer.append('<div class="center">no transactions</div>');
 			return;
 		}
@@ -91,8 +86,8 @@ function TXList(list, app, settings) {
 
 		/* list comprehension is slooow... do it manually */
 		var TXcount = 0;
-		for (var key in this.transactions) {
-			var tx = this.transactions[key];
+		for (var key in transactions) {
+			var tx = transactions[key];
 			var where;
 
 			var txid = this.getTXid(tx);
@@ -123,7 +118,7 @@ function TXList(list, app, settings) {
 		list.children('tr:not(.txinfo):odd').addClass('odd').next('.txinfo').addClass('odd');
 		list.children('tr:not(.txinfo):even').removeClass('odd').next('.txinfo').removeClass('odd');
 
-		this.renderButtons(TXcount, this.transactions.length);
+		this.renderButtons(TXcount, transactions.length);
 
 		var time = new Date().getTime() - timestamp;
 

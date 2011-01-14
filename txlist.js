@@ -11,6 +11,7 @@
  */
 function TXList(list, app, settings) {
 	this.transactions;
+	this.nTXshown;
 
 	this.sortTX = function(a, b) {
 		if(a.time != b.time)
@@ -22,7 +23,27 @@ function TXList(list, app, settings) {
 		return (b.amount - a.amount);
 	}
 
+	this.countVisibleTX = function() {
+		return list.children('tr:not(.txinfo)').size();
+	}
+
+	this.countTX = function() {
+		return this.transactions.length;
+	}
+
+	/* call with relative number (e.g. +10 / -10) */
+	this.showMore = function(n) {
+		var x = this.nTXshown;
+		this.nTXshown = Math.max(10, x + n);
+
+		if (this.nTXshown != x)
+			this.refresh();
+
+		return this.nTXshown;
+	}
+
 	this.clear = function() {
+		this.nTXshown = 10;
 		list.children().remove();
 	}
 
@@ -36,37 +57,64 @@ function TXList(list, app, settings) {
 					return n.account == app.bitcoin.settings.account;
 				});
 
+		var end = new Date().getTime();
+		var time = end - start;
+
+		console.log("TXList: process took " + time + " ms (" + this.transactions.length + " TX)");
+
+		this.renderList();
+	}
+
+	this.renderList = function() {
+		var timestamp = new Date().getTime();
+
 		list.children('#txlistempty').remove();
 
 		if (this.transactions.length == 0)
 			list.append('<tr id="txlistempty"><td colspan="4" class="center">no transactions</td></tr>');
 
-		for (var key in this.transactions)
-			this.processTX(this.transactions[key]);
+		/* list comprehension is slooow... do it manually */
+		var TXcount = 0;
+		for (var key in this.transactions) {
+			var tx = this.transactions[key];
+			var txrow = this.getRow(tx);
+			this.updateTX(txrow, tx, timestamp);
+			TXcount++;
+			if (TXcount >= this.nTXshown)
+				break;
+		}
+
+		list.children().not('[update="' + timestamp + '"]').remove();
 
 		list.children('tr:not(.txinfo):odd').addClass('odd').next('.txinfo').addClass('odd');
 		list.children('tr:not(.txinfo):even').removeClass('odd').next('.txinfo').removeClass('odd');
 
-		/* adjust refresh interval of app depending processing time of txlist */
-		var end = new Date().getTime();
-		var time = end - start;
+		var time = new Date().getTime() - timestamp;
 
-		console.log("TX rebuild took " + time + " ms (" + this.transactions.length + " TX)");
+		console.log("TXList: render took " + time + " ms (" + TXcount + " TX)");
+		console.log(this.countVisibleTX());
 	}
 
-	this.processTX = function(tx) {
-		if (tx.time == undefined)
-			tx.time = 0;
+	this.getTXid = function(tx) {
+		var id;
 
 		if (tx.txid == undefined)
-			tx.txid = (tx.time + tx.amount + tx.otheraccount).replace(/ /g,'');
+			id = (tx.time + tx.amount + tx.otheraccount).replace(/ /g,'');
+		else
+			id = tx.txid;
 
-		tx.txid += tx.category;
+		id += tx.category;
 
-		var txrow = $(document.getElementById(tx.txid));
+		return id;
+	}
+
+	this.getRow = function(tx) {
+		var txid = this.getTXid(tx);
+
+		var txrow = $(document.getElementById(txid));
 
 		if (txrow.length == 0) {
-			txrow = $('<tr id="' + tx.txid + '"></tr>');
+			txrow = $('<tr id="' + txid + '"></tr>');
 			list.prepend(txrow);
 			var txdiv = $('<tr colspan="4" class="txinfo"><td colspan="4"><div style="display: none"></div></td></tr>');
 			txrow.after(txdiv);
@@ -78,7 +126,14 @@ function TXList(list, app, settings) {
 				});
 		}
 
-		var checksum = tx.txid + tx.confirmations + tx.time;
+		return txrow;
+	}
+
+	this.updateTX = function(txrow, tx, timestamp) {
+		var checksum = tx.confirmations + "_" + tx.time;
+
+		txrow.attr('update', timestamp);
+		txrow.attr('time', tx.time);
 
 		/* Only update TX if it differs from current one */
 		if(txrow.attr('checksum') != checksum) {
@@ -166,6 +221,9 @@ function TXList(list, app, settings) {
 	}
 
 	this.refresh = function() {
-		app.bitcoin.listTransactions(jQuery.proxy(this, 'processRPC'), 99999);
+		/* request one more TX than shown so we know whether the to the display "more" button or not */
+		app.bitcoin.listTransactions(jQuery.proxy(this, 'processRPC'), this.nTXshown + 1);
 	}
+
+	this.clear();
 }

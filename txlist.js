@@ -10,6 +10,8 @@
  * }
  */
 function TXList(list, app, settings) {
+	this.transactions;
+
 	this.sortTX = function(a, b) {
 		if(a.time != b.time)
 			return (a.time - b.time);
@@ -30,20 +32,17 @@ function TXList(list, app, settings) {
 
 		var start = new Date().getTime();
 
-		var transactions = jQuery.grep(transactions,
-				function(n, i) {
+		this.transactions = jQuery.grep(transactions, function(n, i) {
 					return n.account == app.bitcoin.settings.account;
 				});
 
-		transactions.sort(this.sortTX);
-
 		list.children('#txlistempty').remove();
 
-		if (transactions.length == 0)
+		if (this.transactions.length == 0)
 			list.append('<tr id="txlistempty"><td colspan="4" class="center">no transactions</td></tr>');
 
-		for (var key in transactions)
-			this.processTX(transactions[key]);
+		for (var key in this.transactions)
+			this.processTX(this.transactions[key]);
 
 		list.children('tr:not(.txinfo):odd').addClass('odd').next('.txinfo').addClass('odd');
 		list.children('tr:not(.txinfo):even').removeClass('odd').next('.txinfo').removeClass('odd');
@@ -52,7 +51,7 @@ function TXList(list, app, settings) {
 		var end = new Date().getTime();
 		var time = end - start;
 
-		console.log("TX rebuild took " + time + " ms");
+		console.log("TX rebuild took " + time + " ms (" + this.transactions.length + " TX)");
 	}
 
 	this.processTX = function(tx) {

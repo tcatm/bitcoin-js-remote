@@ -14,6 +14,7 @@ function TXList(list, app, settings) {
 	this.nTXshown;
 
 	this.nTXmin = 10;
+	this.nTXinc = 10;
 
 	this.sortTX = function(a, b) {
 		if(a.time != b.time)
@@ -33,8 +34,16 @@ function TXList(list, app, settings) {
 		return this.transactions.length;
 	}
 
+	this.showMore = function() {
+		this.showRelN(this.nTXinc);
+	}
+
+	this.showLess = function() {
+		this.showRelN(- this.nTXinc);
+	}
+
 	/* call with relative number (e.g. +10 / -10) */
-	this.showMore = function(n) {
+	this.showRelN = function(n) {
 		var x = this.nTXshown;
 		this.nTXshown = Math.max(this.nTXmin, x + n);
 
@@ -46,6 +55,7 @@ function TXList(list, app, settings) {
 
 	this.clear = function() {
 		this.nTXshown = this.nTXmin;
+		this.footer();
 		list.children().remove();
 	}
 
@@ -70,10 +80,12 @@ function TXList(list, app, settings) {
 	this.renderList = function() {
 		var timestamp = new Date().getTime();
 
-		list.children('#txlistempty').remove();
+		var footer = this.footer();
 
-		if (this.transactions.length == 0)
-			list.append('<tr id="txlistempty"><td colspan="4" class="center">no transactions</td></tr>');
+		if (this.transactions.length == 0) {
+			footer.append('<div class="center">no transactions</div>');
+			return;
+		}
 
 		var youngest = list.children('tr:not(.txinfo)').last().attr('time');
 
@@ -111,10 +123,11 @@ function TXList(list, app, settings) {
 		list.children('tr:not(.txinfo):odd').addClass('odd').next('.txinfo').addClass('odd');
 		list.children('tr:not(.txinfo):even').removeClass('odd').next('.txinfo').removeClass('odd');
 
+		this.renderButtons(TXcount, this.transactions.length);
+
 		var time = new Date().getTime() - timestamp;
 
 		console.log("TXList: render took " + time + " ms (" + TXcount + " TX)");
-		console.log(this.countVisibleTX());
 	}
 
 	this.getTXid = function(tx) {
@@ -149,6 +162,29 @@ function TXList(list, app, settings) {
 			});
 
 		return txrow;
+	}
+
+	this.footer = function() {
+		var footer = $('#txlistfooter');
+		footer.contents().remove();
+
+		return footer;
+	}
+
+	this.renderButtons = function(TXcount, nTX) {
+		var footer = this.footer();
+
+		if (nTX > TXcount) {
+			var button = $('<span class="button TXListMore">more</span>');
+			button.click(jQuery.proxy(this, "showMore"));
+			footer.append(button);
+		}
+
+		if (TXcount > this.nTXmin) {
+			var button = $('<span class="button TXListLess">less</span>');
+			button.click(jQuery.proxy(this, "showLess"));
+			footer.append(button);
+		}
 	}
 
 	this.updateTX = function(txrow, tx, timestamp) {

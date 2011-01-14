@@ -83,16 +83,22 @@ function TXList(list, app, settings) {
 			var tx = this.transactions[key];
 			var where;
 
-			if (tx.time <= youngest) {
-				where = false;
-				youngest = tx.time;
-			} else {
-				where = list.children('tr:not(.txinfo)').filter( function(index) {
-							return $(this).attr('time') < tx.time;
-						}).first();
+			var txid = this.getTXid(tx);
+			var txrow = $(document.getElementById(txid));
+
+			if (txrow.length == 0) {
+				if (tx.time <= youngest) {
+					where = false;
+					youngest = tx.time;
+				} else {
+					where = list.children('tr:not(.txinfo)').filter( function(index) {
+								return $(this).attr('time') < tx.time;
+							}).first();
+				}
+
+				txrow = this.insertRow(tx, txid, where);
 			}
 
-			var txrow = this.getRow(tx, where);
 			this.updateTX(txrow, tx, timestamp);
 			TXcount++;
 			if (TXcount >= this.nTXshown)
@@ -124,29 +130,23 @@ function TXList(list, app, settings) {
 		return id;
 	}
 
-	this.getRow = function(tx, where) {
-		var txid = this.getTXid(tx);
+	/* use pre-computed txid, faster */
+	this.insertRow = function(tx, txid, where) {
+		txrow = $('<tr id="' + txid + '"></tr>');
+		var txdiv = $('<tr colspan="4" class="txinfo"><td colspan="4"><div style="display: none"></div></td></tr>');
 
-		var txrow = $(document.getElementById(txid));
+		if (!where || where.length == 0)
+			list.append(txrow);
+		else
+			where.before(txrow);
 
-		if (txrow.length == 0) {
-			txrow = $('<tr id="' + txid + '"></tr>');
-			var txdiv = $('<tr colspan="4" class="txinfo"><td colspan="4"><div style="display: none"></div></td></tr>');
+		txrow.after(txdiv);
 
-			if (!where || where.length == 0)
-				list.append(txrow);
-			else 
-				where.before(txrow);
-
-			txrow.after(txdiv);
-
-			txrow.click( function() {
-					var div = $(this).next('tr.txinfo').children('td').children('div');
-					if (app.useSlide()) div.slideToggle('fast');
-					else div.toggle();
-				});
-
-		}
+		txrow.click( function() {
+				var div = $(this).next('tr.txinfo').children('td').children('div');
+				if (app.useSlide()) div.slideToggle('fast');
+				else div.toggle();
+			});
 
 		return txrow;
 	}

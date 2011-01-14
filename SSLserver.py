@@ -5,6 +5,7 @@
 # file license.txt or http://www.opensource.org/licenses/mit-license.php.
 
 import socket, os, time, shutil, signal
+from multiprocessing import Process, current_process, freeze_support
 from SocketServer import BaseServer, ThreadingMixIn
 from optparse import OptionParser
 import ssl
@@ -146,6 +147,23 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.end_headers()
 		return f
 
+def serve_forever(server):
+	try:
+		server.serve_forever()
+	except KeyboardInterrupt:
+		pass
+
+
+def runpool(options):
+	server = SecureHTTPServer(('', options.port), RequestHandler, options)
+
+	# create child processes to act as workers
+	for i in range(options.procs-1):
+		Process(target=serve_forever, args=(server,)).start()
+
+	# main process also acts as a worker
+	serve_forever(server)
+
 parser = OptionParser()
 parser.add_option('-r', dest='url', default='http://localhost:8332/',   help='URL to bitcoin RPC (default: %default)')
 parser.add_option('-p', dest='port', type="int",  default=8338,   help='listen port (default: %default)')
@@ -155,7 +173,8 @@ parser.add_option('-c', dest='cert', default='server.cert',   help='.cert (defau
 
 (options, args) = parser.parse_args()
 
+freeze_support()
+
 print 'Ctrl-C to exit'
 
-server = SecureHTTPServer(('', options.port), RequestHandler, options)
-server.serve_forever()
+runpool(options)

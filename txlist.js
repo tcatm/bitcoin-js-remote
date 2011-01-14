@@ -279,6 +279,9 @@ function TXList(list, app, settings) {
 	}
 
 	this.refresh = function() {
+		var footer = this.footer();
+		footer.append('<div class="center">loading...</div>');
+
 		/* request one more TX than shown so we know whether the to the display "more" button or not */
 		app.bitcoin.listTransactions(jQuery.proxy(this, 'processRPC'), this.nTXshown + 1);
 	}

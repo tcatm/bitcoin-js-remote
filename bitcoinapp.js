@@ -18,8 +18,8 @@ function BitcoinApp() {
 	};
 
 	this.bitcoin = new Bitcoin();
-	this.balance;
-	this.balance0;
+	this.balance = false;
+	this.balance0 = false;
 	this.connected = false;
 	this.refreshTimer = false;
 	this.hashchangeTimeout;
@@ -251,7 +251,7 @@ function BitcoinApp() {
 			if (error)
 				return;
 
-			if (this.balance0 != balance)
+			if (this.balance0 != balance || this.balance0 === false)
 				this.txlist.refresh();
 
 			this.balance0 = balance;

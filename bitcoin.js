@@ -5,7 +5,7 @@
  */
 
 function Bitcoin() {
-	this.settings = {url: null, auth: null, account: null};
+	this.settings;
 
 	this.debug;
 	this.ajaxRequests = new Array();
@@ -148,6 +148,8 @@ function Bitcoin() {
 	}
 
 	this.setup = function(settings) {
+		this.settings = {url: null, auth: null, account: null};
+
 		for (var k in this.settings) {
 			if (settings[k])
 				this.settings[k] = settings[k];
@@ -156,7 +158,7 @@ function Bitcoin() {
 		if (this.settings.url == "")
 			this.settings.url = window.location.href;
 
-		if (!this.settings.auth && settings.user && settings.password)
+		if (!this.settings.auth)
 			this.settings.auth = this.prepareAuth(settings.user, settings.password);
 		
 		this.selectAccount(settings.account);

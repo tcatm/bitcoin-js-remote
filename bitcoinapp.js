@@ -492,6 +492,9 @@ function BitcoinApp() {
 		if (settings)
 			this.loadSettings(settings);
 
+		if (!settings || !settings.RPC)
+			$('#section_Settings').next().show();
+
 		this.parseHash(this.getLocationHash());
 
 		$('#scanQRbutton').click( function() {
@@ -530,4 +533,5 @@ function BitcoinApp() {
 
 	/* clean up UI */
 	this.disconnect();
+	$('#section_Settings').next().hide();
 }

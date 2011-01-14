@@ -147,14 +147,17 @@ function Bitcoin() {
 			this.settings.account = "";
 	}
 
-	this.setup = function(settings, user, password) {
-		this.settings = settings;
+	this.setup = function(settings) {
+		for (var k in this.settings) {
+			if (settings[k])
+				this.settings[k] = settings[k];
+		}
 
 		if (this.settings.url == "")
 			this.settings.url = window.location.href;
 
-		if (!this.settings.auth && user && password)
-			this.settings.auth = this.prepareAuth(user, password);
+		if (!this.settings.auth && settings.user && settings.password)
+			this.settings.auth = this.prepareAuth(settings.user, settings.password);
 		
 		this.selectAccount(settings.account);
 	}

@@ -99,9 +99,14 @@
 
 			$(document).ready(function(){
 					bitcoinapp = new BitcoinApp();
-					bitcoinapp.init();
 
-					if (bitcoinapp.useSlide)
+					jQuery.ajax({
+						url: "settings.json", dataType: 'json',
+						success: function(data, textStatus, req) { bitcoinapp.init(data); },
+						error: function(req, textStatus, error) { bitcoinapp.init(); }
+					});
+
+					if (bitcoinapp.useSlide())
 						$('#sections h3').click(function() {
 							$(this).next().slideToggle('fast');
 							return false;

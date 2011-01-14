@@ -10,27 +10,37 @@ function BitcoinApp() {
 	/* hack to allow event handlers to find us */
 	var app = this;
 
+	this.settings = {
+		refreshTimeout: 30000,
+		refreshInterval: 5000,
+		useSlide: false,
+		dateFormat: "dd/mm/yyyy HH:MM",
+	};
+
 	this.bitcoin = new Bitcoin();
 	this.balance;
 	this.balance0;
 	this.connected = false;
-	this.refreshTimeout = 30000;
 	this.refreshTimer = false;
-	this.refreshInterval = 5000;
 	this.hashchangeTimeout;
 	this.lastGetInfo;
-	this.useSlide = false;
-
-	this.dateFormat = "dd/mm/yyyy HH:MM";
 
 	this.accountlist = new AccountList($("#accountList tbody"), this);
 	this.txlist = new TXList($("#txlist tbody"), this, {generateConfirm: 120});
 	this.sendbtc = new SendBTC($("#sendBTC"), this);
 
+	this.dateFormat = function() {
+		return this.settings.dateFormat;
+	}
+
+	this.useSlide = function() {
+		return this.settings.useSlide;
+	}
+
 	this.setRefreshInterval = function(interval) {
 		/* limit interval to 1 .. 10 s */
-		this.refreshInterval = Math.min(Math.max(interval, 1000), 10000);
-		console.log("refreshInterval adjusted to " + this.refreshInterval);
+		this.settings.refreshInterval = Math.min(Math.max(interval, 1000), 10000);
+		console.log("refreshInterval adjusted to " + this.settings.refreshInterval);
 	}
 
 	this.showFullscreenObj = function(obj) {
@@ -163,7 +173,7 @@ function BitcoinApp() {
 		document.title = title;
 	}
 
-	this.disconnect = function(hideSettings) {
+	this.disconnect = function() {
 		this.bitcoin.abortAll();
 
 		this.connected = false;
@@ -175,12 +185,7 @@ function BitcoinApp() {
 		$('#section_SendBTC').hide().next().hide();
 		$('#section_TX').hide().next().hide();
 		$('#section_Accounts').hide().next().hide();
-
-		if (hideSettings) {
-			$('#section_Settings').next().hide();
-		} else {
-			$('#section_Settings').next().show();
-		}
+		$('#section_Settings').next().show();
 
 		this.accountlist.clear();
 		this.clearAccountInfo();
@@ -205,7 +210,7 @@ function BitcoinApp() {
 		}
 
 		var timeout = new Date().getTime() - this.lastGetInfo;
-		if (timeout > this.refreshTimeout)
+		if (timeout > this.settings.refreshTimeout)
 			this.error("Connection lost (timeout)");
 
 		if (this.bitcoin.requestsPending() == 0) {
@@ -215,7 +220,7 @@ function BitcoinApp() {
 			this.refreshServerInfo();
 		}
 
-		this.refreshTimer = setTimeout(this.refreshAll.proxy(this), this.refreshInterval);
+		this.refreshTimer = setTimeout(this.refreshAll.proxy(this), this.settings.refreshInterval);
 	}
 
 	this.refreshServerInfo = function() {
@@ -286,7 +291,7 @@ function BitcoinApp() {
 		}
 	}
 
-	this.connect = function(url, user, pass, account) {
+	this.connect = function(settings, request) {
 		function next(info, error, request) {
 			if (info != null) {
 				if (info.version < 31902) {
@@ -326,16 +331,8 @@ function BitcoinApp() {
 			}
 		}
 
-		this.disconnect(url.settings?true:false);
-
-		/* url might contain query with settings and request */
-		if (url.settings) {
-			this.bitcoin.setup(url.settings);
-			this.bitcoin.getInfo(next.proxy(this), url.request);
-		} else {
-			this.bitcoin.setup({url: url, account: account}, user, pass);
-			this.bitcoin.getInfo(next.proxy(this));
-		}
+		this.bitcoin.setup(settings);
+		this.bitcoin.getInfo(next.proxy(this), request);
 	}
 
 	this.error = function(msg) {
@@ -383,13 +380,13 @@ function BitcoinApp() {
 		}
 	}
 
-	this.serializeSettings = function(request) {
+	this.serializeState = function(request) {
 		var obj = {settings: this.bitcoin.settings, request: request};
 		return window.btoa(JSON.stringify(obj));
 	}
 
 	this.prepareHash = function(request) {
-		return "%23" + this.serializeSettings() + "/";
+		return "%23" + this.serializeState() + "/";
 	}
 
 	this.scanQR = function() {
@@ -454,7 +451,7 @@ function BitcoinApp() {
 
 		if (query) {
 			if (!this.connected && query.settings) {
-				this.connect(query);
+				this.connect(query.settings, query.request);
 				return true;
 			} else if (query.request) {
 				this.parseRequest(query.request);
@@ -464,13 +461,19 @@ function BitcoinApp() {
 		return false;
 	}
 
-	this.init = function() {
+	this.loadSettings = function(settings) {
+		for (var k in this.settings) {
+			if (settings[k])
+				this.settings[k] = settings[k];
+		}
+
+		if (settings.RPC)
+			this.connect(settings.RPC);
+	}
+
+	this.init = function(settings) {
 		this.addPrototypes();
 		$('#version').text(this.version);
-
-		var query;
-
-		var hash = this.parseHash(this.getLocationHash());
 
 		var href = new URI(window.location.href);
 
@@ -478,28 +481,21 @@ function BitcoinApp() {
 		if (href.scheme == "https")
 			setFormValue($('form#settingsServer'), "url", "/");
 
-
-		if(!this.connected && !hash) {
-			this.disconnect();
-
-			$.getJSON('settings.json', function(data) {
-						if(data) {
-							var form = $('form#settingsServer');
-							setFormValue(form, "url", data.url);
-							setFormValue(form, "user", data.user);
-							setFormValue(form, "pass", data.pass);
-							setFormValue(form, "account", data.account);
-						}
-					});
-		}
-
 		var uagent = navigator.userAgent.toLowerCase();
 
 		/* hide scanQRbutton on non-android platforms */
 		if (uagent.search("android") <= -1) {
-			this.useSlide = true;
+			this.settings.useSlide = true;
 			$('#scanQRbutton').hide();
 		}
+
+		if (settings)
+			this.loadSettings(settings);
+
+		if (!settings || !settings.RPC)
+			$('#section_Settings').next().show();
+
+		this.parseHash(this.getLocationHash());
 
 		$('#scanQRbutton').click( function() {
 					app.scanQR();
@@ -526,12 +522,16 @@ function BitcoinApp() {
 				});
 
 		$('form#settingsServer').submit( function() {
-					var url = getFormValue(this, "url");
-					var user = getFormValue(this, "user");
-					var pass = getFormValue(this, "pass");
-					var account = getFormValue(this, "account");
-					app.connect(url, user, pass, account);
+					var settings = {};
+					settings.url = getFormValue(this, "url");
+					settings.user = getFormValue(this, "user");
+					settings.password = getFormValue(this, "pass");
+					app.connect(settings);
 					return false;
 				});
 	}
+
+	/* clean up UI */
+	this.disconnect();
+	$('#section_Settings').next().hide();
 }

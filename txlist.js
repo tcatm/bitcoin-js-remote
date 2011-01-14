@@ -74,7 +74,7 @@ function TXList(list, app, settings) {
 
 			txrow.click( function() {
 					var div = $(this).next('tr.txinfo').children('td').children('div');
-					if (app.useSlide) div.slideToggle('fast');
+					if (app.useSlide()) div.slideToggle('fast');
 					else div.toggle();
 				});
 		}
@@ -159,7 +159,7 @@ function TXList(list, app, settings) {
 		var amountClass = (tx.amount<0?'debit':'credit');
 
 		var html = '<td class="center">' + confirmations + '</td>';
-		html += '<td>' + timestamp.format(app.dateFormat) + '</td>';
+		html += '<td>' + timestamp.format(app.dateFormat()) + '</td>';
 		html += '<td class="info">' + info + '</td>';
 		html += '<td class="' + amountClass + ' right">' + tx.amount.formatBTC(true) + '</td>';
 

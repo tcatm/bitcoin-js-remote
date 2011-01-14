@@ -301,7 +301,6 @@ function BitcoinApp() {
 					return;
 				}
 
-				this.connected = true;
 				this.lastGetInfo = undefined;
 
 				this.sendbtc.reset();
@@ -316,21 +315,43 @@ function BitcoinApp() {
 
 				this.setTitle(sNetwork + " on " + rpcurl.authority);
 
-				this.refreshAll();
-
-				$('#section_Settings').next().hide();
-				$('#addressBox').show();
-				$('#section_Accounts').show();
-				$('#section_SendBTC').show();
-				$('#section_TX').show().next().show();
-				$('#serverInfo').show();
-
-				if (request)
-					this.parseRequest(request);
+				/* select first account returned by listaccounts
+				 * if no account was set in settings
+				 */
+				if (!settings.account)
+					this.bitcoin.listAccounts(accountlist.proxy(this), request);
+				else
+					finish.proxy(this)(request);
 
 			} else {
 				this.error(error.message);
 			}
+		}
+
+		function accountlist(accounts, error, request) {
+			var keys = [];
+			for(var i in accounts) {
+				keys.push(i);
+			}
+
+			this.selectAccount(keys[0]);
+
+			finish.proxy(this)(request);
+		}
+
+		function finish(request) {
+			this.connected = true;
+			this.refreshAll();
+
+			$('#section_Settings').next().hide();
+			$('#addressBox').show();
+			$('#section_Accounts').show();
+			$('#section_SendBTC').show();
+			$('#section_TX').show().next().show();
+			$('#serverInfo').show();
+
+			if (request)
+				this.parseRequest(request);
 		}
 
 		this.disconnect(true);

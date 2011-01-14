@@ -13,6 +13,8 @@ function TXList(list, app, settings) {
 	this.transactions;
 	this.nTXshown;
 
+	this.nTXmin = 10;
+
 	this.sortTX = function(a, b) {
 		if(a.time != b.time)
 			return (a.time - b.time);
@@ -34,7 +36,7 @@ function TXList(list, app, settings) {
 	/* call with relative number (e.g. +10 / -10) */
 	this.showMore = function(n) {
 		var x = this.nTXshown;
-		this.nTXshown = Math.max(10, x + n);
+		this.nTXshown = Math.max(this.nTXmin, x + n);
 
 		if (this.nTXshown != x)
 			this.refresh();
@@ -43,7 +45,7 @@ function TXList(list, app, settings) {
 	}
 
 	this.clear = function() {
-		this.nTXshown = 10;
+		this.nTXshown = this.nTXmin;
 		list.children().remove();
 	}
 
@@ -55,7 +57,7 @@ function TXList(list, app, settings) {
 
 		this.transactions = jQuery.grep(transactions, function(n, i) {
 					return n.account == app.bitcoin.settings.account;
-				});
+				}).reverse();
 
 		var end = new Date().getTime();
 		var time = end - start;
@@ -73,11 +75,24 @@ function TXList(list, app, settings) {
 		if (this.transactions.length == 0)
 			list.append('<tr id="txlistempty"><td colspan="4" class="center">no transactions</td></tr>');
 
+		var youngest = list.children('tr:not(.txinfo)').last().attr('time');
+
 		/* list comprehension is slooow... do it manually */
 		var TXcount = 0;
 		for (var key in this.transactions) {
 			var tx = this.transactions[key];
-			var txrow = this.getRow(tx);
+			var where;
+
+			if (tx.time <= youngest) {
+				where = false;
+				youngest = tx.time;
+			} else {
+				where = list.children('tr:not(.txinfo)').filter( function(index) {
+							return $(this).attr('time') < tx.time;
+						}).first();
+			}
+
+			var txrow = this.getRow(tx, where);
 			this.updateTX(txrow, tx, timestamp);
 			TXcount++;
 			if (TXcount >= this.nTXshown)
@@ -108,15 +123,20 @@ function TXList(list, app, settings) {
 		return id;
 	}
 
-	this.getRow = function(tx) {
+	this.getRow = function(tx, where) {
 		var txid = this.getTXid(tx);
 
 		var txrow = $(document.getElementById(txid));
 
 		if (txrow.length == 0) {
 			txrow = $('<tr id="' + txid + '"></tr>');
-			list.prepend(txrow);
 			var txdiv = $('<tr colspan="4" class="txinfo"><td colspan="4"><div style="display: none"></div></td></tr>');
+
+			if (!where || where.length == 0)
+				list.append(txrow);
+			else 
+				where.before(txrow);
+
 			txrow.after(txdiv);
 
 			txrow.click( function() {
@@ -124,6 +144,7 @@ function TXList(list, app, settings) {
 					if (app.useSlide()) div.slideToggle('fast');
 					else div.toggle();
 				});
+
 		}
 
 		return txrow;

@@ -173,7 +173,7 @@ function BitcoinApp() {
 		document.title = title;
 	}
 
-	this.disconnect = function() {
+	this.disconnect = function(ignoreSettings) {
 		this.bitcoin.abortAll();
 
 		this.connected = false;
@@ -185,7 +185,9 @@ function BitcoinApp() {
 		$('#section_SendBTC').hide().next().hide();
 		$('#section_TX').hide().next().hide();
 		$('#section_Accounts').hide().next().hide();
-		$('#section_Settings').next().show();
+
+		if (!ignoreSettings)
+			$('#section_Settings').next().show();
 
 		this.accountlist.clear();
 		this.clearAccountInfo();
@@ -331,6 +333,7 @@ function BitcoinApp() {
 			}
 		}
 
+		this.disconnect(true);
 		this.bitcoin.setup(settings);
 		this.bitcoin.getInfo(next.proxy(this), request);
 	}

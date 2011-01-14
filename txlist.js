@@ -99,7 +99,8 @@ function TXList(list, app, settings) {
 				break;
 		}
 
-		list.children().not('[update="' + timestamp + '"]').remove();
+		list.children('tr:not(.txinfo)').not('[update="' + timestamp + '"]').next().remove();
+		list.children('tr:not(.txinfo)').not('[update="' + timestamp + '"]').remove();
 
 		list.children('tr:not(.txinfo):odd').addClass('odd').next('.txinfo').addClass('odd');
 		list.children('tr:not(.txinfo):even').removeClass('odd').next('.txinfo').removeClass('odd');

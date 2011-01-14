@@ -1,6 +1,8 @@
-{ 
-	"url": "",
-	"user": "",
-	"pass": "",
-	"account": ""
+{
+	"RPC": { 
+		"url": "/",
+		"user": "testnet",
+		"password": "letmein",
+		"account": ""
+	}
 }

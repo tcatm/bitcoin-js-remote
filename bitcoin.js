@@ -1,34 +1,18 @@
 /*
  * Copyright (c) 2010 Nils Schneider
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * Distributed under the MIT/X11 software license, see the accompanying
+ * file license.txt or http://www.opensource.org/licenses/mit-license.php.
  */
 
 function Bitcoin() {
-	this.settings = {url: null, auth: null, account: null};
+	this.settings;
 
 	this.debug;
 	this.ajaxRequests = new Array();
 	this.log;
 
 	this.prepareAuth = function(user, password) {
-		return "Basic " + jQuery.base64_encode(user + ":" + password);
+		return "Basic " + window.btoa(user + ":" + password);
 	}
 
 	this.RPC = function(method, params, callback, context) {
@@ -132,8 +116,8 @@ function Bitcoin() {
 		this.RPC("listaccounts", null, callback, context);
 	}
 
-	this.listTransactions = function(callback, context) {
-		this.RPC("listtransactions", [this.settings.account, 999999], callback, context);
+	this.listTransactions = function(callback, count, context) {
+		this.RPC("listtransactions", [this.settings.account, count], callback, context);
 	}
 
 	this.validateAddress = function(callback, address, context) {
@@ -148,8 +132,8 @@ function Bitcoin() {
 		this.RPC("getaccountaddress", [this.settings.account], callback, context);
 	}
 
-	this.getBalance = function(callback, context) {
-		this.RPC("getbalance", [this.settings.account], callback, context);
+	this.getBalance = function(callback, confirmations, context) {
+		this.RPC("getbalance", [this.settings.account, confirmations], callback, context);
 	}
 
 	this.getInfo = function(callback, context) {
@@ -163,14 +147,19 @@ function Bitcoin() {
 			this.settings.account = "";
 	}
 
-	this.setup = function(settings, user, password) {
-		this.settings = settings;
+	this.setup = function(settings) {
+		this.settings = {url: null, auth: null, account: null};
+
+		for (var k in this.settings) {
+			if (settings[k])
+				this.settings[k] = settings[k];
+		}
 
 		if (this.settings.url == "")
 			this.settings.url = window.location.href;
 
-		if (!this.settings.auth && user && password)
-			this.settings.auth = this.prepareAuth(user, password);
+		if (!this.settings.auth)
+			this.settings.auth = this.prepareAuth(settings.user, settings.password);
 		
 		this.selectAccount(settings.account);
 	}

@@ -1,23 +1,7 @@
 /*
  * Copyright (c) 2010 Nils Schneider
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * Distributed under the MIT/X11 software license, see the accompanying
+ * file license.txt or http://www.opensource.org/licenses/mit-license.php.
  */
 
 /* settings:
@@ -26,6 +10,11 @@
  * }
  */
 function TXList(list, app, settings) {
+	this.nTXshown;
+
+	this.nTXmin = 10;
+	this.nTXinc = 10;
+
 	this.sortTX = function(a, b) {
 		if(a.time != b.time)
 			return (a.time - b.time);
@@ -36,7 +25,32 @@ function TXList(list, app, settings) {
 		return (b.amount - a.amount);
 	}
 
+	this.countVisibleTX = function() {
+		return list.children('tr:not(.txinfo)').size();
+	}
+
+	this.showMore = function() {
+		this.showRelN(this.nTXinc);
+	}
+
+	this.showLess = function() {
+		this.showRelN(- this.nTXinc);
+	}
+
+	/* call with relative number (e.g. +10 / -10) */
+	this.showRelN = function(n) {
+		var x = this.nTXshown;
+		this.nTXshown = Math.max(this.nTXmin, x + n);
+
+		if (this.nTXshown != x)
+			this.refresh();
+
+		return this.nTXshown;
+	}
+
 	this.clear = function() {
+		this.nTXshown = this.nTXmin;
+		this.footer();
 		list.children().remove();
 	}
 
@@ -46,55 +60,133 @@ function TXList(list, app, settings) {
 
 		var start = new Date().getTime();
 
-		var transactions = jQuery.grep(transactions,
-				function(n, i) {
+		transactions = jQuery.grep(transactions, function(n, i) {
 					return n.account == app.bitcoin.settings.account;
-				});
+				}).reverse();
 
-		transactions.sort(this.sortTX);
+		var end = new Date().getTime();
+		var time = end - start;
 
-		list.children('#txlistempty').remove();
+		console.log("TXList: process took " + time + " ms (" + transactions.length + " TX)");
 
-		if (transactions.length == 0)
-			list.append('<tr id="txlistempty"><td colspan="4" class="center">no transactions</td></tr>');
+		this.renderList(transactions);
+	}
 
-		for (var key in transactions)
-			this.processTX(transactions[key]);
+	this.renderList = function(transactions) {
+		var timestamp = new Date().getTime();
+
+		var footer = this.footer();
+
+		if (transactions.length == 0) {
+			footer.append('<div class="center">no transactions</div>');
+			return;
+		}
+
+		var youngest = list.children('tr:not(.txinfo)').last().attr('time');
+
+		/* list comprehension is slooow... do it manually */
+		var TXcount = 0;
+		for (var key in transactions) {
+			var tx = transactions[key];
+			var where;
+
+			var txid = this.getTXid(tx);
+			var txrow = $(document.getElementById(txid));
+
+			if (txrow.length == 0) {
+				if (tx.time <= youngest) {
+					where = false;
+					youngest = tx.time;
+				} else {
+					where = list.children('tr:not(.txinfo)').filter( function(index) {
+								return $(this).attr('time') < tx.time;
+							}).first();
+				}
+
+				txrow = this.insertRow(tx, txid, where);
+			}
+
+			this.updateTX(txrow, tx, timestamp);
+			TXcount++;
+			if (TXcount >= this.nTXshown)
+				break;
+		}
+
+		list.children('tr:not(.txinfo)').not('[update="' + timestamp + '"]').next().remove();
+		list.children('tr:not(.txinfo)').not('[update="' + timestamp + '"]').remove();
 
 		list.children('tr:not(.txinfo):odd').addClass('odd').next('.txinfo').addClass('odd');
 		list.children('tr:not(.txinfo):even').removeClass('odd').next('.txinfo').removeClass('odd');
 
-		/* adjust refresh interval of app depending processing time of txlist */
-		var end = new Date().getTime();
-		var time = end - start;
-		app.setRefreshInterval(time * 10);
+		this.renderButtons(TXcount, transactions.length);
+
+		var time = new Date().getTime() - timestamp;
+
+		console.log("TXList: render took " + time + " ms (" + TXcount + " TX)");
 	}
 
-	this.processTX = function(tx) {
-		if (tx.time == undefined)
-			tx.time = 0;
+	this.getTXid = function(tx) {
+		var id;
 
 		if (tx.txid == undefined)
-			tx.txid = (tx.time + tx.amount + tx.otheraccount).replace(/ /g,'');
+			id = (tx.time + tx.amount + tx.otheraccount).replace(/ /g,'');
+		else
+			id = tx.txid;
 
-		tx.txid += tx.category;
+		id += tx.category;
 
-		var txrow = $(document.getElementById(tx.txid));
+		return id;
+	}
 
-		if (txrow.length == 0) {
-			txrow = $('<tr id="' + tx.txid + '"></tr>');
-			list.prepend(txrow);
-			var txdiv = $('<tr colspan="4" class="txinfo"><td colspan="4"><div style="display: none"></div></td></tr>');
-			txrow.after(txdiv);
+	/* use pre-computed txid, faster */
+	this.insertRow = function(tx, txid, where) {
+		txrow = $('<tr id="' + txid + '"></tr>');
+		var txdiv = $('<tr colspan="4" class="txinfo"><td colspan="4"><div style="display: none"></div></td></tr>');
 
-			txrow.click( function() {
-					var div = $(this).next('tr.txinfo').children('td').children('div');
-					if (app.useSlide) div.slideToggle('fast');
-					else div.toggle();
-				});
+		if (!where || where.length == 0)
+			list.append(txrow);
+		else
+			where.before(txrow);
+
+		txrow.after(txdiv);
+
+		txrow.click( function() {
+				var div = $(this).next('tr.txinfo').children('td').children('div');
+				if (app.useSlide()) div.slideToggle('fast');
+				else div.toggle();
+			});
+
+		return txrow;
+	}
+
+	this.footer = function() {
+		var footer = $('#txlistfooter');
+		footer.contents().remove();
+
+		return footer;
+	}
+
+	this.renderButtons = function(TXcount, nTX) {
+		var footer = this.footer();
+
+		if (nTX > TXcount) {
+			var button = $('<span class="button TXListMore">more</span>');
+			button.click(jQuery.proxy(this, "showMore"));
+			footer.append(button);
 		}
 
-		var checksum = tx.txid + tx.confirmations + tx.time;
+		if (TXcount > this.nTXmin) {
+			var button = $('<span class="button TXListLess">less</span>');
+			button.click(jQuery.proxy(this, "showLess"));
+			footer.append(button);
+		}
+	}
+
+	this.updateTX = function(txrow, tx, timestamp) {
+		var checksum = tx.confirmations + "_" + tx.time;
+
+		txrow.attr('update', timestamp);
+		txrow.attr('time', tx.time);
 
 		/* Only update TX if it differs from current one */
 		if(txrow.attr('checksum') != checksum) {
@@ -174,7 +266,7 @@ function TXList(list, app, settings) {
 		var amountClass = (tx.amount<0?'debit':'credit');
 
 		var html = '<td class="center">' + confirmations + '</td>';
-		html += '<td>' + timestamp.format(app.dateFormat) + '</td>';
+		html += '<td>' + timestamp.format(app.dateFormat()) + '</td>';
 		html += '<td class="info">' + info + '</td>';
 		html += '<td class="' + amountClass + ' right">' + tx.amount.formatBTC(true) + '</td>';
 
@@ -182,6 +274,12 @@ function TXList(list, app, settings) {
 	}
 
 	this.refresh = function() {
-		app.bitcoin.listTransactions(jQuery.proxy(this, 'processRPC'));
+		var footer = this.footer();
+		footer.append('<div class="center">loading...</div>');
+
+		/* request one more TX than shown so we know whether the to the display "more" button or not */
+		app.bitcoin.listTransactions(jQuery.proxy(this, 'processRPC'), this.nTXshown + 1);
 	}
+
+	this.clear();
 }

@@ -1,23 +1,7 @@
 /*
  * Copyright (c) 2010 Nils Schneider
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * Distributed under the MIT/X11 software license, see the accompanying
+ * file license.txt or http://www.opensource.org/licenses/mit-license.php.
  */
 
 function AccountList(obj, app) {
@@ -27,17 +11,20 @@ function AccountList(obj, app) {
 		this.list.children().remove();
 	}
 
-	this.updateRow = function(row, balance) {
+	this.updateRow = function(row, balance, timestamp) {
 		var balanceClass = "";
 		if(balance != 0)
 			balanceClass = (balance<0?'debit':'credit');
 
 		row.children('td:last-child').removeClass().addClass("right").addClass(balanceClass).text(balance.formatBTC());
+		row.attr('update', timestamp);
 	}
 
 	this.parseList = function(accounts, error) {
 		if (error) 
 			return;
+
+		var timestamp = new Date().getTime();
 
 		for (var account in accounts) {
 			var balance = accounts[account];
@@ -60,8 +47,10 @@ function AccountList(obj, app) {
 				this.list.append(row);
 			}
 
-			this.updateRow(row, balance);
+			this.updateRow(row, balance, timestamp);
 		}
+
+		this.list.children().not('[update="' + timestamp + '"]').remove();
 	}
 
 	this.refresh = function() {

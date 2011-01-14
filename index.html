@@ -7,7 +7,7 @@
 		<link rel="stylesheet" href="style.css" type="text/css" />
 		<script type="text/javascript" src="lib/jquery-1.4.4.min.js"></script>
 		<script type="text/javascript" src="lib/jquery.humanMsg.js"></script>
-		<script type="text/javascript" src="lib/jquery.base64.js"></script>
+		<script type="text/javascript" src="lib/base64.js"></script>
 		<script type="text/javascript" src="lib/URI.js"></script>
 		<script type="text/javascript" src="lib/json2.js"></script>
 		<script type="text/javascript" src="lib/NumberFormat154.js"></script>
@@ -20,11 +20,11 @@
 		<script type="text/javascript" src="bitcoinapp.js"></script>
 		<script type="text/javascript">
 			function scrollTo0() {
-				window.scrollTo(0,1);
+				window.scrollTo(1,1);
 			}
 		</script>
 	</head>
-	<body onorientationchange="setTimeout(scrollTo0, 10);"; onload="setTimeout(scrollTo0, 10);">
+	<body onorientationchange="setTimeout(scrollTo0, 10);" onload="setTimeout(scrollTo0, 10);">
 		<div id="container">
 			<h1><span id="title">Javascript required!</span> <span class="button" id="disconnectButton">&#x2716;</span></h1>
 			<div id="sections">
@@ -53,11 +53,9 @@
 					<form id="settingsServer">
 						<label>User</label><input name="user" /></br>
 						<label>Password</label><input name="pass" type="password"/></br>
-						<label>Account*</label><input name="account" /></br>
 						<label>URL</label><input name="url" value="http://localhost:8332"/></br>
 						<label></label><button>Connect</button><br/>
 					</form>
-						*Account may be left empty to connect to the default account.<br/>
 					<div id="serverInfo">
 						<h4>Server Information</h4>
 						<table>
@@ -87,6 +85,7 @@
 						<tbody>
 						</tbody>
 					</table>
+					<div id="txlistfooter"></div>
 				</div>
 			</div>
 			<div id="footer">
@@ -99,9 +98,14 @@
 
 			$(document).ready(function(){
 					bitcoinapp = new BitcoinApp();
-					bitcoinapp.init();
 
-					if (bitcoinapp.useSlide)
+					jQuery.ajax({
+						url: "settings.json", dataType: 'json',
+						success: function(data, textStatus, req) { bitcoinapp.init(data); },
+						error: function(req, textStatus, error) { bitcoinapp.init(); }
+					});
+
+					if (bitcoinapp.useSlide())
 						$('#sections h3').click(function() {
 							$(this).next().slideToggle('fast');
 							return false;

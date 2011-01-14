@@ -310,3 +310,20 @@ span.button:hover {
 	padding: 0.1em;
 	width: 100%;
 }
+
+#txlistfooter {
+	margin-top: 0.5em;
+}
+
+.TXListMore, .TXListLess {
+	padding: 0.5em;
+	width: 3em;
+}
+
+.TXListMore {
+	float: left;
+}
+
+.TXListLess {
+	float: right;
+}

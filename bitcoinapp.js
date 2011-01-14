@@ -484,14 +484,6 @@ function BitcoinApp() {
 		if (href.scheme == "https")
 			setFormValue($('form#settingsServer'), "url", "/");
 
-		var uagent = navigator.userAgent.toLowerCase();
-
-		/* hide scanQRbutton on non-android platforms */
-		if (uagent.search("android") <= -1) {
-			this.settings.useSlide = true;
-			$('#scanQRbutton').hide();
-		}
-
 		if (settings)
 			this.loadSettings(settings);
 
@@ -532,6 +524,14 @@ function BitcoinApp() {
 					app.connect(settings);
 					return false;
 				});
+	}
+
+	var uagent = navigator.userAgent.toLowerCase();
+
+	/* hide scanQRbutton on non-android platforms */
+	if (uagent.search("android") <= -1) {
+		this.settings.useSlide = true;
+		$('#scanQRbutton').hide();
 	}
 
 	/* clean up UI */

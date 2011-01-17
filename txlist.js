@@ -67,8 +67,6 @@ function TXList(list, app, settings) {
 		var end = new Date().getTime();
 		var time = end - start;
 
-		console.log("TXList: process took " + time + " ms (" + transactions.length + " TX)");
-
 		this.renderList(transactions);
 	}
 
@@ -121,8 +119,6 @@ function TXList(list, app, settings) {
 		this.renderButtons(TXcount, transactions.length);
 
 		var time = new Date().getTime() - timestamp;
-
-		console.log("TXList: render took " + time + " ms (" + TXcount + " TX)");
 	}
 
 	this.getTXid = function(tx) {

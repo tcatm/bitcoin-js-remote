@@ -5,7 +5,7 @@
  */
 
 function BitcoinApp() {
-	this.version = "0.3";
+	this.version = "0.3.1";
 
 	/* hack to allow event handlers to find us */
 	var app = this;
@@ -40,7 +40,6 @@ function BitcoinApp() {
 	this.setRefreshInterval = function(interval) {
 		/* limit interval to 1 .. 10 s */
 		this.settings.refreshInterval = Math.min(Math.max(interval, 1000), 10000);
-		console.log("refreshInterval adjusted to " + this.settings.refreshInterval);
 	}
 
 	this.showFullscreenObj = function(obj) {

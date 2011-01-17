@@ -74,6 +74,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 			try:
 				data = response.read()
 				self.send_response(response.code)
+				self.send_header("Content-Type", "application/json")
 				self.send_header("Content-Length", len(data))
 				self.send_header("Last-Modified", time.time())
 				self.end_headers()

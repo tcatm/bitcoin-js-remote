@@ -256,18 +256,7 @@ function BitcoinApp() {
 			this.balance0 = balance;
 		}
 
-		function next(balance, error) {
-			if (error)
-				return;
-
-			$('#balance').text(balance.formatBTC());
-			$('#currentAccount').text(this.bitcoin.settings.account.prettyAccount());
-
-			this.balance = balance;
-		}
-
 		this.bitcoin.getBalance(unconfirmed.proxy(this), 0);
-		this.bitcoin.getBalance(next.proxy(this), 1);
 	}
 
 	this.refreshAddress = function() {
@@ -290,6 +279,10 @@ function BitcoinApp() {
 			this.bitcoin.abortAll();
 			this.refreshAll();
 		}
+	}
+
+	this.account = function() {
+		return this.bitcoin.settings.account;
 	}
 
 	this.connect = function(settings, request) {

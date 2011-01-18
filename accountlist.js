@@ -29,6 +29,14 @@ function AccountList(obj, app) {
 		for (var account in accounts) {
 			var balance = accounts[account];
 
+			if (account == app.account()) {
+				$('#balance').text(balance.formatBTC());
+				$('#currentAccount').text(account.prettyAccount());
+				app.balance = balance;
+			}
+
+			this.balance = balance;
+
 			var row = this.list.children('tr[name="' + account + '"]');
 
 			if (row.length == 0) {

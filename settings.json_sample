@@ -3,7 +3,7 @@
 		"url": "/",
 		"user": "testnet",
 		"password": "letmein",
-		"account": "",
-		"labelsmode": 1
-	}
+		"account": ""
+	},
+	"labelsmode": 1
 }

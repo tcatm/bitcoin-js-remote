@@ -15,6 +15,7 @@ function BitcoinApp() {
 		refreshInterval: 5000,
 		useSlide: false,
 		dateFormat: "dd/mm/yyyy HH:MM",
+		labelsmode: false
 	};
 
 	this.bitcoin = new Bitcoin();
@@ -478,6 +479,7 @@ function BitcoinApp() {
 	}
 
 	this.loadSettings = function(settings) {
+		alert(settings.labelsmode);
 		for (var k in this.settings) {
 			if (settings[k])
 				this.settings[k] = settings[k];

@@ -26,10 +26,15 @@ function AccountList(obj, app) {
 
 		var timestamp = new Date().getTime();
 
+		if (app.settings.labelsmode)
+			var sum = 0;
+
 		for (var account in accounts) {
 			var balance = accounts[account];
 
-			if (account == app.account()) {
+			if (app.settings.labelsmode) {
+				sum += balance;
+			} else if (account == app.account()) {
 				$('#balance').text(balance.formatBTC());
 				$('#currentAccount').text(account.prettyAccount());
 				app.balance = balance;
@@ -56,6 +61,12 @@ function AccountList(obj, app) {
 			}
 
 			this.updateRow(row, balance, timestamp);
+		}
+		
+		if (app.settings.labelsmode) {
+			$('#balance').text(sum.formatBTC());
+			$('#currentAccount').text("Balance");
+			app.balance = sum;
 		}
 
 		this.list.children().not('[update="' + timestamp + '"]').remove();

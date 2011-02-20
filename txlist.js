@@ -60,9 +60,12 @@ function TXList(list, app, settings) {
 
 		var start = new Date().getTime();
 
-		transactions = jQuery.grep(transactions, function(n, i) {
-					return n.account == app.bitcoin.settings.account;
-				}).reverse();
+		if (!app.settings.labelsmode) 
+			transactions = jQuery.grep(transactions, function(n, i) {
+						return n.account == app.bitcoin.settings.account;
+					});
+
+		transactions = transactions.reverse();
 
 		var end = new Date().getTime();
 		var time = end - start;
@@ -217,6 +220,10 @@ function TXList(list, app, settings) {
 			case "receive":
 				if (tx.from)
 					extra = " (" + tx.from + ")";
+
+				if (app.settings.labelsmode) 
+					extra = " (" + tx.account + ")";
+
 				html += "<label>Received on:</label> " + tx.address + extra + "<br/>";
 				break;
 			default:
@@ -248,10 +255,13 @@ function TXList(list, app, settings) {
 				info = tx.address;
 
 		if (tx.category == 'receive')
-			if (tx.from)
+			if (app.settings.labelsmode && tx.account) 
+				info = tx.account;
+			else if (tx.from)
 				info = tx.from;
 			else
 				info = tx.address;
+
 
 		if (tx.comment)
 			info += " (" + tx.comment + ")";

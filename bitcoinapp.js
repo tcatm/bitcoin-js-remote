@@ -327,7 +327,11 @@ function BitcoinApp() {
 				keys.push(i);
 			}
 
-			this.selectAccount(keys[0]);
+			if (!this.settings.labelsmode) {
+				this.selectAccount(keys[0]);
+			} else {
+				this.selectAccount("*");
+			}
 
 			finish.proxy(this)(request);
 		}
@@ -479,7 +483,6 @@ function BitcoinApp() {
 	}
 
 	this.loadSettings = function(settings) {
-		alert(settings.labelsmode);
 		for (var k in this.settings) {
 			if (settings[k])
 				this.settings[k] = settings[k];

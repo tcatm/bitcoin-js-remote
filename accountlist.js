@@ -28,19 +28,22 @@ function AccountList(obj, app) {
 
 		var timestamp = new Date().getTime();
 
-		if (app.settings.labelsmode)
-			var sum = 0;
+		var sum = 0;
 
 		for (var account in accounts) {
 			var balance = accounts[account];
 
 			if (app.settings.labelsmode) {
 				sum += balance;
+
+				if (account == "")
+					continue;
+
 			} else if (account == app.account()) {
-				$('#balance').text(balance.formatBTC());
+				app.setBalance(balance);
 				$('#currentAccount').text(account.prettyAccount());
-				app.balance = balance;
 			}
+
 
 			this.balance = balance;
 
@@ -49,8 +52,12 @@ function AccountList(obj, app) {
 			if (row.length == 0) {
 				row = $('<tr></tr>');
 
-				var html ='<td class="left">' + account.prettyAccount() + '</td>';
-					html += '<td></td>';
+				if (!app.settings.labelsmode) {
+					var html = '<td class="left">' + account.prettyAccount() + '</td>';
+						html += '<td></td>';
+				} else {
+					var html = '<td/>'
+				}
 
 				row.append(html);
 
@@ -66,21 +73,21 @@ function AccountList(obj, app) {
 		}
 		
 		if (app.settings.labelsmode) {
-			$('#balance').text(sum.formatBTC());
+			app.setBalance(sum);
 			$('#currentAccount').text("Balance");
-			app.balance = sum;
 		}
 
 		this.list.children().not('[update="' + timestamp + '"]').remove();
 	}
 
 	this.refresh = function() {
-		if (!this.list) 
-			if (!app.settings.labelsmode) {
+		if (!this.list) {
+			if (!app.settings.labelsmode) 
 				this.container.append('<thead><tr><th class="left">Account</th><th class="right">Balance</th></tr></thead>');
-				this.list = jQuery('<tbody/>');
-				this.container.append(this.list);
-			}
+
+			this.list = jQuery('<tbody/>');
+			this.container.append(this.list);
+		}
 
 		app.bitcoin.listAccounts(jQuery.proxy(this, 'parseList'));
 	}

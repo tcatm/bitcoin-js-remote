@@ -173,6 +173,14 @@ function BitcoinApp() {
 		document.title = title;
 	}
 
+	this.setBalance = function(balance) {
+		$('#balance').text(balance.formatBTC());
+		this.balance = balance;
+
+		/* hack to update amount field validation */
+		$('input[name="amount"]').change();
+	}
+
 	this.disconnect = function(ignoreSettings) {
 		this.bitcoin.abortAll();
 

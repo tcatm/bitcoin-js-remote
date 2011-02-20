@@ -132,6 +132,10 @@ function Bitcoin() {
 		this.RPC("getaccountaddress", [this.settings.account], callback, context);
 	}
 
+	this.getAddressByAccount = function(callback, account, context) {
+		this.RPC("getaddressesbyaccount", [account], callback, context);
+	}
+
 	this.getBalance = function(callback, confirmations, context) {
 		this.RPC("getbalance", [this.settings.account, confirmations], callback, context);
 	}

@@ -5,10 +5,12 @@
  */
 
 function AccountList(obj, app) {
-	this.list = obj;
+	this.container = obj;
+	this.list = false;
 	
 	this.clear = function() {
-		this.list.children().remove();
+		if (this.list)
+			this.list.children().remove();
 	}
 
 	this.updateRow = function(row, balance, timestamp) {
@@ -73,6 +75,13 @@ function AccountList(obj, app) {
 	}
 
 	this.refresh = function() {
+		if (!this.list) 
+			if (!app.settings.labelsmode) {
+				this.container.append('<thead><tr><th class="left">Account</th><th class="right">Balance</th></tr></thead>');
+				this.list = jQuery('<tbody/>');
+				this.container.append(this.list);
+			}
+
 		app.bitcoin.listAccounts(jQuery.proxy(this, 'parseList'));
 	}
 }

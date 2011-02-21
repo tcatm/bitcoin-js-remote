@@ -72,14 +72,17 @@ function BitcoinApp() {
 		$('body').append(box);
 	}
 
-	this.showQRAddress = function(address) {
+	this.showQRAddress = function(address, text) {
 		if (address != "") {
 			var uri = "bitcoin:" + address;
 			var width = $(window).width();
 			var height = $(window).height();
 			var size = Math.min(width, height, 540);
 			var QRurl = 'https://chart.googleapis.com/chart?chs=' + size + 'x' + size + '&cht=qr&chl=' + uri + '&choe=UTF-8';
-			this.showFullscreenObj($('<img src="' + QRurl + '" />'));
+			var html = '<img src="' + QRurl + '" />';
+			if (text)
+				html += '<label class="QRlabel">' + text + '</label>';
+			this.showFullscreenObj($(html));
 		} else {
 			this.warning("No address found!");
 		}

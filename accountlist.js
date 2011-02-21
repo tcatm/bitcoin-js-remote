@@ -26,7 +26,7 @@ function AccountList(obj, app) {
 		var button = jQuery('<span class="button QRbutton">QR</span>');
 
 		button.click( function() {
-					app.showQRAddress(address);
+					app.showQRAddress(address, account);
 				});
 
 		div.append(button);

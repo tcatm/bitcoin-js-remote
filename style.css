@@ -332,3 +332,10 @@ span.button:hover {
 #accountList label {
 	font-weight: bold;
 }
+
+.QRlabel {
+	display: block;
+	color: #000;
+	font-size: 2em;
+	font-weight: bold;
+}

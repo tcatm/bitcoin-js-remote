@@ -113,7 +113,10 @@ function SendBTC(box, app) {
 		var div = this.div(true);
 		div.append('<p class="center">Sending...</p>');
 
-		app.bitcoin.sendBTC(this.sendCallback.proxy(this), context, rawcontext);
+		if (app.settings.labelsmode)
+			app.bitcoin.sendBTCToAddress(this.sendCallback.proxy(this), context, rawcontext);
+		else
+			app.bitcoin.sendBTC(this.sendCallback.proxy(this), context, rawcontext);
 	}
 
 	this.onValidateAddressField = function(result, error, field) {

@@ -15,6 +15,7 @@ function BitcoinApp() {
 		refreshInterval: 5000,
 		useSlide: false,
 		dateFormat: "dd/mm/yyyy HH:MM",
+		labelsmode: false
 	};
 
 	this.bitcoin = new Bitcoin();
@@ -25,7 +26,7 @@ function BitcoinApp() {
 	this.hashchangeTimeout;
 	this.lastGetInfo;
 
-	this.accountlist = new AccountList($("#accountList tbody"), this);
+	this.accountlist = new AccountList($("#accountList"), this);
 	this.txlist = new TXList($("#txlist tbody"), this, {generateConfirm: 120});
 	this.sendbtc = new SendBTC($("#sendBTC"), this);
 
@@ -71,8 +72,7 @@ function BitcoinApp() {
 		$('body').append(box);
 	}
 
-	this.showQRAddress = function() {
-		var address = $('#address').text();
+	this.showQRAddress = function(address) {
 		if (address != "") {
 			var uri = "bitcoin:" + address;
 			var width = $(window).width();
@@ -172,6 +172,14 @@ function BitcoinApp() {
 		document.title = title;
 	}
 
+	this.setBalance = function(balance) {
+		$('#balance').text(balance.formatBTC());
+		this.balance = balance;
+
+		/* hack to update amount field validation */
+		$('input[name="amount"]').change();
+	}
+
 	this.disconnect = function(ignoreSettings) {
 		this.bitcoin.abortAll();
 
@@ -264,12 +272,18 @@ function BitcoinApp() {
 			if (error)
 				return;
 
+			if (address instanceof Array)
+				address = address.pop();
+
 			var addressField = $('#address');
 			if(addressField.text() != address)
 				$('#address').text(address);
 		}
 
-		this.bitcoin.getAddress(next.proxy(this));
+		if (this.settings.labelsmode) 
+			this.bitcoin.getAddressByAccount(next.proxy(this), "");
+		else
+			this.bitcoin.getAddress(next.proxy(this));
 	}
 
 	this.selectAccount = function(account) {
@@ -326,7 +340,11 @@ function BitcoinApp() {
 				keys.push(i);
 			}
 
-			this.selectAccount(keys[0]);
+			if (!this.settings.labelsmode) {
+				this.selectAccount(keys[0]);
+			} else {
+				this.selectAccount("*");
+			}
 
 			finish.proxy(this)(request);
 		}
@@ -511,7 +529,7 @@ function BitcoinApp() {
 				});
 
 		$('#QRbutton').click( function() {
-					app.showQRAddress();
+					app.showQRAddress($('#address').text());
 					return false;
 				});
 

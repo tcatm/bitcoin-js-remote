@@ -13,6 +13,34 @@ function AccountList(obj, app) {
 			this.list.children().remove();
 	}
 
+	this.updateLabelAddress = function(addresses, error, context) {
+		if (error)
+			return;
+
+		var account = context[0];
+		var cell = context[1];
+		var address = addresses[0];
+
+		cell.html('<label>' + account + '</label>');
+		var div = jQuery('<div/>');
+		var button = jQuery('<span class="button QRbutton">QR</span>');
+
+		button.click( function() {
+					app.showQRAddress(address);
+				});
+
+		div.append(button);
+		div.append('<p class="center">' + address + '</p>');
+
+		cell.append(div);
+	}
+
+	this.updateRowLabels = function(row, account, timestamp) {
+		app.bitcoin.getAddressByAccount(jQuery.proxy(this, 'updateLabelAddress'), account, [account, row.children('td')]);
+
+		row.attr('update', timestamp);
+	}
+
 	this.updateRow = function(row, balance, timestamp) {
 		var balanceClass = "";
 		if(balance != 0)
@@ -62,14 +90,19 @@ function AccountList(obj, app) {
 				row.append(html);
 
 				row.attr('name', account);
-				row.click( function() {
-						app.selectAccount($(this).attr('name'));
-						});
+
+				if (!app.settings.labelsmode) 
+					row.click( function() {
+							app.selectAccount($(this).attr('name'));
+							});
 
 				this.list.append(row);
 			}
 
-			this.updateRow(row, balance, timestamp);
+			if (!app.settings.labelsmode) 
+				this.updateRow(row, balance, timestamp);
+			else
+				this.updateRowLabels(row, account, timestamp);
 		}
 		
 		if (app.settings.labelsmode) {
@@ -87,6 +120,21 @@ function AccountList(obj, app) {
 
 			this.list = jQuery('<tbody/>');
 			this.container.append(this.list);
+			var form = jQuery('<form id="addAccount" />')
+			form.append('<input name="account" placeholder="Add new account/label"/>');
+
+			var that = this;
+
+			form.submit( function() {
+						var account = $(this).children('input[name="account"]');
+						app.bitcoin.createAccount(jQuery.proxy(that, 'refresh'), account.val());
+						account.blur()
+
+						this.reset();
+						return false;
+					});
+
+			this.container.append(form);
 		}
 
 		app.bitcoin.listAccounts(jQuery.proxy(this, 'parseList'));

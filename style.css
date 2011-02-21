@@ -263,7 +263,7 @@ form input {
 	margin: 0.2em 0;
 }
 
-#QRbutton {
+.QRbutton, #QRbutton {
 	float: left;
 }
 
@@ -300,13 +300,13 @@ span.button:hover {
 	background-color: #FFD1D9;
 }
 
-#QRinject {
+#addAccount, #QRinject {
 	clear: both;
 	padding: 3pt 0 0 0;
 	margin: 0;
 }
 
-#QRinject input {
+#addAccount input, #QRinject input {
 	margin: 0;
 	padding: 0.1em;
 	width: 100%;
@@ -327,4 +327,8 @@ span.button:hover {
 
 .TXListLess {
 	float: right;
+}
+
+#accountList label {
+	font-weight: bold;
 }

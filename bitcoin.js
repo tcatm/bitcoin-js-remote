@@ -128,6 +128,10 @@ function Bitcoin() {
 		this.RPC("sendfrom", [this.settings.account, context.address, context.amount, 1 /*minconf*/, context.comment, context.payee], callback, callback_context);
 	}
 
+	this.createAccount = function(callback, account, context) {
+		this.RPC("getaccountaddress", [account], callback, context);
+	}
+
 	this.getAddress = function(callback, context) {
 		this.RPC("getaccountaddress", [this.settings.account], callback, context);
 	}

@@ -72,8 +72,7 @@ function BitcoinApp() {
 		$('body').append(box);
 	}
 
-	this.showQRAddress = function() {
-		var address = $('#address').text();
+	this.showQRAddress = function(address) {
 		if (address != "") {
 			var uri = "bitcoin:" + address;
 			var width = $(window).width();
@@ -530,7 +529,7 @@ function BitcoinApp() {
 				});
 
 		$('#QRbutton').click( function() {
-					app.showQRAddress();
+					app.showQRAddress($('#address').text());
 					return false;
 				});
 

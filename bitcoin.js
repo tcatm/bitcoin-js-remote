@@ -124,11 +124,12 @@ function Bitcoin() {
 		this.RPC("validateaddress", [address], callback, context);
 	}
 
+	this.sendBTCToAddress = function(callback, context, callback_context) {
+		this.RPC("sendtoaddress", [context.address, context.amount, context.comment, context.payee], callback, callback_context);
+	}
+
 	this.sendBTC = function(callback, context, callback_context) {
-		var account = this.settings.account;
-		if (account == "*")
-			account = "";
-		this.RPC("sendfrom", [account, context.address, context.amount, 1 /*minconf*/, context.comment, context.payee], callback, callback_context);
+		this.RPC("sendfrom", [this.settings.account, context.address, context.amount, 1 /*minconf*/, context.comment, context.payee], callback, callback_context);
 	}
 
 	this.createAccount = function(callback, account, context) {

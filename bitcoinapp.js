@@ -50,7 +50,7 @@ function BitcoinApp() {
 		var innerBox = $('<div/>');
 		box.width(width);
 		box.height(height);
-		box.css('position', 'absolute');
+		box.css('position', 'fixed');
 		box.css('top', 0);
 		box.css('left', 0);
 		box.css('background', 'white');

@@ -555,6 +555,7 @@ function BitcoinApp() {
 					settings.url = getFormValue(this, "url");
 					settings.user = getFormValue(this, "user");
 					settings.password = getFormValue(this, "pass");
+					app.settings.labelsmode = getFormValue(this, "labelsmode");
 					app.connect(settings);
 					return false;
 				});

@@ -12,7 +12,12 @@ function setFormValue(form, name, value) {
 }
 
 function getFormValue(form, name) {
-	return $(form).children('input[name="' + name + '"]').val();
+	var e = $(form).children('input[name="' + name + '"]');
+	if (e.get(0).type == "checkbox") {
+		return e.attr("checked");
+	}
+
+	return e.val()
 }
 
 function hideValidation(obj) {

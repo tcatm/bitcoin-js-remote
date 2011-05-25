@@ -75,7 +75,7 @@ function SendBTC(box, app) {
 
 		box.children('form').hide();
 
-		context.amount = Math.round(context.amount*100)/100;
+		context.amount = Math.round(context.amount*1e8)/1e8;
 
 		var payeeString = "";
 		if (context.payee)

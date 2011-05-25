@@ -5,7 +5,7 @@
  */
 
 function BitcoinApp() {
-	this.version = "0.3.4";
+	this.version = "0.3.5";
 
 	/* hack to allow event handlers to find us */
 	var app = this;
@@ -403,7 +403,7 @@ function BitcoinApp() {
 
 		Number.prototype.formatBTC = function(addSign) {
 			var nf = new NumberFormat(this);
-			nf.setPlaces(2);
+			nf.setPlaces(-1);
 			nf.setCurrency(true);
 			nf.setCurrencyValue(" BTC");
 			nf.setCurrencyPosition(nf.RIGHT_OUTSIDE);

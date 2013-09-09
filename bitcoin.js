@@ -128,19 +128,18 @@ function Bitcoin() {
 		this.RPC("sendtoaddress", [context.address, context.amount, context.comment, context.payee], callback, callback_context);
     }
 
-    this.sendBTCToAddressWithPassphrase = function(callback, context, callback_context) {
+	this.sendBTCToAddressWithPassphrase = function(callback, context, callback_context) {
+		var unlockWalletCallback = function(result, error, context) {
+			var callback = context.originalCallback;
+			var callback_context = context.originalCallbackContext;
+			context.originalContext.RPC("sendtoaddress", [context.address, context.amount, context.comment, context.payee], callback, callback_context);
+		}
 
-        var unlockWalletCallback = function(result, error, context) {
-            callback = context.originalCallback;
-            callback_context = context.originalCallbackContext;
-            context.originalContext.RPC("sendtoaddress", [context.address, context.amount, context.comment, context.payee], callback, callback_context);
-        }
-
-        callback_context.originalCallback = callback;
-        callback_context.originalCallbackContext = callback_context;
-        callback_context.originalContext = this;
-        this.RPC("walletpassphrase", [context.passphrase, context.passphrasetimeout], unlockWalletCallback, callback_context);
-    }
+		callback_context.originalCallback = callback;
+		callback_context.originalCallbackContext = callback_context;
+		callback_context.originalContext = this;
+		this.RPC("walletpassphrase", [context.passphrase, context.passphrasetimeout], unlockWalletCallback, callback_context);
+	}
 
 	this.sendBTC = function(callback, context, callback_context) {
 		this.RPC("sendfrom", [this.settings.account, context.address, context.amount, 1 /*minconf*/, context.comment, context.payee], callback, callback_context);

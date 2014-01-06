@@ -60,6 +60,8 @@ function SendBTC(box, app) {
 		setFormValue(form, 'amount', context.amount);
 		setFormValue(form, 'payee', context.payee);
 		setFormValue(form, 'comment', context.comment);
+		setFormValue(form, 'passphrase', context.passphrase);
+		context.passphrasetimeout = 15;
 
 		/* call validators */
 		form.find('input').change();
@@ -113,10 +115,15 @@ function SendBTC(box, app) {
 		var div = this.div(true);
 		div.append('<p class="center">Sending...</p>');
 
-		if (app.settings.labelsmode)
-			app.bitcoin.sendBTCToAddress(this.sendCallback.proxy(this), context, rawcontext);
-		else
+		if (app.settings.labelsmode) {
+			if(context.passphrase) {
+				app.bitcoin.sendBTCToAddressWithPassphrase(this.sendCallback.proxy(this), context, rawcontext);
+			} else {
+			    app.bitcoin.sendBTCToAddress(this.sendCallback.proxy(this), context, rawcontext);
+			}
+		} else {
 			app.bitcoin.sendBTC(this.sendCallback.proxy(this), context, rawcontext);
+		}
 	}
 
 	this.onValidateAddressField = function(result, error, field) {
@@ -184,8 +191,10 @@ function SendBTC(box, app) {
 					var amount = getFormValue(this, "amount");
 					var payee = getFormValue(this, "payee");
 					var comment = getFormValue(this, "comment");
+					var passphrase = getFormValue(this, "passphrase");
+					var passphrasetimeout = 20;
 
-					var context = {address: address, amount: amount, payee: payee, comment: comment};
+					var context = {address: address, amount: amount, payee: payee, comment: comment, passphrase: passphrase, passphrasetimeout: passphrasetimeout};
 
 					self.sendBTC(context);
 					return false;
